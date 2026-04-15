@@ -1,0 +1,136 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Etapa 2.0 — Selección de tema</title>
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa2.css' %}">
+</head>
+<body class="theme-login">
+  <div class="app-noise"></div>
+  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+  <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
+
+  <div id="progress-bar">
+    <div>
+      <span>Paso 2 de 6 · Desafío y empatía</span>
+      <div><div style="width:50%;"></div></div>
+    </div>
+  </div>
+
+  <div class="ws-container" id="mainContent">
+    <div class="ws-header">
+      <h1 class="ws-title">Etapa 2 — Selección de tema</h1>
+    </div>
+    <section class="game-instructions">
+      <h3>🎯 Guía rápida</h3>
+      <p>Elijan el tema general en el que trabajará su equipo: Salud, Sustentabilidad o Educación.</p>
+      <p class="hint">Seleccionen un solo tema; servirá para escoger el desafío y entender a la persona afectada.</p>
+    </section>
+
+    <section class="challenge-list topic-list" aria-label="Selecciona un tema">
+      <div class="topic-grid">
+        {% for topic in topics %}
+          <article class="topic-card" data-topic-id="{{ topic.id }}" tabindex="0">
+            <span class="topic-glow"></span>
+            <div class="topic-content">
+              {% if topic.imagen %}
+                <img src="{{ topic.imagen.url }}" alt="Tema {{ topic.nombre }}" class="topic-img">
+              {% else %}
+                <img src="{% static 'etapasJuego/img_topics/salud.png' %}" alt="{{ topic.nombre }}" class="topic-img">
+              {% endif %}
+              <h3>{{ topic.nombre }}</h3>
+              {% if topic.descripcion %}
+                <p>{{ topic.descripcion }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% empty %}
+          <p>No hay temas configurados. Por favor, pídale al administrador que cree temas en el panel de administración.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <form id="topic-form" method="post" action="{% url 'etapa2_tema' %}" style="display:none;">
+      {% csrf_token %}
+      <input type="hidden" name="topic_id" id="topic-id-input">
+    </form>
+  </div>
+
+  <a href="{% url 'etapa1' %}" class="btn-arrow btn-arrow-left" title="Volver a la etapa 1">
+    <span class="arrow-icon">➜</span>
+  </a>
+  <a href="{% url 'etapa2' %}" class="btn-arrow btn-arrow-right" title="Avanzar a selección de desafío">
+    <span class="arrow-icon">➜</span>
+  </a>
+
+  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
+  <script src="{% static 'etapasJuego/js/token-counter.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const tokensFromServer = Number("{{ team.tokens_totales|default_if_none:0 }}");
+      if (window.TokenCounter && Number.isFinite(tokensFromServer)) {
+        TokenCounter.set(tokensFromServer);
+      }
+    });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const cards = document.querySelectorAll(".topic-card");
+      const form = document.getElementById("topic-form");
+      const input = document.getElementById("topic-id-input");
+
+      cards.forEach(card => {
+        card.addEventListener("click", function () {
+          const topicId = this.dataset.topicId;
+          if (!topicId) return;
+          if (window.TokenCounter) {
+            window.TokenCounter.addOnce(`topic-${topicId}`, 5);
+          }
+          input.value = topicId;
+          form.submit();
+        });
+      });
+    });
+  </script>
+
+  <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
+    <div class="howto-card">
+      <h2>¿Cómo se juega?</h2>
+      <p>Recorrerán 4 etapas más coevaluación y ranking para practicar equipo, empatía, creatividad, comunicación y apoyo. Aquí eligen el tema del usuario con el que trabajarán.</p>
+      <div class="howto-grid">
+        <div>
+          <strong>Ruta</strong>
+          <ul>
+            <li>Paso 1: Sopa de letras en equipo.</li>
+            <li>Paso 2: Tema/desafío y mapa de empatía.</li>
+            <li>Paso 3: Prototipo LEGO + resumen.</li>
+            <li>Paso 4: Pitch breve.</li>
+            <li>Coevaluación y Ranking final.</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Tokens</strong>
+          <ul>
+            <li>Más claridad de problema = mejor base para tokens siguientes.</li>
+            <li>Los tokens combinan desempeño y coevaluación justa.</li>
+            <li>Aprender y colaborar vale más que solo ganar.</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:10px;">La UDD los acompaña si quieren emprender; esta práctica es para descubrir sus fortalezas y oportunidades.</p>
+      <button type="button" class="howto-close" onclick="document.getElementById('howto-overlay').classList.remove('is-open')">Cerrar</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      const overlay = document.getElementById('howto-overlay');
+      overlay?.addEventListener('click',(e)=>{ if(e.target===overlay){ overlay.classList.remove('is-open'); }});
+    })();
+  </script>
+</body>
+</html>

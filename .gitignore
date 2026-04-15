@@ -1,0 +1,67 @@
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+proyecIngSoft/.venv/
+proyecIngSoft/.venv_local/
+
+# Python cache / bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Django local database
+*.sqlite3
+db.sqlite3
+proyecIngSoft/db.sqlite3
+
+# Django generated static files
+staticfiles/
+proyecIngSoft/staticfiles/
+
+# User-uploaded media files
+media/
+proyecIngSoft/media/
+
+# Logs
+*.log
+logs/
+*.pid
+
+# Test / coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE / editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local Codex workspace/config
+.codex/
+
+# Docker local overrides
+docker-compose.override.yml

@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preparando Misión Emprende</title>
+  <link rel="stylesheet" href="{% static 'login/css/home.css' %}">
+  <link rel="stylesheet" href="{% static 'login/css/mission_launch.css' %}">
+</head>
+<body class="home-estudiante-body mission-ui">
+
+  <div class="mission-stage">
+    <p class="stage-chip">Transicion de equipo</p>
+    <h1 class="stage-title">Estamos alistando tu misión</h1>
+    <p class="stage-subtitle">Mantengan la energía: en breve arrancan con el juego. Si quieren, ya pueden prepararse para colaborar.</p>
+  </div>
+
+  <div id="mission-overlay" class="mission-launch is-open" aria-hidden="false">
+    <div class="mission-launch__backdrop"></div>
+    <div class="mission-launch__card" role="dialog" aria-modal="true">
+      <p class="launch-chip">Mision lista</p>
+      <h2 class="launch-title">La mision esta lista para comenzar</h2>
+      <p class="launch-copy">Elijan su modalidad y entren con energia al desafio. El equipo ya esta en marcha.</p>
+      <div class="launch-spinner">
+        <div class="spinner">
+          <div class="spinner1"></div>
+          <div class="circle"></div>
+        </div>
+      </div>
+      <a href="{% url 'seleccion_modalidad' %}" class="btn-home btn-continue launch-cta">Ir a seleccion de modalidad</a>
+    </div>
+  </div>
+</body>
+</html>

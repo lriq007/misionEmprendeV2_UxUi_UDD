@@ -1,0 +1,195 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Etapa 4 — Pitch Final</title>
+
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa4.css' %}">
+</head>
+
+<body class="theme-login">
+  <div class="app-noise"></div>
+  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+  <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
+
+  <div id="progress-bar">
+    <div>
+      <span>Paso 4 de 6 · Comunicación</span>
+      <div>
+        <div style="width:100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ws-container">
+    <div
+      id="e4-timer"
+      class="ws-timer"
+      aria-live="polite"
+      aria-label="Tiempo restante"
+      data-duration-seconds="{{ sesion.duracion_etapa4_segundos|default:600 }}"
+    >10:00</div>
+
+    <div class="ws-header">
+      <h1 class="ws-title">Etapa 4 — Pitch Final</h1>
+    </div>
+
+    <section class="game-instructions" style="max-width:700px;">
+      <h3>🎤 Guía rápida</h3>
+      <p>Redacten un pitch corto: problema del usuario, su solución y por qué importa. Luego lo presentarán en 90 segundos.</p>
+      <p class="hint">Usen hallazgos del mapa y el prototipo LEGO para darle fuerza.</p>
+      <div class="help-hint help-hint-top" aria-label="Ayuda rápida etapa 4" style="margin-top:10px;">
+        <button type="button" class="cyber-btn btn-lost"><span class="loader is-inline" aria-hidden="true"></span>¿Y ahora qué?</button>
+        <div class="cyber-tooltip">
+          <strong>Comunicar es impactar</strong>
+          <div>En pocas frases: problema, solución y valor. Sean claros y directos; su pitch suma tokens de comunicación.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pitch-card-shell">
+      <article class="pitch-hover-card">
+        <div class="front">
+          <h2>Estructura Pitch</h2>
+        </div>
+        <div class="back">
+          <h3>Plantilla sugerida</h3>
+          <ul>
+            <li><strong>Apertura:</strong> Presenta la oportunidad y conecta con el usuario que definiste.</li>
+            <li><strong>Solución:</strong> Explica cómo resuelves el punto de dolor clave usando tus hallazgos.</li>
+            <li><strong>Llamado a la acción:</strong> Termina con un cierre claro que invite a apoyar tu propuesta.</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    {% with pts=pitch_tips.splitlines %}
+    <div class="mac-cards-container">
+
+        <!-- Card 1 -->
+        <div class="mac-card">
+            <div class="mac-tools">
+                <div class="mac-circle"><span class="mac-box mac-red"></span></div>
+                <div class="mac-circle"><span class="mac-box mac-yellow"></span></div>
+                <div class="mac-circle"><span class="mac-box mac-green"></span></div>
+            </div>
+            <div class="mac-card-content">
+                <span class="typewriter" data-text="{{ pts.0 }}"></span>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="mac-card">
+            <div class="mac-tools">
+                <div class="mac-circle"><span class="mac-box mac-red"></span></div>
+                <div class="mac-circle"><span class="mac-box mac-yellow"></span></div>
+                <div class="mac-circle"><span class="mac-box mac-green"></span></div>
+            </div>
+            <div class="mac-card-content">
+                <span class="typewriter" data-text="{{ pts.1 }}"></span>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="mac-card">
+            <div class="mac-tools">
+                <div class="mac-circle"><span class="mac-box mac-red"></span></div>
+                <div class="mac-circle"><span class="mac-box mac-yellow"></span></div>
+                <div class="mac-circle"><span class="mac-box mac-green"></span></div>
+            </div>
+            <div class="mac-card-content">
+                <span class="typewriter" data-text="{{ pts.2 }}"></span>
+            </div>
+        </div>
+
+    </div>
+    {% endwith %}
+
+    <!-- Editor del pitch (mismo ancho/estética que la tarjeta) -->
+    <section class="pitch-editor-shell">
+      <article class="pitch-editor-card">
+        <label for="pitchText" class="pitch-editor-title">Escribe tu Pitch</label>
+        <textarea id="pitchText" name="pitch_text" class="pitch-textarea" placeholder="Escribe aquí tu discurso del pitch…" maxlength="2000">{{ pitch_text|default_if_none:"" }}</textarea>
+        <div class="pitch-actions">
+          <button
+            id="btnGuardarPitch"
+            class="btn btn-primary"
+            type="button"
+            data-save-url="{% url 'etapa4_guardar_pitch' %}"
+            data-redirect-url="{% url 'etapaFinal:home' %}"
+          >
+          Guardar Pitch
+        </button>
+          <p id="pitchFeedback" class="bubble-feedback" role="status" aria-live="polite"></p>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <a href="{% url 'etapa3' %}" class="btn-arrow btn-arrow-left" title="Volver">
+    <span class="arrow-icon">➜</span>
+  </a>
+
+  <script src="{% static 'etapasJuego/js/token-counter.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const tokensFromServer = Number("{{ team.tokens_totales|default_if_none:0 }}");
+      if (window.TokenCounter && Number.isFinite(tokensFromServer)) {
+        TokenCounter.set(tokensFromServer);
+      }
+    });
+  </script>
+  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
+  <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
+  <script src="{% static 'etapasJuego/js/etapa4.js' %}"></script>
+
+  <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
+    <div class="howto-card">
+      <h2>¿Cómo se juega?</h2>
+      <p>Este paso refuerza comunicación. El juego completo incluye 4 etapas más coevaluación y ranking; cada una suma tokens si la completan bien y a tiempo.</p>
+      <div class="howto-grid">
+        <div>
+          <strong>Ruta</strong>
+          <ul>
+            <li>Paso 1: Sopa de letras.</li>
+            <li>Paso 2: Tema/desafío + mapa de empatía.</li>
+            <li>Paso 3: Prototipo LEGO + resumen.</li>
+            <li>Paso 4: Pitch breve.</li>
+            <li>Coevaluación y Ranking final.</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Tokens</strong>
+          <ul>
+            <li>Pitch claro y conciso aporta tokens de creatividad/comunicación.</li>
+            <li>Usen hallazgos del mapa y foto LEGO para darle fuerza.</li>
+            <li>La coevaluación sumará; practiquen claridad y respeto.</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:10px;">Recuerden: lo clave es aprender a comunicar valor y apoyarse como equipo.</p>
+      <button type="button" class="howto-close" onclick="document.getElementById('howto-overlay').classList.remove('is-open')">Cerrar</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      const overlay = document.getElementById('howto-overlay');
+      overlay?.addEventListener('click',(e)=>{ if(e.target===overlay){ overlay.classList.remove('is-open'); }});
+    })();
+  </script>
+  <div id="timeup-overlay" class="timeup-overlay" aria-hidden="true">
+    <div class="timeup-card" role="dialog" aria-modal="true">
+      <div class="timeup-glow"></div>
+      <p class="timeup-chip">Tiempo agotado</p>
+      <h2>Uff, lo siento. Es hora de avanzar</h2>
+      <p class="timeup-text">Lleven su pitch a la coevaluación y ranking final. Sigan con la misma energía.</p>
+      <a class="btn btn-primary" href="{% url 'etapaFinal:home' %}">Ir a coevaluación</a>
+    </div>
+  </div>
+</body>
+</html>

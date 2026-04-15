@@ -1,0 +1,167 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Selecciona la modalidad</title>
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/seleccion_modalidad.css' %}">
+</head>
+<body class="mode-select-body mission-ui">
+  <main class="mode-select-shell" aria-live="polite">
+    <section class="mode-select-screen" aria-label="Seleccion de modalidad">
+      <article class="mode-choice mode-choice--blue is-active" data-mode-card="0" aria-label="Modalidad Rompehielos">
+        <span class="mode-choice__corner mode-choice__corner--gold"></span>
+        <button class="mode-choice__button" type="button" data-mode-pick="0" aria-label="Elegir Rompehielos">
+          <svg class="mode-choice__icon" viewBox="0 0 84 84" aria-hidden="true">
+            <circle cx="28" cy="28" r="12" fill="none" stroke="currentColor" stroke-width="6"/>
+            <circle cx="56" cy="28" r="12" fill="none" stroke="currentColor" stroke-width="6"/>
+            <path d="M11 66 C15 48 25 42 34 42 C42 42 50 49 54 66" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+            <path d="M36 66 C40 49 50 42 59 42 C67 42 74 50 77 66" fill="none" stroke="var(--mode-gold)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M20 12 H42 M46 12 H68" fill="none" stroke="var(--mode-gold)" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+          <span class="mode-choice__status">Seleccionado</span>
+        </button>
+        <div class="mode-choice__label">Rompehielos</div>
+      </article>
+
+      <div class="mode-brand">
+        <p class="mode-brand__eyebrow">Selecciona modalidad</p>
+        <h1 class="mission-logo" aria-label="Misión Emprende">
+          <span>Misión</span>
+          <strong>Emprende</strong>
+        </h1>
+
+        <div class="mode-switcher" aria-label="Cambiar modalidad">
+          <button class="mode-arrow" type="button" data-mode-prev aria-label="Modalidad anterior">
+            <span aria-hidden="true">‹</span>
+          </button>
+          <div class="mode-summary">
+            <span data-mode-step>Modo 01</span>
+            <strong data-mode-title>Rompehielos</strong>
+            <small data-mode-copy>Conecten primero y preparen al equipo antes de avanzar a la sopa de letras.</small>
+          </div>
+          <button class="mode-arrow" type="button" data-mode-next aria-label="Modalidad siguiente">
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <a class="mode-go" href="{% url 'rompehielo' %}" data-mode-go>GO</a>
+      </div>
+
+      <article class="mode-choice mode-choice--gold" data-mode-card="1" aria-label="Modalidad Encender la Mecha">
+        <span class="mode-choice__corner mode-choice__corner--blue"></span>
+        <button class="mode-choice__button" type="button" data-mode-pick="1" aria-label="Elegir Encender la Mecha">
+          <svg class="mode-choice__icon" viewBox="0 0 84 84" aria-hidden="true">
+            <path d="M42 8 L50 30 L73 31 L55 45 L61 68 L42 55 L23 68 L29 45 L11 31 L34 30 Z" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M18 76 C30 54 44 48 64 39" fill="none" stroke="var(--mode-blue)" stroke-width="7" stroke-linecap="round"/>
+            <path d="M20 16 C28 8 38 8 45 16 C53 25 47 38 34 44 C21 38 13 25 20 16 Z" fill="none" stroke="var(--mode-blue)" stroke-width="6" stroke-linejoin="round"/>
+          </svg>
+          <span class="mode-choice__status">Seleccionado</span>
+        </button>
+        <div class="mode-choice__label">Encender la Mecha</div>
+      </article>
+
+      <button class="mission-help-dot" type="button" data-open-help aria-label="Abrir ayuda">?</button>
+    </section>
+  </main>
+
+  <div id="howto-overlay" class="mode-howto-overlay" aria-hidden="true">
+    <div class="mode-howto-card" role="dialog" aria-modal="true" aria-labelledby="howto-title">
+      <h2 id="howto-title">Como se juega?</h2>
+      <p>Elijan una modalidad y presionen GO. Rompehielos abre la dinamica previa; Encender la Mecha avanza directo a la sopa de letras.</p>
+      <div class="mode-howto-grid">
+        <div>
+          <strong>Rompehielos</strong>
+          <ul>
+            <li>Conecta al equipo antes del juego.</li>
+            <li>Mantiene el flujo hacia el Paso 1.</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Encender la Mecha</strong>
+          <ul>
+            <li>Entra directo a la primera etapa.</li>
+            <li>Usa la conexion original a sopa de letras.</li>
+          </ul>
+        </div>
+      </div>
+      <button type="button" class="mode-howto-close" data-close-help>Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const modes = [
+        {
+          step: 'Modo 01',
+          title: 'Rompehielos',
+          copy: 'Conecten primero y preparen al equipo antes de avanzar a la sopa de letras.',
+          url: "{% url 'rompehielo' %}"
+        },
+        {
+          step: 'Modo 02',
+          title: 'Encender la Mecha',
+          copy: 'Entren directo al primer desafio y comiencen la mision con ritmo desde el primer minuto.',
+          url: "{% url 'etapa1' %}"
+        }
+      ];
+
+      const cards = Array.from(document.querySelectorAll('[data-mode-card]'));
+      const goButton = document.querySelector('[data-mode-go]');
+      const step = document.querySelector('[data-mode-step]');
+      const title = document.querySelector('[data-mode-title]');
+      const copy = document.querySelector('[data-mode-copy]');
+      const helpOverlay = document.getElementById('howto-overlay');
+      let currentIndex = 0;
+
+      function setMode(index) {
+        currentIndex = (index + modes.length) % modes.length;
+        const selected = modes[currentIndex];
+
+        cards.forEach(card => {
+          const isActive = Number(card.dataset.modeCard) === currentIndex;
+          card.classList.toggle('is-active', isActive);
+        });
+
+        if (step) step.textContent = selected.step;
+        if (title) title.textContent = selected.title;
+        if (copy) copy.textContent = selected.copy;
+        if (goButton) goButton.href = selected.url;
+      }
+
+      function openHelp() {
+        helpOverlay?.classList.add('is-open');
+        helpOverlay?.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeHelp() {
+        helpOverlay?.classList.remove('is-open');
+        helpOverlay?.setAttribute('aria-hidden', 'true');
+      }
+
+      document.querySelector('[data-mode-prev]')?.addEventListener('click', () => setMode(currentIndex - 1));
+      document.querySelector('[data-mode-next]')?.addEventListener('click', () => setMode(currentIndex + 1));
+      document.querySelectorAll('[data-mode-pick]').forEach(button => {
+        button.addEventListener('click', () => setMode(Number(button.dataset.modePick)));
+      });
+      document.querySelectorAll('[data-open-help]').forEach(button => button.addEventListener('click', openHelp));
+      document.querySelectorAll('[data-close-help]').forEach(button => button.addEventListener('click', closeHelp));
+
+      helpOverlay?.addEventListener('click', function(event) {
+        if (event.target === helpOverlay) closeHelp();
+      });
+
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') closeHelp();
+        if (event.key === 'ArrowLeft') setMode(currentIndex - 1);
+        if (event.key === 'ArrowRight') setMode(currentIndex + 1);
+      });
+
+      setMode(0);
+    });
+  </script>
+</body>
+</html>

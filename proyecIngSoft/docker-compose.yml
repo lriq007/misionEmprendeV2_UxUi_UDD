@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    # Mapeamos la carpeta actual (.) a la carpeta interna (/app)
+    # ESTO ES CRÍTICO: Asegura que db.sqlite3 se guarde en tu servidor AWS
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    # Leemos el archivo .env para la API Key de OpenAI
+    env_file:
+      - .env

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Estudiante - Mision Emprende</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'login/css/home.css' %}">
+</head>
+<body class="home-estudiante-body mission-ui">
+    <main class="mission-shell" aria-live="polite">
+        <section class="mission-screen mission-screen--start is-active" data-screen="start" aria-label="Inicio de Mision Emprende">
+            <figure class="hero-character hero-character--left" aria-label="Personaje de energia azul">
+                <img class="hero-character__image" src="/media/personajesPortada/jobb.png" alt="Personaje izquierdo listo para iniciar la mision">
+                <span class="hero-character__aura" aria-hidden="true"></span>
+                <span class="hero-character__orb hero-character__orb--blue" aria-hidden="true"></span>
+                <span class="hero-character__orb hero-character__orb--gold" aria-hidden="true"></span>
+                <span class="hero-character__circuit" aria-hidden="true"></span>
+                <span class="hero-character__spark hero-character__spark--one" aria-hidden="true"></span>
+                <span class="hero-character__spark hero-character__spark--two" aria-hidden="true"></span>
+            </figure>
+
+            <div class="mission-brand">
+                <h1 class="mission-logo" aria-label="Misión Emprende">
+                    <span>Misión</span>
+                    <strong>Emprende</strong>
+                </h1>
+                <button class="start-button" type="button" data-open-video>
+                    <span>Start</span>
+                </button>
+            </div>
+
+            <figure class="hero-character hero-character--right" aria-label="Personaje de energia dorada">
+                <img class="hero-character__image" src="/media/personajesPortada/musk.png" alt="Personaje derecho listo para iniciar la mision">
+                <span class="hero-character__aura" aria-hidden="true"></span>
+                <span class="hero-character__orb hero-character__orb--blue" aria-hidden="true"></span>
+                <span class="hero-character__orb hero-character__orb--gold" aria-hidden="true"></span>
+                <span class="hero-character__circuit" aria-hidden="true"></span>
+                <span class="hero-character__spark hero-character__spark--one" aria-hidden="true"></span>
+                <span class="hero-character__spark hero-character__spark--two" aria-hidden="true"></span>
+            </figure>
+
+            <button class="mission-help-dot" type="button" data-open-help aria-label="Abrir ayuda">?</button>
+        </section>
+
+        <section class="mission-screen mission-screen--route" data-screen="route" aria-label="Ruta de misiones">
+            <div class="route-board">
+                <div class="route-stage">
+                    <div class="team-orbit" aria-label="Equipo Empresa, 5 misiones, 60 minutos">
+                        <div class="orbit-ring orbit-ring--outer"></div>
+                        <div class="orbit-ring orbit-ring--inner"></div>
+                        <div class="orbit-grid"></div>
+                        <div class="orbit-node">
+                            <div class="mission-token" aria-hidden="true">
+                                <div class="mission-token__face mission-token__face--front">
+                                    <span>T</span>
+                                </div>
+                                <div class="mission-token__face mission-token__face--back">
+                                    <span>T</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="route-summary">
+                        <div><strong>5</strong><span>Misiones</span></div>
+                        <i></i>
+                        <div><strong>60</strong><span>Minutos</span></div>
+                    </div>
+                </div>
+
+                <aside class="route-missions-panel" aria-label="Panel de etapas">
+                <div class="route-heading">
+                    <h2><span>Ruta</span> de <strong>Misiones</strong></h2>
+                </div>
+
+                <ol class="mission-list" aria-label="Misiones disponibles">
+                    <li class="mission-item mission-item--blue">
+                        <span class="mission-item__number">1</span>
+                        <span class="mission-item__icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 L4 14 H11 L10 22 L20 9 H13 Z"/></svg>
+                        </span>
+                        <span class="mission-item__copy">
+                            <strong>Activacion</strong>
+                            <small>5 min</small>
+                        </span>
+                        <span class="mission-item__dot"></span>
+                    </li>
+                    <li class="mission-item mission-item--gold">
+                        <span class="mission-item__number">2</span>
+                        <span class="mission-item__icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18 H15"/><path d="M10 22 H14"/><path d="M8 14 C5 12 5 7 8 5 C10 3 14 3 16 5 C19 8 18 12 15 14 C14 15 14 16 14 17 H10 C10 16 10 15 8 14 Z"/></svg>
+                        </span>
+                        <span class="mission-item__copy">
+                            <strong>Ideacion</strong>
+                            <small>8 min</small>
+                        </span>
+                        <span class="mission-item__dot"></span>
+                    </li>
+                    <li class="mission-item mission-item--blue">
+                        <span class="mission-item__number">3</span>
+                        <span class="mission-item__icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="7" r="2"/><path d="M3 20 C4 15 7 13 10 13 C13 13 16 15 17 20"/><path d="M14 12 C17 12 20 15 21 20"/></svg>
+                        </span>
+                        <span class="mission-item__copy">
+                            <strong>Colaboracion</strong>
+                            <small>10 min</small>
+                        </span>
+                        <span class="mission-item__dot"></span>
+                    </li>
+                    <li class="mission-item mission-item--gold">
+                        <span class="mission-item__number">4</span>
+                        <span class="mission-item__icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 C8 11 13 7 21 5 C19 13 15 18 7 21 Z"/><path d="M9 15 L4 20"/></svg>
+                        </span>
+                        <span class="mission-item__copy">
+                            <strong>Lanzamiento</strong>
+                            <small>6 min</small>
+                        </span>
+                        <span class="mission-item__dot"></span>
+                    </li>
+                    <li class="mission-item mission-item--blue">
+                        <span class="mission-item__number">5</span>
+                        <span class="mission-item__icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21 H16"/><path d="M12 17 V21"/><path d="M7 4 H17 V9 C17 12 15 15 12 16 C9 15 7 12 7 9 Z"/><path d="M7 7 H3 C3 11 5 13 8 13"/><path d="M17 7 H21 C21 11 19 13 16 13"/></svg>
+                        </span>
+                        <span class="mission-item__copy">
+                            <strong>Victoria</strong>
+                            <small>8 min</small>
+                        </span>
+                        <span class="mission-item__dot"></span>
+                    </li>
+                </ol>
+                </aside>
+            </div>
+
+            <div class="route-actions">
+                <a href="{% url 'login:mission_launch' %}" class="route-start btn-home btn-continue">Iniciar ruta</a>
+                <button class="route-help" type="button" data-open-help>
+                    <span>?</span>
+                    Necesitas Ayuda?
+                </button>
+            </div>
+
+            <button class="mission-help-dot mission-help-dot--route" type="button" data-open-help aria-label="Abrir ayuda">?</button>
+        </section>
+    </main>
+
+    <div class="video-overlay" id="mission-video" aria-hidden="true">
+        <div class="video-dialog" role="dialog" aria-modal="true" aria-labelledby="video-title">
+            <button class="video-close" type="button" data-close-video aria-label="Cerrar video">x</button>
+            <div class="video-dialog__header">
+                <span>Briefing</span>
+                <h2 id="video-title">Mision Empresa</h2>
+            </div>
+            <div class="home-estudiante-video-container">
+                <div class="home-estudiante-video-wrapper">
+                    <video controls playsinline width="100%" id="video-bienvenida">
+                        <source src="{% static 'videos/bienvenida.mp4' %}" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+            <div class="video-dialog__actions">
+                <button class="ghost-button" type="button" data-close-video>Volver</button>
+                <button class="glow-button" type="button" data-show-route>Ver ruta</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
+        <div class="howto-card" role="dialog" aria-modal="true" aria-labelledby="howto-title">
+            <h2 id="howto-title">Como se juega?</h2>
+            <p>Avancen por las cinco misiones, cuiden el tiempo y completen cada decision como equipo. La ruta termina cuando pasan al flujo de lanzamiento del juego.</p>
+            <div class="howto-grid">
+                <div>
+                    <strong>Ruta</strong>
+                    <ul>
+                        <li>Activacion: preparar energia del equipo.</li>
+                        <li>Ideacion: transformar ideas en una direccion clara.</li>
+                        <li>Colaboracion: construir acuerdos y tareas.</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong>Cierre</strong>
+                    <ul>
+                        <li>Lanzamiento: presentar con foco.</li>
+                        <li>Victoria: revisar avance y resultado.</li>
+                        <li>El boton Iniciar ruta conserva la navegacion original.</li>
+                    </ul>
+                </div>
+            </div>
+            <button type="button" class="howto-close" data-close-help>Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoOverlay = document.getElementById('mission-video');
+            const video = document.getElementById('video-bienvenida');
+            const helpOverlay = document.getElementById('howto-overlay');
+            const screens = document.querySelectorAll('[data-screen]');
+
+            function openVideo() {
+                videoOverlay?.classList.add('is-open');
+                videoOverlay?.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeVideo() {
+                videoOverlay?.classList.remove('is-open');
+                videoOverlay?.setAttribute('aria-hidden', 'true');
+                if (video) {
+                    video.pause();
+                }
+            }
+
+            function showRoute() {
+                closeVideo();
+                screens.forEach(screen => screen.classList.toggle('is-active', screen.dataset.screen === 'route'));
+            }
+
+            function openHelp() {
+                helpOverlay?.classList.add('is-open');
+                helpOverlay?.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeHelp() {
+                helpOverlay?.classList.remove('is-open');
+                helpOverlay?.setAttribute('aria-hidden', 'true');
+            }
+
+            document.querySelectorAll('[data-open-video]').forEach(button => button.addEventListener('click', openVideo));
+            document.querySelectorAll('[data-close-video]').forEach(button => button.addEventListener('click', closeVideo));
+            document.querySelectorAll('[data-show-route]').forEach(button => button.addEventListener('click', showRoute));
+            document.querySelectorAll('[data-open-help]').forEach(button => button.addEventListener('click', openHelp));
+            document.querySelectorAll('[data-close-help]').forEach(button => button.addEventListener('click', closeHelp));
+
+            videoOverlay?.addEventListener('click', function(event) {
+                if (event.target === videoOverlay) closeVideo();
+            });
+            helpOverlay?.addEventListener('click', function(event) {
+                if (event.target === helpOverlay) closeHelp();
+            });
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeVideo();
+                    closeHelp();
+                }
+            });
+
+            if (window.location.hash === '#route') {
+                showRoute();
+            } else if (window.location.hash === '#video') {
+                openVideo();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rompehielo</title>
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/rompehielo.css' %}">
+</head>
+<body class="theme-login">
+  <div class="app-noise"></div>
+  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+
+  <div class="ws-container">
+    <header class="ice-hero">
+      <div class="hero-glow"></div>
+      <div class="hero-meta">
+        <span class="chip chip-glow">Paso previo · Modo rompehielo</span>
+        <span class="chip">Hasta 8 estudiantes</span>
+        <span class="chip">Duración: 5 minutos</span>
+      </div>
+      <h1>Activen el espíritu emprendedor en 5 minutos</h1>
+      <p class="hero-lead">Conecten rápido, compartan fortalezas y escuchen. La energía que generen aquí se convierte en ideas, LEGO y un pitch épico.</p>
+    </header>
+
+    <section class="icebreaker-grid">
+      <article class="icebreaker-card">
+        <div class="card-head">
+          <div>
+            <p class="card-eyebrow">Ritual de inicio</p>
+            <h2>¿Cómo funciona?</h2>
+          </div>
+          <span class="tag tag-soft">Todos hablan</span>
+        </div>
+        <ul class="brief-list">
+          <li>Presentación en ronda: nombre, carrera y comuna.</li>
+          <li>Responde 2–3 preguntas guía. Sé breve y claro.</li>
+          <li>Deja que todos participen: 30–40 seg por persona.</li>
+        </ul>
+        <div class="timer-shell">
+          <span class="timer-label">Tiempo restante</span>
+          <div
+            id="rompehielo-timer"
+            class="ws-timer"
+            aria-live="polite"
+            aria-label="Tiempo restante"
+            data-duration-seconds="300"
+          >05:00</div>
+          <p class="timer-note">Al acabar, avanzan directo al juego.</p>
+        </div>
+      </article>
+
+      <article class="icebreaker-card questions-card">
+        <div class="card-head">
+          <div>
+            <p class="card-eyebrow">Preguntas rápidas</p>
+            <h2>Hablen y conecten</h2>
+          </div>
+          <span class="tag tag-dark">2–3 por persona</span>
+        </div>
+        <ul class="questions-list">
+          <li>¿De qué carrera eres y por qué la elegiste?</li>
+          <li>¿De qué comuna vienes?</li>
+          <li>¿Qué te gusta hacer en tu tiempo libre?</li>
+          <li>¿Qué esperas de la universidad este año?</li>
+          <li>Si pudieras emprender en algo, ¿en qué sería?</li>
+          <li>¿Qué te motiva para participar hoy?</li>
+          <li>Comparte una anécdota breve y divertida.</li>
+          <li>¿Qué habilidad aportarías a un equipo?</li>
+        </ul>
+        <div class="next-hint">
+          <span class="loader is-inline" aria-hidden="true"></span>
+          <p>Cuando se acabe el tiempo, la pantalla les pedirá avanzar.</p>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <div id="timeup-overlay" class="timeup-overlay" aria-hidden="true">
+    <div class="timeup-card" role="dialog" aria-modal="true">
+      <div class="timeup-glow"></div>
+      <p class="timeup-chip">Tiempo agotado</p>
+      <h2>Uff, lo siento. Es hora de avanzar</h2>
+      <p class="timeup-text">Lleven esta energía al Paso 1: sopa de letras. Avancen cuando estén listos.</p>
+      <a class="btn btn-primary" href="{% url 'etapa1' %}">Ir a la sopa de letras</a>
+    </div>
+  </div>
+
+  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
+  <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
+  <script src="{% static 'etapasJuego/js/rompehielo.js' %}"></script>
+</body>
+</html>
