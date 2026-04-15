@@ -23,13 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiamos todo el código del proyecto
 COPY . /app/
 
-# Recolectamos los archivos estáticos (CSS/JS) para que se vea el diseño
-# (Requiere que hayas configurado STATIC_ROOT y whitenoise en settings.py)
-RUN python manage.py collectstatic --noinput
+RUN chmod +x /app/entrypoint.sh
 
 # Exponemos el puerto 8000
 EXPOSE 8000
 
-# Comando para iniciar el servidor de producción
-# IMPORTANTE: "proyecIngSoft" es el nombre de la carpeta que contiene wsgi.py
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "proyecIngSoft.wsgi:application"]
+CMD ["/app/entrypoint.sh"]

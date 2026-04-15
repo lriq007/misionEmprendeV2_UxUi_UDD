@@ -557,6 +557,85 @@ El archivo `docker-compose.yml` monta la carpeta local dentro del contenedor con
 
 El archivo `.dockerignore` evita copiar a la imagen archivos que no son necesarios, como entornos virtuales, cachés, secretos locales, bases SQLite locales y `staticfiles/`. No reemplaza a `.gitignore`: `.gitignore` controla qué se sube a Git, mientras que `.dockerignore` controla qué entra al contexto de construcción Docker.
 
+## Despliegue simple en AWS Academy
+
+La forma mas directa de publicar este proyecto para que otras personas entren con un link es usar una instancia EC2 con Docker y una IP publica.
+
+### 1. Crear la maquina
+
+En AWS Academy, crea una instancia EC2 Ubuntu y habilita al menos estas reglas en el Security Group:
+
+- `22` para SSH desde tu IP.
+- `8000` para acceso web desde Internet si vas a compartir la app directamente con Gunicorn.
+
+Si despues agregas Nginx, en vez de `8000` puedes abrir `80` y `443`.
+
+### 2. Conectarte y preparar Docker
+
+En la instancia:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-plugin git
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+### 3. Subir el proyecto
+
+Puedes clonar el repositorio o copiar los archivos al servidor. Luego entra a:
+
+```bash
+cd proyecIngSoft
+cp .env.example .env
+```
+
+### 4. Configurar variables para produccion
+
+Edita `.env` con valores reales. Ejemplo:
+
+```env
+DJANGO_SECRET_KEY=una_clave_larga_y_privada
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=TU_IP_PUBLICA,TU_DOMINIO
+DJANGO_CSRF_TRUSTED_ORIGINS=http://TU_IP_PUBLICA:8000,https://TU_DOMINIO
+OPENAI_API_KEY=tu_api_key_aqui
+```
+
+Si aun no tienes dominio, puedes usar solo la IP publica de la instancia.
+
+### 5. Levantar la app
+
+Desde `proyecIngSoft/`:
+
+```bash
+docker compose up --build -d
+```
+
+La imagen ahora ejecuta migraciones automaticamente al iniciar. Si necesitas entrar al admin de Django por primera vez, crea un superusuario:
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+La aplicacion quedara disponible en:
+
+```text
+http://TU_IP_PUBLICA:8000/
+```
+
+Ese link ya lo puedes compartir para que otras personas entren desde cualquier lugar, siempre que la instancia siga encendida y el Security Group permita trafico al puerto `8000`.
+
+### 6. Recomendacion para un link mas limpio
+
+Para una entrega academica o demo, compartir `http://TU_IP_PUBLICA:8000/` suele ser suficiente.
+
+Si quieres un enlace mas profesional:
+
+- Asocia un Elastic IP a la instancia para que la IP no cambie.
+- Compra o conecta un dominio.
+- Agrega Nginx y, si corresponde, HTTPS con Let's Encrypt.
+
 ## Rutas principales
 
 - `/`: redirige al login.
