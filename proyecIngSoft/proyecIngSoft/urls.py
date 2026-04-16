@@ -19,7 +19,9 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.static import serve
 from django.views.generic import RedirectView
+from django.urls import re_path
 
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='login:login', permanent=False)),
@@ -32,5 +34,7 @@ urlpatterns = [
 ]
 
 # Serve uploaded/demo media files directly from Django.
-# This keeps hardcoded /media/... assets available in the AWS demo environment.
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# `static(...)` is skipped by Django when DEBUG=False, so we add the route explicitly.
+urlpatterns += [
+    re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
+]
