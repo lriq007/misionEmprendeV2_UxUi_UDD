@@ -31,5 +31,6 @@ urlpatterns = [
     path('etapa-final/', include('etapaFinal.urls', namespace='etapaFinal')),  # ← nuevo
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded/demo media files directly from Django.
+# This keeps hardcoded /media/... assets available in the AWS demo environment.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
