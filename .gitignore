@@ -27,9 +27,8 @@ proyecIngSoft/db.sqlite3
 staticfiles/
 proyecIngSoft/staticfiles/
 
-# User-uploaded media files
-media/
-proyecIngSoft/media/
+# User-uploaded group photos
+proyecIngSoft/media/fotos_grupales/
 
 # Logs
 *.log

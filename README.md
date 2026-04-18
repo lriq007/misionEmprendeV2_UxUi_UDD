@@ -27,6 +27,7 @@ Mision Emprende es una aplicacion orientada a actividades pedagogicas donde estu
     ├── requirements.txt
     ├── Dockerfile
     ├── docker-compose.yml
+    ├── .dockerignore
     ├── proyecIngSoft/
     │   ├── settings.py
     │   ├── urls.py
@@ -137,19 +138,108 @@ http://127.0.0.1:8000/
 
 ## Ejecucion con Docker
 
-Desde la carpeta `proyecIngSoft/`, ejecuta:
+Docker permite ejecutar el proyecto sin activar un entorno virtual local. Las dependencias de Python se instalan dentro de la imagen usando `requirements.txt`.
+
+Primero, asegúrate de tener instalado:
+
+- Docker
+- Docker Compose
+
+Todos los comandos Docker se ejecutan desde la carpeta donde están `Dockerfile` y `docker-compose.yml`:
+
+```bash
+cd proyecIngSoft
+```
+
+Si no existe el archivo `.env`, créalo desde el ejemplo:
+
+```bash
+cp .env.example .env
+```
+
+Edita `.env` si necesitas configurar la API key de OpenAI:
+
+```env
+OPENAI_API_KEY=tu_api_key_aqui
+```
+
+Para construir la imagen:
+
+```bash
+docker compose build
+```
+
+Antes de levantar el proyecto por primera vez, aplica migraciones:
+
+```bash
+docker compose run --rm web python manage.py migrate
+```
+
+Recolecta archivos estáticos:
+
+```bash
+docker compose run --rm web python manage.py collectstatic --noinput
+```
+
+Opcionalmente, crea un superusuario para entrar al administrador de Django:
+
+```bash
+docker compose run --rm web python manage.py createsuperuser
+```
+
+Si necesitas cambiar la contraseña de un superusuario ya creado:
+
+```bash
+docker compose run --rm web python manage.py changepassword nombre_usuario
+```
+
+Para levantar la aplicación en primer plano:
+
+```bash
+docker compose up
+```
+
+Tambien puedes construir y levantar en un solo paso:
 
 ```bash
 docker compose up --build
 ```
 
-La aplicacion quedara disponible en:
+La aplicación quedará disponible en:
 
 ```text
 http://127.0.0.1:8000/
 ```
 
-El archivo `docker-compose.yml` monta la carpeta local dentro del contenedor, por lo que los cambios del codigo se reflejan en el ambiente Docker.
+Para detener la aplicación cuando está corriendo en primer plano, presiona `Ctrl + C`.
+
+Para levantarla en segundo plano:
+
+```bash
+docker compose up -d
+```
+
+Para ver el estado de los servicios:
+
+```bash
+docker compose ps
+```
+
+Para ver logs:
+
+```bash
+docker compose logs -f web
+```
+
+Para apagar y limpiar los contenedores del proyecto:
+
+```bash
+docker compose down
+```
+
+El archivo `docker-compose.yml` monta la carpeta local dentro del contenedor con `.:/app`. Por eso, durante desarrollo, los cambios del código se reflejan dentro del contenedor y la base SQLite local `db.sqlite3` se conserva en tu máquina.
+
+El archivo `.dockerignore` evita copiar a la imagen archivos que no son necesarios, como entornos virtuales, cachés, secretos locales, bases SQLite locales y `staticfiles/`. No reemplaza a `.gitignore`: `.gitignore` controla qué se sube a Git, mientras que `.dockerignore` controla qué entra al contexto de construcción Docker.
 
 ## Rutas principales
 

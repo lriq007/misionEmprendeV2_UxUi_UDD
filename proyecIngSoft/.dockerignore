@@ -1,0 +1,67 @@
+# Local virtual environments
+.venv/
+.venv_local/
+venv/
+env/
+ENV/
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local SQLite databases
+db.sqlite3
+*.sqlite3
+
+# Generated Django static files
+staticfiles/
+
+# Logs and runtime files
+*.log
+logs/
+*.pid
+
+# Test, coverage, and tool caches
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local Codex workspace/config
+.codex/
+
+# Git metadata is not needed inside the image
+.git/
+.gitignore
+
+# Docker project files are only needed by the host build tooling
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
