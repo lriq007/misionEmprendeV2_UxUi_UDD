@@ -60,6 +60,26 @@ hotfix/* -> main
 hotfix/* -> develop
 ```
 
+### Branch Protection Rules
+
+GitHub Rulesets esta configurado para proteger `main` y `develop` con reglas
+activas permanentemente. Las reglas son identicas para ambas ramas, pero cada
+rama tiene su propio ruleset independiente aplicado por patron de nombre exacto.
+
+| Configuracion | Valor aplicado | Motivo |
+|---------------|----------------|--------|
+| Enforcement | Active. Las reglas se aplican todo el tiempo, sin excepciones. | Garantiza que la proteccion no dependa de acuerdos manuales ni de decisiones puntuales. |
+| Target branches | `main` y `develop`. Cada rama tiene un ruleset independiente por nombre exacto. | Evita que ramas criticas queden sin proteccion por errores de patron o configuracion compartida. |
+| Bypass list | Vacia. Ningun rol, equipo o app queda exento, incluido el owner del repositorio. | Asegura que todas las personas y automatizaciones respeten el mismo flujo de revision. |
+| Restrict deletions | Nadie puede eliminar `main` ni `develop`. | Protege las ramas base contra eliminaciones accidentales o maliciosas. |
+| Require a pull request before merging | No se permiten commits directos. Todo cambio entra por Pull Request. | Mantiene trazabilidad, revision previa y control del historial antes de integrar cambios. |
+| Required approvals | Se requiere 1 aprobacion explicita de un integrante del equipo. | Obliga a que al menos otra persona revise el cambio antes de fusionarlo. |
+| Dismiss stale pull request approvals | Si se suben nuevos commits a un PR ya aprobado, la aprobacion se descarta automaticamente. | Evita fusionar codigo nuevo que no fue revisado despues de la aprobacion original. |
+| Block force pushes | `git push --force` y `git push --force-with-lease` estan bloqueados en `main` y `develop`. | Impide reescribir el historial de ramas criticas y protege la integridad del repositorio. |
+
+Si alguien intenta romper estas reglas, GitHub rechaza automaticamente el push o
+el merge, sin importar quien haga el intento.
+
 ## Tecnologias principales
 
 - Python 3.11
