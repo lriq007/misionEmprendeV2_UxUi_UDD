@@ -12,10 +12,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Carga .env si lo necesitas para otras cosas, pero la DB será SQLite.
 load_dotenv(BASE_DIR / ".env")
 
-# ⚠️ En desarrollo: clave dummy
-SECRET_KEY = 'django-insecure-&bz2s9%z=d)^5j&kow-33z&l@$^fu7qu+qu5hl#tby28k_1=aj'
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+def env_bool(name, default=False):
+    return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name, default=""):
+    raw_value = os.getenv(name, default)
+    return [item.strip() for item in raw_value.split(",") if item.strip()]
+
+
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-dev-only-change-me",
+)
+DEBUG = env_bool("DJANGO_DEBUG", True)
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
 INSTALLED_APPS = [
     'django.contrib.admin',

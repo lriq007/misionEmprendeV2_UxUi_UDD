@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   web:
     build: .
+    restart: unless-stopped
     # Mapeamos la carpeta actual (.) a la carpeta interna (/app)
     # ESTO ES CRÍTICO: Asegura que db.sqlite3 se guarde en tu servidor AWS
     volumes:
