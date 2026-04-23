@@ -14,9 +14,7 @@
   <link rel="icon" href="{% static 'favicon.ico' %}">
 </head>
 
-<body class="theme-login">
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui">
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
   <!-- Barra de progreso -->
@@ -208,7 +206,6 @@
       }
     });
   </script>
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
 
   <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
     <div class="howto-card">

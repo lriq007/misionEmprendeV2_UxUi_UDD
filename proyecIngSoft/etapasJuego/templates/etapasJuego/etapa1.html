@@ -14,9 +14,7 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa1.css' %}">
 </head>
 
-<body>
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui">
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
   <!-- Barra de progreso -->
@@ -104,7 +102,6 @@
     window.CSRF_TOKEN = getCookie('csrftoken');
   </script>
 
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
   <script src="{% static 'etapasJuego/js/token-counter.js' %}"></script>
   <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
   <script src="{% static 'etapasJuego/js/wordsearch.js' %}"></script>

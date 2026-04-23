@@ -13,9 +13,7 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa2.css' %}">
 </head>
 
-<body class="theme-login">
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui">
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
   <div id="progress-bar">
@@ -136,7 +134,6 @@
       }
     });
   </script>
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
   <script src="{% static 'etapasJuego/js/bubble-map.js' %}"></script>
 
   <!-- Cronómetro persistente Etapa 2 -->

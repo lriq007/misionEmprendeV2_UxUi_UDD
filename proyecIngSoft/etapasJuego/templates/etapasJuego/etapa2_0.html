@@ -10,9 +10,7 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa2.css' %}">
 </head>
-<body class="theme-login">
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui">
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
   <div id="progress-bar">
@@ -68,7 +66,6 @@
     <span class="arrow-icon">➜</span>
   </a>
 
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
   <script src="{% static 'etapasJuego/js/token-counter.js' %}"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {

@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.db import connection
 from django.templatetags.static import static
 from .context import get_or_create_team_for_request
+from .services import RouletteEngine
 from .services.pitch_ai import generar_sugerencias_pitch, actualizar_score_ai
 
 
@@ -28,11 +29,28 @@ def seleccion_modalidad(request):
 
 
 def rompehielo(request):
-    """
-    Placeholder de la opción 'No nos conocemos': presentación + rompehielo.
-    La lógica de temporizador/dinámica se agregará en un prompt posterior.
-    """
-    return render(request, "etapasJuego/rompehielo.html")
+    engine = RouletteEngine()
+    wants_json = (
+        request.GET.get("format") == "json"
+        or "application/json" in request.headers.get("Accept", "")
+    )
+
+    if wants_json:
+        try:
+            return JsonResponse(
+                {
+                    "success": True,
+                    "questions": engine.get_questions(),
+                }
+            )
+        except Exception:
+            return JsonResponse(engine.handle_error("get_questions"), status=500)
+
+    context = {
+        "rompehielo_bootstrap_url": f"{request.path}?format=json",
+        "rompehielo_duration_seconds": 300,
+    }
+    return render(request, "etapasJuego/rompehielo.html", context)
 
 
 # --- Helpers ---
@@ -135,6 +153,7 @@ def api_init(request):
         "words": tgs.words,
         "found_words": tgs.found_words,
         "progress": float(tgs.progress_pct or 0.0),
+        "progress_pct": float(tgs.progress_pct or 0.0),
         "active_selections": tgs.active_selections,
         "ended": tgs.ended_at is not None,
     })

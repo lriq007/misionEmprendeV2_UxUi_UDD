@@ -10,73 +10,91 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/rompehielo.css' %}">
 </head>
-<body class="theme-login">
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui rompehielo-page">
 
-  <div class="ws-container">
-    <header class="ice-hero">
-      <div class="hero-glow"></div>
-      <div class="hero-meta">
-        <span class="chip chip-glow">Paso previo · Modo rompehielo</span>
-        <span class="chip">Hasta 8 estudiantes</span>
-        <span class="chip">Duración: 5 minutos</span>
-      </div>
-      <h1>Activen el espíritu emprendedor en 5 minutos</h1>
-      <p class="hero-lead">Conecten rápido, compartan fortalezas y escuchen. La energía que generen aquí se convierte en ideas, LEGO y un pitch épico.</p>
-    </header>
-
-    <section class="icebreaker-grid">
-      <article class="icebreaker-card">
-        <div class="card-head">
-          <div>
-            <p class="card-eyebrow">Ritual de inicio</p>
-            <h2>¿Cómo funciona?</h2>
+  <main
+    class="ws-container rompehielo-shell"
+    data-rompehielo-app
+    data-bootstrap-url="{{ rompehielo_bootstrap_url }}"
+  >
+    <section class="roulette-screen">
+      <div class="roulette-timer-stack">
+        <section class="timer-panel" aria-label="Tiempo restante del rompehielo">
+          <div class="timer-panel__header">
+            <span class="timer-panel__label">Tiempo restante</span>
           </div>
-          <span class="tag tag-soft">Todos hablan</span>
-        </div>
-        <ul class="brief-list">
-          <li>Presentación en ronda: nombre, carrera y comuna.</li>
-          <li>Responde 2–3 preguntas guía. Sé breve y claro.</li>
-          <li>Deja que todos participen: 30–40 seg por persona.</li>
-        </ul>
-        <div class="timer-shell">
-          <span class="timer-label">Tiempo restante</span>
           <div
             id="rompehielo-timer"
-            class="ws-timer"
+            class="timer-panel__value"
             aria-live="polite"
             aria-label="Tiempo restante"
-            data-duration-seconds="300"
+            data-duration-seconds="{{ rompehielo_duration_seconds }}"
           >05:00</div>
-          <p class="timer-note">Al acabar, avanzan directo al juego.</p>
-        </div>
-      </article>
+        </section>
+        <div class="roulette-pointer" aria-hidden="true"></div>
+      </div>
 
-      <article class="icebreaker-card questions-card">
-        <div class="card-head">
-          <div>
-            <p class="card-eyebrow">Preguntas rápidas</p>
-            <h2>Hablen y conecten</h2>
+      <article class="roulette-stage">
+        <div class="roulette-wheel-shell">
+          <div class="roulette-wheel" data-roulette-wheel>
+            <svg class="roulette-wheel__vector" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+              <defs>
+                <radialGradient id="rouletteOuterRing" cx="34%" cy="28%" r="78%">
+                  <stop offset="0%" stop-color="#ffe78e" />
+                  <stop offset="48%" stop-color="#f7be08" />
+                  <stop offset="100%" stop-color="#be8600" />
+                </radialGradient>
+              </defs>
+
+              <circle cx="50" cy="50" r="47.5" fill="none" stroke="url(#rouletteOuterRing)" stroke-width="5" />
+              <circle cx="50" cy="50" r="44.5" fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="1.6" />
+
+              <g class="roulette-wheel__dividers">
+                <line x1="50" y1="50" x2="50" y2="4.9" />
+                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(45 50 50)" />
+                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(90 50 50)" />
+                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(135 50 50)" />
+                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(180 50 50)" />
+                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(225 50 50)" />
+                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(270 50 50)" />
+                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(315 50 50)" />
+              </g>
+            </svg>
+            <div class="roulette-segments" data-roulette-segments aria-hidden="true"></div>
+            <div class="roulette-glow" aria-hidden="true"></div>
+            <div class="roulette-core">
+              <button
+                class="turn-button"
+                type="button"
+                data-turn-button
+              >
+                <span class="turn-button__icon" aria-hidden="true">↻</span>
+                <span class="turn-button__text">¡Girar!</span>
+              </button>
+            </div>
           </div>
-          <span class="tag tag-dark">2–3 por persona</span>
-        </div>
-        <ul class="questions-list">
-          <li>¿De qué carrera eres y por qué la elegiste?</li>
-          <li>¿De qué comuna vienes?</li>
-          <li>¿Qué te gusta hacer en tu tiempo libre?</li>
-          <li>¿Qué esperas de la universidad este año?</li>
-          <li>Si pudieras emprender en algo, ¿en qué sería?</li>
-          <li>¿Qué te motiva para participar hoy?</li>
-          <li>Comparte una anécdota breve y divertida.</li>
-          <li>¿Qué habilidad aportarías a un equipo?</li>
-        </ul>
-        <div class="next-hint">
-          <span class="loader is-inline" aria-hidden="true"></span>
-          <p>Cuando se acabe el tiempo, la pantalla les pedirá avanzar.</p>
         </div>
       </article>
     </section>
+  </main>
+
+  <div class="question-overlay" data-question-overlay aria-hidden="true" hidden>
+    <article class="question-sheet" role="dialog" aria-modal="true" aria-labelledby="question-title">
+      <div class="question-sheet__glow" aria-hidden="true"></div>
+      <span class="question-emoji" data-question-emoji aria-hidden="true">✨</span>
+      <div class="question-sheet__body">
+        <p class="question-badge">Responde a tus compañeros</p>
+        <h2 id="question-title" class="question-sheet__title" data-current-question>
+          Presiona “Girar” para mostrar la primera pregunta.
+        </h2>
+      </div>
+
+      <div class="question-sheet__footer">
+        <button class="question-sheet__action" type="button" data-pass-button>
+          Siguiente compañero
+        </button>
+      </div>
+    </article>
   </div>
 
   <div id="timeup-overlay" class="timeup-overlay" aria-hidden="true">
@@ -89,7 +107,6 @@
     </div>
   </div>
 
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
   <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
   <script src="{% static 'etapasJuego/js/rompehielo.js' %}"></script>
 </body>

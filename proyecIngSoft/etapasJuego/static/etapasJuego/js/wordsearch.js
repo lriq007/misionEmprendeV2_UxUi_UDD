@@ -212,7 +212,9 @@
     BOARD = resp.soup || [];
     WORDS = resp.words || [];
     FOUND = new Set(resp.found_words || []); // debería venir vacío tras reset
-    PROGRESS = resp.progress_pct || 0;
+    PROGRESS = typeof resp.progress_pct === "number"
+      ? resp.progress_pct
+      : (typeof resp.progress === "number" ? resp.progress : 0);
     BOARD_SIZE = resp.board_size || 10;
 
     if (elComplete) elComplete.hidden = true;

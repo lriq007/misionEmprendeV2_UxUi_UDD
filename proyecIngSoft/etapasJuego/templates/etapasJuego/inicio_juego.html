@@ -14,9 +14,7 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa1.css' %}">
 </head>
 
-<body>
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui">
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
   
   <div class="ws-header">
@@ -127,7 +125,6 @@
       overlay?.addEventListener('click', (e)=>{ if(e.target === overlay){ overlay.classList.remove('is-open'); }});
     })();
   </script>
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
 </body>
   <style>
     .welcome-container {
