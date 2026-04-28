@@ -95,6 +95,194 @@ body {
     gap: 16px; 
 }
 
+.ws-board.is-disabled {
+    pointer-events: none;
+    opacity: 0.45;
+    filter: saturate(0.82);
+}
+
+.question-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(6px);
+}
+
+.question-overlay[hidden] {
+    display: none !important;
+}
+
+.stage1-intro__card {
+    width: min(100%, 760px);
+    max-height: min(82dvh, 760px);
+    padding: 30px 32px;
+    text-align: center;
+    background: linear-gradient(135deg, #f2b400, #a66d00);
+    border-radius: 28px;
+    border: 6px solid #5aa5ff;
+    box-shadow: 0 0 34px rgba(90, 165, 255, 0.46), 0 18px 60px rgba(0, 0, 0, 0.42);
+    color: #fff;
+}
+
+.stage1-intro__card .question-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    margin: 0;
+    padding: 12px 24px;
+    border-radius: 999px;
+    background: #5aa5ff;
+    border: 2px solid rgba(255, 255, 255, 0.34);
+    color: #071327;
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.stage1-intro__card .question-sheet__title {
+    margin: 26px 0 0;
+    color: #ffffff;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    line-height: 1.14;
+}
+
+.stage1-intro__card .question-sheet__prompt {
+    margin: 18px 0 0;
+    color: rgba(255, 255, 255, 0.96);
+    font-size: 1.08rem;
+    font-weight: 700;
+}
+
+.stage1-intro__card .question-sheet__footer {
+    margin-top: 28px;
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+}
+
+.stage1-intro__card .question-sheet__action {
+    min-width: 280px;
+    min-height: 72px;
+    padding: 16px 28px;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #3c88ff, #245fe0);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22), 0 12px 30px rgba(36, 95, 224, 0.38);
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+
+.stage1-intro__error {
+    margin: 0;
+    color: #fff4f4;
+    font-weight: 700;
+    text-align: center;
+}
+
+.stage1-ranking-shell {
+    display: grid;
+    gap: 22px;
+}
+
+.stage1-ranking-copy {
+    text-align: left;
+    max-width: 780px;
+}
+
+.stage1-ranking-board {
+    display: grid;
+    gap: 18px;
+}
+
+.stage1-ranking-summary {
+    padding: 18px 22px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+.stage1-ranking-summary .question-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: #5aa5ff;
+    color: #071327;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.stage1-ranking-summary h2 {
+    margin: 12px 0 0;
+    color: #ffd24a;
+}
+
+.stage1-ranking-list {
+    display: grid;
+    gap: 14px;
+}
+
+.stage1-ranking-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.stage1-ranking-card h3,
+.stage1-ranking-card__position,
+.stage1-ranking-card__meta strong,
+.stage1-ranking-card__meta span {
+    color: #fff;
+}
+
+.stage1-ranking-card__position {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffd24a;
+}
+
+.stage1-ranking-card h3 {
+    margin: 0;
+}
+
+.stage1-ranking-card__meta {
+    display: grid;
+    justify-items: end;
+    gap: 6px;
+    text-align: right;
+}
+
+.stage1-ranking-card__meta strong {
+    font-size: 1.4rem;
+}
+
+.stage1-ranking-actions {
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+}
+
 .ws-container .ws-board .ws-cell {
     background: #f8e27a !important;
     color: #13213f !important;
