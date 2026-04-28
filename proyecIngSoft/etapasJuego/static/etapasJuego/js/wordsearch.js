@@ -155,59 +155,84 @@
 
   const pointerMap = new Map();
 
-  async function pointerDown(event) {
-    if (!isStarted || CURRENT_STATUS !== STATUS_PLAYING) return;
-    if (!(event.target.classList.contains("ws-cell"))) return;
-
-    const i = +event.target.dataset.i;
-    const j = +event.target.dataset.j;
-    if (LOCKED.has(key(i, j))) return;
-
-    const color = pointerMap.size === 0 ? COLORS[0] : COLORS[1];
-    const response = await POST("/etapasJuego/api/select/start/", { color, start: [i, j] });
-    if (!response.ok) return;
-
-    pointerMap.set(event.pointerId, { selection_id: response.selection_id, color });
-    ACTIVE = response.active_selections || ACTIVE;
-    LOCKED = new Set((response.locked_cells || []).map((entry) => `${entry[0]},${entry[1]}`));
-    lockCellsFromActive();
-    colorActivePaths();
-    event.target.setPointerCapture(event.pointerId);
-  }
-
-  async function pointerMove(event) {
-    if (!isStarted || CURRENT_STATUS !== STATUS_PLAYING) return;
-    if (!pointerMap.has(event.pointerId)) return;
-
-    const info = pointerMap.get(event.pointerId);
+  function getCellFromPointerEvent(event) {
     const element = document.elementFromPoint(event.clientX, event.clientY);
-    if (!element || !element.classList || !element.classList.contains("ws-cell")) return;
+    if (!element || !element.classList || !element.classList.contains("ws-cell")) return null;
 
     const i = +element.dataset.i;
     const j = +element.dataset.j;
-    if (LOCKED.has(key(i, j))) return;
+    if (LOCKED.has(key(i, j))) return null;
 
-    const response = await POST("/etapasJuego/api/select/extend/", {
-      selection_id: info.selection_id,
-      cell: [i, j],
-    });
-    if (!response.ok) return;
-
-    ACTIVE = response.active_selections || ACTIVE;
-    LOCKED = new Set((response.locked_cells || []).map((entry) => `${entry[0]},${entry[1]}`));
-    lockCellsFromActive();
-    colorActivePaths();
+    return { i, j };
   }
 
-  async function pointerUp(event) {
-    if (!pointerMap.has(event.pointerId)) return;
-    const info = pointerMap.get(event.pointerId);
-    pointerMap.delete(event.pointerId);
+  async function flushExtend(pointerId) {
+    const info = pointerMap.get(pointerId);
+    if (!info || info.inFlight || !info.pendingCell) return;
+
+    info.inFlight = true;
+    const nextCell = info.pendingCell;
+    info.pendingCell = null;
+
+    try {
+      const response = await POST("/etapasJuego/api/select/extend/", {
+        selection_id: info.selection_id,
+        cell: [nextCell.i, nextCell.j],
+      });
+      if (response.ok) {
+        ACTIVE = response.active_selections || ACTIVE;
+        LOCKED = new Set((response.locked_cells || []).map((entry) => `${entry[0]},${entry[1]}`));
+        info.lastCellKey = key(nextCell.i, nextCell.j);
+        lockCellsFromActive();
+        colorActivePaths();
+      }
+    } finally {
+      const latest = pointerMap.get(pointerId);
+      if (!latest) return;
+
+      latest.inFlight = false;
+      if (latest.pendingCell) {
+        flushExtend(pointerId);
+      } else if (latest.released && !latest.committing) {
+        finalizePointerSelection(pointerId);
+      }
+    }
+  }
+
+  function queueExtend(pointerId, cell) {
+    const info = pointerMap.get(pointerId);
+    if (!info || !cell) return;
+
+    const cellKey = key(cell.i, cell.j);
+    const pendingKey = info.pendingCell ? key(info.pendingCell.i, info.pendingCell.j) : null;
+    if (cellKey === info.lastCellKey || cellKey === pendingKey) return;
+
+    info.pendingCell = cell;
+    flushExtend(pointerId);
+  }
+
+  async function finalizePointerSelection(pointerId) {
+    const info = pointerMap.get(pointerId);
+    if (!info || info.committing) return;
+
+    if (info.inFlight || info.pendingCell) {
+      info.released = true;
+      return;
+    }
+
+    info.committing = true;
+    pointerMap.delete(pointerId);
 
     const response = await POST("/etapasJuego/api/select/commit/", {
       selection_id: info.selection_id,
     });
-    if (!response.ok) return;
+    if (!response.ok) {
+      ACTIVE = {};
+      LOCKED = new Set();
+      lockCellsFromActive();
+      colorActivePaths();
+      return;
+    }
 
     if (response.result === "found" && response.word) {
       markFound(response.word);
@@ -265,11 +290,57 @@
     }
   }
 
+  async function pointerDown(event) {
+    if (!isStarted || CURRENT_STATUS !== STATUS_PLAYING) return;
+    if (!(event.target.classList.contains("ws-cell"))) return;
+
+    const i = +event.target.dataset.i;
+    const j = +event.target.dataset.j;
+    if (LOCKED.has(key(i, j))) return;
+
+    const color = pointerMap.size === 0 ? COLORS[0] : COLORS[1];
+    const response = await POST("/etapasJuego/api/select/start/", { color, start: [i, j] });
+    if (!response.ok) return;
+
+    pointerMap.set(event.pointerId, {
+      selection_id: response.selection_id,
+      color,
+      lastCellKey: key(i, j),
+      pendingCell: null,
+      inFlight: false,
+      released: false,
+      committing: false,
+    });
+    ACTIVE = response.active_selections || ACTIVE;
+    LOCKED = new Set((response.locked_cells || []).map((entry) => `${entry[0]},${entry[1]}`));
+    lockCellsFromActive();
+    colorActivePaths();
+    event.target.setPointerCapture(event.pointerId);
+  }
+
+  async function pointerMove(event) {
+    if (!isStarted || CURRENT_STATUS !== STATUS_PLAYING) return;
+    if (!pointerMap.has(event.pointerId)) return;
+
+    const cell = getCellFromPointerEvent(event);
+    queueExtend(event.pointerId, cell);
+  }
+
+  async function pointerUp(event) {
+    if (!pointerMap.has(event.pointerId)) return;
+    const info = pointerMap.get(event.pointerId);
+    if (info) {
+      info.released = true;
+    }
+    await finalizePointerSelection(event.pointerId);
+  }
+
   function bindEvents() {
     elBoard.addEventListener("pointerdown", pointerDown);
     elBoard.addEventListener("pointermove", pointerMove);
     elBoard.addEventListener("pointerup", pointerUp);
     elBoard.addEventListener("pointercancel", pointerUp);
+    elBoard.addEventListener("lostpointercapture", pointerUp);
   }
 
   async function init() {
