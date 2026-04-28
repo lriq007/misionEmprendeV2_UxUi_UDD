@@ -51,20 +51,41 @@
     </section>
 
     <section class="pitch-card-shell">
-      <article class="pitch-hover-card">
+      <article
+        class="pitch-hover-card"
+        data-pitch-card
+        role="button"
+        tabindex="0"
+        aria-expanded="false"
+        aria-controls="pitch-card-back"
+        aria-label="Mostrar estructura sugerida del pitch"
+      >
         <div class="front">
-          <h2>Estructura Pitch</h2>
+          <div class="pitch-hover-card__front-copy">
+            <h2>Estructura Pitch</h2>
+            <p class="pitch-hover-card__hint">Vean una plantilla breve para ordenar su presentacion.</p>
+          </div>
+          <span class="pitch-hover-card__toggle" aria-hidden="true">
+            <span class="pitch-hover-card__chevron"></span>
+          </span>
         </div>
-        <div class="back">
+        <div id="pitch-card-back" class="back">
           <h3>Plantilla sugerida</h3>
           <ul>
             <li><strong>Apertura:</strong> Presenta la oportunidad y conecta con el usuario que definiste.</li>
             <li><strong>Solución:</strong> Explica cómo resuelves el punto de dolor clave usando tus hallazgos.</li>
             <li><strong>Llamado a la acción:</strong> Termina con un cierre claro que invite a apoyar tu propuesta.</li>
           </ul>
+          <p class="pitch-hover-card__close-hint">Toquen nuevamente para cerrar.</p>
         </div>
       </article>
     </section>
+
+    {% if pitch_tips_notice %}
+    <section class="game-instructions" style="max-width:700px;">
+      <p class="hint">{{ pitch_tips_notice }}</p>
+    </section>
+    {% endif %}
 
     {% with pts=pitch_tips.splitlines %}
     <div class="mac-cards-container">

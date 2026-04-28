@@ -1,16 +1,28 @@
 from typing import Optional
 
 from django.conf import settings
-from openai import OpenAI
+from openai import AuthenticationError, OpenAI, OpenAIError
 
-from etapasJuego.models import Pitch, Topic, Challenge, Desafio, EmpathyMap
+from etapasJuego.models import Challenge, Desafio, EmpathyMap, Pitch, Topic
 
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+_PLACEHOLDER_KEYS = {"", "tu_api_key_aqui", "your_api_key_here"}
 
 
 def _safe(val):
     return val or ""
+
+
+def _api_key_configured() -> bool:
+    api_key = (getattr(settings, "OPENAI_API_KEY", "") or "").strip()
+    return api_key not in _PLACEHOLDER_KEYS
+
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY) if _api_key_configured() else None
+
+
+def ia_pitch_disponible() -> bool:
+    return client is not None
 
 
 def generar_sugerencias_pitch(
@@ -20,9 +32,12 @@ def generar_sugerencias_pitch(
     mapa: Optional[EmpathyMap],
 ) -> str:
     """
-    Genera tres puntos de apoyo para el pitch usando OpenAI, a partir del contexto
-    de tema, desafío, personaje y mapa de empatía del proyecto.
+    Genera tres puntos de apoyo para el pitch usando OpenAI.
+    Si la integracion no esta disponible, devuelve string vacio.
     """
+    if client is None:
+        return ""
+
     tema_nombre = _safe(getattr(topic, "nombre", ""))
     tema_desc = _safe(getattr(topic, "descripcion", ""))
 
@@ -39,80 +54,84 @@ def generar_sugerencias_pitch(
     hobbies = _safe(getattr(mapa, "hobbies", ""))
 
     prompt = f"""
-Eres un asistente experto en pitch y storytelling para estudiantes hispanohablantes. Ayuda a sintetizar un pitch breve basado en el mapa de empatía y el contexto del desafío.
+Eres un asistente experto en pitch y storytelling para estudiantes hispanohablantes. Ayuda a sintetizar un pitch breve basado en el mapa de empatia y el contexto del desafio.
 
 Contexto del tema:
 - Nombre del tema: {tema_nombre}
-- Descripción del tema: {tema_desc}
+- Descripcion del tema: {tema_desc}
 
-Contexto del desafío:
-- Título del desafío: {challenge_titulo}
-- Descripción del desafío: {challenge_desc}
+Contexto del desafio:
+- Titulo del desafio: {challenge_titulo}
+- Descripcion del desafio: {challenge_desc}
 
 Personaje/usuario:
 - Nombre/personaje: {personaje}
-- Historia / descripción breve: {historia}
+- Historia / descripcion breve: {historia}
 
-Mapa de empatía (insumos clave):
+Mapa de empatia (insumos clave):
 - Gustos: {gustos}
 - Problemas: {problemas}
 - Miedos: {miedos}
 - Contexto: {contexto}
 - Hobbies: {hobbies}
 
-Con esta información, devuelve exactamente 3 ideas de apoyo al pitch en este formato, una por línea y sin texto adicional:
+Con esta informacion, devuelve exactamente 3 ideas de apoyo al pitch en este formato, una por linea y sin texto adicional:
 Punto 1: ...
 Punto 2: ...
 Punto 3: ...
 """.strip()
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": "Eres un asistente experto en pitch y storytelling. Responde en español claro para estudiantes y entrega solo los puntos solicitados.",
-            },
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.7,
-        max_tokens=350,
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Eres un asistente experto en pitch y storytelling. Responde en espanol claro para estudiantes y entrega solo los puntos solicitados.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+            max_tokens=350,
+        )
+    except (AuthenticationError, OpenAIError):
+        return ""
 
     texto = (response.choices[0].message.content or "").strip()
 
-    # Limpiar etiquetas "Punto 1:", "Punto 2:", "Punto 3:"
     import re
 
     texto = re.sub(r"^Punto\s*\d+\s*:\s*", "", texto, flags=re.MULTILINE)
-
     return texto
 
 
 def evaluar_pitch_con_ia(texto: str) -> Optional[int]:
     """
-    Evalúa el texto de un pitch y retorna un puntaje entero 1–5 basado en calidad de redacción.
-    Devuelve None si el texto es muy corto o no se puede obtener un puntaje válido.
+    Evalua el texto de un pitch y retorna un puntaje entero 1-5.
+    Devuelve None si no hay IA disponible o si no se obtiene un valor valido.
     """
-    if not texto or len(texto.strip()) < 30:
+    if client is None or not texto or len(texto.strip()) < 30:
         return None
 
     prompt = (
-        "Eres un experto en escritura, gramática y narrativa de pitch de emprendimiento, "
-        "con estándares MIT, Oxford e Imperial College. Evalúa SOLO la estructura, claridad, "
-        "coherencia y calidad de redacción del siguiente pitch. Devuelve SOLO un número entero "
-        "del 1 al 5, sin ningún otro texto, palabra, explicación ni símbolo."
+        "Eres un experto en escritura, gramatica y narrativa de pitch de emprendimiento, "
+        "con estandares MIT, Oxford e Imperial College. Evalua SOLO la estructura, claridad, "
+        "coherencia y calidad de redaccion del siguiente pitch. Devuelve SOLO un numero entero "
+        "del 1 al 5, sin ningun otro texto, palabra, explicacion ni simbolo."
     )
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": texto},
-        ],
-        temperature=0,
-        max_tokens=5,
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": texto},
+            ],
+            temperature=0,
+            max_tokens=5,
+        )
+    except (AuthenticationError, OpenAIError):
+        return None
 
     raw = (response.choices[0].message.content or "").strip()
     try:
@@ -125,7 +144,8 @@ def evaluar_pitch_con_ia(texto: str) -> Optional[int]:
 
 def actualizar_score_ai(pitch: Pitch) -> None:
     """
-    Evalúa pitch.guion con IA y actualiza pitch.score_ai si se obtiene un valor válido.
+    Evalua pitch.guion con IA y actualiza pitch.score_ai si se obtiene un valor valido.
+    Si la IA no esta disponible, deja el score en None sin romper el flujo.
     """
     if not pitch.guion:
         pitch.score_ai = None
@@ -134,4 +154,7 @@ def actualizar_score_ai(pitch: Pitch) -> None:
     score = evaluar_pitch_con_ia(pitch.guion)
     if score is not None:
         pitch.score_ai = score
+        pitch.save(update_fields=["score_ai"])
+    else:
+        pitch.score_ai = None
         pitch.save(update_fields=["score_ai"])

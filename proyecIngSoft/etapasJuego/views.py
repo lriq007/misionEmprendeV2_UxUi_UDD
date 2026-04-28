@@ -11,7 +11,7 @@ from django.db import connection
 from django.templatetags.static import static
 from .context import get_or_create_team_for_request
 from .services import RouletteEngine
-from .services.pitch_ai import generar_sugerencias_pitch, actualizar_score_ai
+from .services.pitch_ai import generar_sugerencias_pitch, actualizar_score_ai, ia_pitch_disponible
 
 
 
@@ -714,6 +714,8 @@ def etapa4(request):
 
     pitch, _ = Pitch.objects.get_or_create(proyecto=project)
 
+    pitch_tips_notice = ""
+
     if not pitch.sugerencias_ia:
         topic = getattr(project.desafio, "topic", None)
         challenge = project.desafio
@@ -724,8 +726,18 @@ def etapa4(request):
             pitch.save(update_fields=["sugerencias_ia"])
         else:
             sugerencias = ""
+            pitch_tips_notice = (
+                "Las sugerencias automaticas no estan disponibles ahora. "
+                "Pueden continuar escribiendo el pitch manualmente."
+            )
     else:
         sugerencias = pitch.sugerencias_ia
+
+    if not pitch_tips_notice and not ia_pitch_disponible():
+        pitch_tips_notice = (
+            "La integracion con IA no esta configurada en este entorno. "
+            "Pueden continuar escribiendo el pitch manualmente."
+        )
 
     desafio_numero = getattr(project.selected_desafio, "id", None) or getattr(project.desafio, "id", None)
 
@@ -757,6 +769,7 @@ def etapa4(request):
         {
             "sesion": sesion,
             "pitch_tips": sugerencias,
+            "pitch_tips_notice": pitch_tips_notice,
             "pitch_payload": pitch_payload,
             "pitch_text": pitch.guion,
             "team": team,
