@@ -744,4 +744,4 @@ Actualmente el proyecto esta orientado a desarrollo academico. Antes de desplega
 
 ## Autores
 
-Proyecto desarrollado para el ramo de Ingenieria de Software, ano 2025.
+Proyecto desarrollado para el ramo de Ingenieria de Software, año 2026.
