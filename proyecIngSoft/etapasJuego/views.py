@@ -11,7 +11,7 @@ from django.db import connection
 from django.templatetags.static import static
 from .context import get_or_create_team_for_request
 from .services import RouletteEngine
-from .services.pitch_ai import generar_sugerencias_pitch, actualizar_score_ai
+from .services.pitch_ai import generar_sugerencias_pitch, actualizar_score_ai, ia_pitch_disponible
 
 
 
@@ -94,9 +94,162 @@ def _ensure_active_session(team_id, words=None, board_size=10):
         )
     return tgs
 
-def etapa1(request):
+
+def _get_wordsearch_context(request):
+    if not request.session.session_key:
+        request.session.create()
+
     sesion, team = get_or_create_team_for_request(request)
-    return render(request, "etapasJuego/etapa1.html", {"sesion": sesion, "team": team})
+    identity = f"team:{team.id}" if team else request.session.session_key
+    return sesion, team, identity
+
+
+def _build_wordsearch_session(words=None, board_size=10, identity=None, team=None):
+    if words is None:
+        words = ["custom", "white", "glass", "computer"]
+    soup, dict_pos = create_soup(words=words, board_size=board_size)
+    return TeamGameSession.objects.create(
+        team_id=identity or f"team:{team.id}",
+        board_size=board_size,
+        words=words,
+        soup=soup,
+        dict_word_position=dict_pos,
+        started_at=timezone.now(),
+        active_selections={},
+        equipo=team,
+    )
+
+
+def _ensure_team_wordsearch_session(request, words=None, board_size=10, reset=False):
+    sesion, team, identity = _get_wordsearch_context(request)
+    lookup = {"equipo": team} if team is not None else {"team_id": identity}
+    tgs = (
+        TeamGameSession.objects.filter(**lookup, ended_at__isnull=True)
+        .order_by("-started_at")
+        .first()
+    )
+
+    if reset and tgs is not None:
+        tgs.ended_at = timezone.now()
+        if tgs.status not in (
+            TeamGameSession.STATUS_FINISHED,
+            TeamGameSession.STATUS_TIME_UP,
+        ):
+            tgs.status = TeamGameSession.STATUS_TIME_UP
+        tgs.save(update_fields=["ended_at", "status"])
+        tgs = None
+
+    if tgs is not None:
+        if tgs.equipo_id is None and team is not None:
+            tgs.equipo = team
+            tgs.save(update_fields=["equipo"])
+        return sesion, team, tgs
+
+    return sesion, team, _build_wordsearch_session(
+        words=words,
+        board_size=board_size,
+        identity=identity,
+        team=team,
+    )
+
+
+def _format_elapsed_label(total_seconds):
+    if total_seconds is None:
+        return None
+    minutes, seconds = divmod(int(total_seconds), 60)
+    return f"{minutes:02d}:{seconds:02d}"
+
+
+def _serialize_ranking_entry(team):
+    wordsearch_session = (
+        TeamGameSession.objects.filter(equipo=team)
+        .order_by("-started_at", "-id")
+        .first()
+    )
+    if wordsearch_session is None:
+        status = TeamGameSession.STATUS_PENDING
+        progress_pct = 0.0
+        elapsed_seconds = None
+    else:
+        status = wordsearch_session.status
+        progress_pct = float(wordsearch_session.progress_pct or 0.0)
+        elapsed_seconds = wordsearch_session.elapsed_seconds
+
+    return {
+        "team_id": team.id,
+        "team_name": team.nombre,
+        "team_code": team.codigo_grupo,
+        "status": status,
+        "status_label": dict(TeamGameSession.STATUS_CHOICES).get(status, status.title()),
+        "progress_pct": progress_pct,
+        "elapsed_seconds": elapsed_seconds,
+        "elapsed_label": _format_elapsed_label(elapsed_seconds),
+    }
+
+
+def _build_stage1_ranking(game_session):
+    entries = [
+        _serialize_ranking_entry(team)
+        for team in game_session.equipos.order_by("id")
+    ]
+
+    status_order = {
+        TeamGameSession.STATUS_FINISHED: 0,
+        TeamGameSession.STATUS_PLAYING: 1,
+        TeamGameSession.STATUS_PENDING: 2,
+        TeamGameSession.STATUS_TIME_UP: 3,
+    }
+    entries.sort(
+        key=lambda item: (
+            status_order.get(item["status"], 99),
+            item["elapsed_seconds"] if item["elapsed_seconds"] is not None else 10**9,
+            item["team_name"].lower(),
+        )
+    )
+
+    position = 1
+    for entry in entries:
+        if entry["status"] == TeamGameSession.STATUS_FINISHED:
+            entry["position"] = position
+            position += 1
+        else:
+            entry["position"] = None
+
+    all_finished = bool(entries) and all(
+        entry["status"] in (TeamGameSession.STATUS_FINISHED, TeamGameSession.STATUS_TIME_UP)
+        for entry in entries
+    )
+    return entries, all_finished
+
+def etapa1(request):
+    sesion, team, tgs = _ensure_team_wordsearch_session(request)
+    return render(
+        request,
+        "etapasJuego/etapa1.html",
+        {
+            "sesion": sesion,
+            "team": team,
+            "stage1_session": tgs,
+            "ranking_url": reverse("etapa1_ranking"),
+        },
+    )
+
+
+def etapa1_ranking(request):
+    sesion, team = get_or_create_team_for_request(request)
+    ranking, all_finished = _build_stage1_ranking(sesion)
+    return render(
+        request,
+        "etapasJuego/ranking_etapa1.html",
+        {
+            "sesion": sesion,
+            "team": team,
+            "ranking_entries": ranking,
+            "all_finished": all_finished,
+            "ranking_api_url": reverse("api_stage1_ranking"),
+            "next_url": reverse("etapa2_tema"),
+        },
+    )
 
 
 def etapa2_tema(request):
@@ -138,8 +291,7 @@ def api_init(request):
     words = body.get("words")
     board_size = int(body.get("board_size", 10))
 
-    _, team_id = _get_or_create_session(request)
-    tgs = _ensure_active_session(team_id, words=words, board_size=board_size)
+    _, _, tgs = _ensure_team_wordsearch_session(request, words=words, board_size=board_size)
     # Asociar Team actual con esta sesión de sopa (opcional, no rompe nada)
     _, team = get_or_create_team_for_request(request)
     if tgs.equipo is None:
@@ -156,15 +308,43 @@ def api_init(request):
         "progress_pct": float(tgs.progress_pct or 0.0),
         "active_selections": tgs.active_selections,
         "ended": tgs.ended_at is not None,
+        "status": tgs.status,
+        "ready": tgs.ready_at is not None,
+        "ready_at": tgs.ready_at.isoformat() if tgs.ready_at else None,
+        "elapsed_seconds": tgs.elapsed_seconds,
+        "ranking_url": reverse("etapa1_ranking"),
     })
 
 @require_POST
 def api_reset(request):
-    _, team_id = _get_or_create_session(request)
-    TeamGameSession.objects.filter(team_id=team_id, ended_at__isnull=True).update(ended_at=timezone.now())
-    # nueva partida
-    tgs = _ensure_active_session(team_id)
+    _, _, tgs = _ensure_team_wordsearch_session(request, reset=True)
     return JsonResponse({"ok": True, "new_session": tgs.id})
+
+@require_POST
+def api_stage1_start(request):
+    _, _, tgs = _ensure_team_wordsearch_session(request)
+    tgs.mark_started()
+    tgs.save(update_fields=["ready_at", "status"])
+    return JsonResponse(
+        {
+            "ok": True,
+            "status": tgs.status,
+            "ready_at": tgs.ready_at.isoformat() if tgs.ready_at else None,
+        }
+    )
+
+@require_POST
+def api_stage1_timeup(request):
+    _, _, tgs = _ensure_team_wordsearch_session(request)
+    if tgs.status not in (TeamGameSession.STATUS_FINISHED, TeamGameSession.STATUS_TIME_UP):
+        tgs.mark_time_up()
+        tgs.save(update_fields=["ended_at", "elapsed_seconds", "status"])
+    return JsonResponse({"ok": True, "status": tgs.status, "redirect_url": reverse("etapa1_ranking")})
+
+def api_stage1_ranking(request):
+    sesion, _ = get_or_create_team_for_request(request)
+    ranking, all_finished = _build_stage1_ranking(sesion)
+    return JsonResponse({"success": True, "all_finished": all_finished, "teams": ranking})
 
 @require_POST
 def api_select_start(request):
@@ -173,8 +353,9 @@ def api_select_start(request):
     Entrada: {"color":"#hex", "start":[i,j]}
     Devuelve selection_id: "s1" o "s2"
     """
-    _, team_id = _get_or_create_session(request)
-    tgs = _ensure_active_session(team_id)
+    _, _, tgs = _ensure_team_wordsearch_session(request)
+    if tgs.ready_at is None or tgs.status != TeamGameSession.STATUS_PLAYING:
+        return JsonResponse({"ok": False, "error": "stage_not_started"}, status=409)
 
     body = json.loads(request.body.decode("utf-8"))
     color = body.get("color")
@@ -196,8 +377,9 @@ def api_select_extend(request):
     Extiende la selección (drag/pointermove).
     Entrada: {"selection_id":"s1","cell":[i,j]}
     """
-    _, team_id = _get_or_create_session(request)
-    tgs = _ensure_active_session(team_id)
+    _, _, tgs = _ensure_team_wordsearch_session(request)
+    if tgs.ready_at is None or tgs.status != TeamGameSession.STATUS_PLAYING:
+        return JsonResponse({"ok": False, "error": "stage_not_started"}, status=409)
 
     body = json.loads(request.body.decode("utf-8"))
     sid = body.get("selection_id")
@@ -228,8 +410,9 @@ def api_select_commit(request):
     El jugador suelta (pointerup). Validamos la palabra.
     Entrada: {"selection_id":"s1"}
     """
-    _, team_id = _get_or_create_session(request)
-    tgs = _ensure_active_session(team_id)
+    _, _, tgs = _ensure_team_wordsearch_session(request)
+    if tgs.ready_at is None or tgs.status != TeamGameSession.STATUS_PLAYING:
+        return JsonResponse({"ok": False, "error": "stage_not_started"}, status=409)
 
     body = json.loads(request.body.decode("utf-8"))
     sid = body.get("selection_id")
@@ -259,7 +442,16 @@ def api_select_commit(request):
     # Quitamos la selección activa
     del act[sid]
     tgs.active_selections = act
-    tgs.save(update_fields=["active_selections", "locked_cells", "found_words", "progress_pct", "ended_at"])
+    update_fields = [
+        "active_selections",
+        "locked_cells",
+        "found_words",
+        "progress_pct",
+        "ended_at",
+        "status",
+        "elapsed_seconds",
+    ]
+    tgs.save(update_fields=update_fields)
 
     return JsonResponse({
         "ok": True,
@@ -267,7 +459,9 @@ def api_select_commit(request):
         "word": word,
         "found_words": tgs.found_words,
         "progress_pct": tgs.progress_pct,
-        "ended": tgs.ended_at is not None
+        "ended": tgs.ended_at is not None,
+        "status": tgs.status,
+        "redirect_url": reverse("etapa1_ranking") if tgs.status == TeamGameSession.STATUS_FINISHED else None,
     })
 
 ################################################################
@@ -520,6 +714,8 @@ def etapa4(request):
 
     pitch, _ = Pitch.objects.get_or_create(proyecto=project)
 
+    pitch_tips_notice = ""
+
     if not pitch.sugerencias_ia:
         topic = getattr(project.desafio, "topic", None)
         challenge = project.desafio
@@ -530,8 +726,18 @@ def etapa4(request):
             pitch.save(update_fields=["sugerencias_ia"])
         else:
             sugerencias = ""
+            pitch_tips_notice = (
+                "Las sugerencias automaticas no estan disponibles ahora. "
+                "Pueden continuar escribiendo el pitch manualmente."
+            )
     else:
         sugerencias = pitch.sugerencias_ia
+
+    if not pitch_tips_notice and not ia_pitch_disponible():
+        pitch_tips_notice = (
+            "La integracion con IA no esta configurada en este entorno. "
+            "Pueden continuar escribiendo el pitch manualmente."
+        )
 
     desafio_numero = getattr(project.selected_desafio, "id", None) or getattr(project.desafio, "id", None)
 
@@ -563,6 +769,7 @@ def etapa4(request):
         {
             "sesion": sesion,
             "pitch_tips": sugerencias,
+            "pitch_tips_notice": pitch_tips_notice,
             "pitch_payload": pitch_payload,
             "pitch_text": pitch.guion,
             "team": team,

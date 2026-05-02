@@ -1,5 +1,8 @@
 (() => {
   const root = document.querySelector("[data-rompehielo-app]");
+  const SPIN_DURATION_MS = 1600;
+  const SPIN_EXTRA_TURNS = 4;
+  const SPIN_EASING = "cubic-bezier(0.16, 0.84, 0.19, 1)";
 
   const formatClock = (totalSeconds) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -56,6 +59,7 @@
       selectedId: null,
       isBusy: false,
       isTimeUp: false,
+      currentRotation: 0,
       spinTimeoutId: null,
       bootstrapUrl: root.dataset.bootstrapUrl,
       wheel: root.querySelector("[data-roulette-wheel]"),
@@ -72,6 +76,48 @@
       questionEmoji: document.querySelector("[data-question-emoji]"),
       passButton: document.querySelector("[data-pass-button]"),
     };
+  }
+
+  function normalizeDegrees(value) {
+    return ((value % 360) + 360) % 360;
+  }
+
+  function getSegmentAngle(state) {
+    return 360 / state.questions.length;
+  }
+
+  function getQuestionAngle(state, questionId) {
+    const questionIndex = state.questions.findIndex((question) => question.id === questionId);
+    if (questionIndex < 0) {
+      throw new Error("missing_question_angle");
+    }
+
+    const segmentAngle = getSegmentAngle(state);
+    return segmentAngle * questionIndex + segmentAngle / 2;
+  }
+
+  function setWheelRotation(state, rotation, animate = false) {
+    if (!state.wheel) return;
+
+    state.wheel.style.transition = animate
+      ? `transform ${SPIN_DURATION_MS}ms ${SPIN_EASING}`
+      : "none";
+    state.wheel.style.transform = `rotate(${rotation}deg)`;
+    state.currentRotation = rotation;
+  }
+
+  function resetWheelAnimation(state) {
+    if (!state.wheel) return;
+    state.wheel.style.transition = "none";
+  }
+
+  function getTargetRotation(state, questionId) {
+    const questionAngle = getQuestionAngle(state, questionId);
+    const currentRotation = normalizeDegrees(state.currentRotation);
+    const targetRotation = normalizeDegrees(360 - questionAngle);
+    const delta = normalizeDegrees(targetRotation - currentRotation);
+
+    return state.currentRotation + SPIN_EXTRA_TURNS * 360 + delta;
   }
 
   function setTurnButton(state, label, disabled, retry = false) {
@@ -128,8 +174,8 @@
       state.turnStatus.textContent = "La pantalla sigue disponible para reintentar.";
     }
     state.isBusy = false;
-    state.wheel?.classList.remove("is-spinning");
-    setTurnButton(state, "Reintentar ruleta", false, true);
+    resetWheelAnimation(state);
+    setTurnButton(state, "Reintentar", false, true);
   }
 
   function renderSegments(state) {
@@ -165,7 +211,7 @@
       return;
     }
 
-    setTurnButton(state, "Preparando ruleta...", true);
+    setTurnButton(state, "Cargando", true);
     if (state.turnStatus) {
       state.turnStatus.textContent = "Cargando preguntas del rompehielo...";
     }
@@ -188,12 +234,13 @@
       state.questions = payload.questions;
       state.availableIds = payload.questions.map((question) => question.id);
       state.selectedId = null;
+      setWheelRotation(state, 0);
       renderSegments(state);
       updateCycleStatus(state);
       if (state.turnStatus) {
         state.turnStatus.textContent = "La ruleta está lista. Presiona el centro para comenzar la ronda.";
       }
-      setTurnButton(state, "Comenzar ruleta", false);
+      setTurnButton(state, "Girar", false);
     } catch (error) {
       showError(state, "No pudimos cargar las preguntas del rompehielo. Intenta nuevamente", error.message);
     }
@@ -216,6 +263,7 @@
   function stopPendingTransitions(state) {
     window.clearTimeout(state.spinTimeoutId);
     state.spinTimeoutId = null;
+    resetWheelAnimation(state);
   }
 
   function selectQuestion(state) {
@@ -254,12 +302,12 @@
     updateCycleStatus(state, recycled);
     renderSegments(state);
     openQuestionOverlay(state);
-    setTurnButton(state, "Pregunta en curso", true);
+    setTurnButton(state, "En curso", true);
   }
 
   function finishSpin(state) {
     state.isBusy = false;
-    state.wheel?.classList.remove("is-spinning");
+    resetWheelAnimation(state);
   }
 
   function spinRoulette(state) {
@@ -273,25 +321,33 @@
     state.isBusy = true;
     clearError(state);
     closeQuestionOverlay(state);
-    setTurnButton(state, "Girando...", true);
+    setTurnButton(state, "Girando", true);
     if (state.turnStatus) {
       state.turnStatus.textContent = "La ruleta está girando para elegir la siguiente pregunta...";
     }
-    state.wheel?.classList.remove("is-spinning");
+    let selection;
+    try {
+      selection = selectQuestion(state);
+    } catch (error) {
+      showError(state, "No pudimos actualizar la pregunta. Intenta nuevamente", error.message);
+      return;
+    }
+
+    const { question, recycled } = selection;
+    const targetRotation = getTargetRotation(state, question.id);
 
     window.requestAnimationFrame(() => {
-      state.wheel?.classList.add("is-spinning");
+      setWheelRotation(state, targetRotation, true);
     });
 
     state.spinTimeoutId = window.setTimeout(() => {
       try {
-        const { question, recycled } = selectQuestion(state);
         applySelection(state, question, recycled);
         finishSpin(state);
       } catch (error) {
         showError(state, "No pudimos actualizar la pregunta. Intenta nuevamente", error.message);
       }
-    }, 1200);
+    }, SPIN_DURATION_MS);
   }
 
   function handlePassToNext(state) {
@@ -308,8 +364,7 @@
     state.isTimeUp = true;
     stopPendingTransitions(state);
     closeQuestionOverlay(state);
-    state.wheel?.classList.remove("is-spinning");
-    setTurnButton(state, "Tiempo finalizado", true);
+    setTurnButton(state, "Tiempo", true);
     if (state.passButton) {
       state.passButton.disabled = true;
     }

@@ -1,6 +1,9 @@
+import json
+
 from django.test import TestCase
 from django.urls import reverse
 
+from .models import GameSession, Team, Tablet, TeamGameSession
 from .services import RouletteEngine
 
 
@@ -55,3 +58,56 @@ class RompehieloViewTests(TestCase):
         self.assertEqual(payload["success"], True)
         self.assertGreaterEqual(len(payload["questions"]), 8)
         self.assertTrue(all("id" in question and "text" in question and "emoji" in question for question in payload["questions"]))
+
+
+class Stage1RankingTests(TestCase):
+    def setUp(self):
+        self.game_session = GameSession.objects.create(nombre="Sesion Test", codigo="TEST01")
+        self.tablet = Tablet.objects.create(codigo="Tablet A", sesion=self.game_session)
+        self.team = Team.objects.create(
+            nombre="Equipo A",
+            sesion=self.game_session,
+            codigo_grupo="A",
+            tablet=self.tablet,
+        )
+        session = self.client.session
+        session["tablet_id"] = self.tablet.id
+        session["team_id"] = self.team.id
+        session.save()
+
+    def test_stage1_start_marks_session_as_playing(self):
+        self.client.post(
+            reverse("api_init"),
+            data=json.dumps({}),
+            content_type="application/json",
+        )
+
+        response = self.client.post(reverse("api_stage1_start"))
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["status"], TeamGameSession.STATUS_PLAYING)
+        tgs = TeamGameSession.objects.get(equipo=self.team, ended_at__isnull=True)
+        self.assertIsNotNone(tgs.ready_at)
+        self.assertEqual(tgs.status, TeamGameSession.STATUS_PLAYING)
+
+    def test_stage1_ranking_includes_connected_team(self):
+        TeamGameSession.objects.create(
+            team_id=f"team:{self.team.id}",
+            equipo=self.team,
+            words=["A"],
+            soup=[["A"]],
+            dict_word_position={"A": [[0, 0]]},
+            progress_pct=100.0,
+            status=TeamGameSession.STATUS_FINISHED,
+            elapsed_seconds=120,
+        )
+
+        response = self.client.get(reverse("api_stage1_ranking"))
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["success"], True)
+        self.assertEqual(len(payload["teams"]), 1)
+        self.assertEqual(payload["teams"][0]["team_name"], "Equipo A")
+        self.assertEqual(payload["teams"][0]["status"], TeamGameSession.STATUS_FINISHED)

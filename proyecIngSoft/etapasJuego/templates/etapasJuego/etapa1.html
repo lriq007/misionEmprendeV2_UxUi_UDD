@@ -28,7 +28,13 @@
   </div>
 
   <!-- Contenido principal -->
-  <div class="ws-container">
+  <div
+    class="ws-container"
+    data-stage1-app
+    data-start-url="{% url 'api_stage1_start' %}"
+    data-timeup-url="{% url 'api_stage1_timeup' %}"
+    data-ranking-url="{{ ranking_url }}"
+  >
     <!-- Cronómetro -->
     <div
       id="ws-timer"
@@ -73,6 +79,28 @@
         </div>
       </aside>
     </main>
+  </div>
+
+  <div id="stage1-intro-overlay" class="question-overlay stage1-intro is-open" aria-hidden="false">
+    <article class="question-sheet stage1-intro__card" role="dialog" aria-modal="true" aria-labelledby="stage1-intro-title">
+      <div class="question-sheet__glow" aria-hidden="true"></div>
+      <div class="question-sheet__body">
+        <p class="question-badge">Antes de comenzar</p>
+        <h2 id="stage1-intro-title" class="question-sheet__title">La sopa empieza cuando ustedes lo decidan.</h2>
+        <p class="question-sheet__prompt">
+          Al presionar <strong>Comenzar</strong> inicia el tiempo oficial de su equipo. Cuando terminen, verán el ranking de las tabletas conectadas a esta sesión.
+        </p>
+      </div>
+      <div class="question-sheet__footer">
+        <button
+          id="stage1-start-button"
+          class="question-sheet__action"
+          type="button"
+          onclick="if (window.__stage1StartBridge) { window.__stage1StartBridge(); } else { const error = document.getElementById('stage1-start-error'); if (error) { error.hidden = false; error.textContent = 'No pudimos cargar la interaccion de esta etapa. Recarga e intenta nuevamente.'; } }"
+        >Comenzar</button>
+        <p id="stage1-start-error" class="stage1-intro__error" hidden>No pudimos iniciar la etapa. Intenta nuevamente.</p>
+      </div>
+    </article>
   </div>
 
   <!-- Modal de etapa completada -->

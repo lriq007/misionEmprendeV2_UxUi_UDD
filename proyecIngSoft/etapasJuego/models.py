@@ -8,6 +8,17 @@ from django.conf import settings
 
 
 class TeamGameSession(models.Model):
+    STATUS_PENDING = "PENDING"
+    STATUS_PLAYING = "PLAYING"
+    STATUS_FINISHED = "FINISHED"
+    STATUS_TIME_UP = "TIME_UP"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pendiente"),
+        (STATUS_PLAYING, "Jugando"),
+        (STATUS_FINISHED, "Terminado"),
+        (STATUS_TIME_UP, "No completo"),
+    ]
+
     id = models.BigAutoField(primary_key=True)
     team_id = models.CharField(max_length=64, db_index=True)
     board_size = models.PositiveIntegerField(default=10)
@@ -22,7 +33,14 @@ class TeamGameSession(models.Model):
 
     progress_pct = models.FloatField(default=0.0)
     started_at = models.DateTimeField(default=timezone.now)
+    ready_at = models.DateTimeField(null=True, blank=True)
     ended_at = models.DateTimeField(null=True, blank=True)
+    elapsed_seconds = models.PositiveIntegerField(null=True, blank=True)
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+    )
     equipo = models.ForeignKey(
         "Team",
         on_delete=models.SET_NULL,
@@ -36,6 +54,12 @@ class TeamGameSession(models.Model):
         return f"TeamGameSession(team={self.team_id}, progress={self.progress_pct:.1f}%)"
 
     # Útil para la lógica de la sopa de letras
+    def mark_started(self):
+        if self.ready_at is None:
+            self.ready_at = timezone.now()
+        if self.status == self.STATUS_PENDING:
+            self.status = self.STATUS_PLAYING
+
     def mark_found(self, word: str):
         words = list(self.words or [])
         found = set(self.found_words or [])
@@ -46,6 +70,22 @@ class TeamGameSession(models.Model):
         self.progress_pct = (len(found) / total) * 100.0 if total else 0.0
         if total and len(found) >= total and not self.ended_at:
             self.ended_at = timezone.now()
+            self.status = self.STATUS_FINISHED
+            if self.ready_at is not None:
+                self.elapsed_seconds = max(
+                    int((self.ended_at - self.ready_at).total_seconds()),
+                    0,
+                )
+
+    def mark_time_up(self):
+        if self.ended_at is None:
+            self.ended_at = timezone.now()
+        if self.elapsed_seconds is None and self.ready_at is not None:
+            self.elapsed_seconds = max(
+                int((self.ended_at - self.ready_at).total_seconds()),
+                0,
+            )
+        self.status = self.STATUS_TIME_UP
 
 
 class Desafio(models.Model):

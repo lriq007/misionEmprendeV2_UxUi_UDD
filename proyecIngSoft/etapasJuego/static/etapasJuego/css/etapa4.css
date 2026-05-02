@@ -101,21 +101,32 @@ body {
 .pitch-hover-card {
     position: relative;
     width: min(980px, 100%);
-    min-height: 320px;
     border-radius: 18px;
     overflow: hidden;
     box-shadow: 0 22px 48px rgba(0,0,0,0.26);
     background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(214,229,255,0.94) 45%, rgba(173,197,255,0.9) 100%);
-    transition: transform .6s cubic-bezier(0.23,1,0.32,1);
+    transition: box-shadow .25s ease, transform .25s ease;
+    cursor: pointer;
+    user-select: none;
 }
 
 .pitch-hover-card .front {
     display: flex;
     align-items: center;
-    justify-content: center;
-    height: 100%;
+    justify-content: space-between;
     padding: 40px 32px;
-    transition: all .6s cubic-bezier(0.23,1,0.32,1);
+    gap: 20px;
+}
+
+.pitch-hover-card:focus-visible {
+    outline: 4px solid rgba(255, 210, 74, 0.9);
+    outline-offset: 4px;
+}
+
+.pitch-hover-card__front-copy {
+    display: grid;
+    gap: 10px;
+    max-width: 760px;
 }
 
 .pitch-hover-card .front h2 {
@@ -128,21 +139,55 @@ body {
     text-shadow: 0 8px 18px rgba(255,210,74,0.32);
 }
 
+.pitch-hover-card__hint {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #23325a;
+    font-weight: 700;
+}
+
+.pitch-hover-card__toggle {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #3c88ff, #245fe0);
+    box-shadow: 0 12px 28px rgba(36,95,224,0.28);
+    transition: box-shadow .25s ease;
+}
+
+.pitch-hover-card__chevron {
+    width: 16px;
+    height: 16px;
+    border-top: 4px solid #ffffff;
+    border-right: 4px solid #ffffff;
+    transform: translateX(-2px) rotate(45deg);
+    transform-origin: center;
+    transition: transform .25s ease;
+}
+
 .pitch-hover-card .back {
-    position: absolute;
-    inset: 0;
     display: grid;
-    align-content: center;
     gap: 18px;
-    padding: 48px 64px;
+    max-height: 0;
+    padding: 0 32px;
     text-align: left;
     background: linear-gradient(135deg, #0b1026 0%, #15296b 60%, #1f3fa0 100%);
     color: #f4f7ff;
-    transform: translateY(92%);
-    transition: all .6s cubic-bezier(0.23,1,0.32,1);
-    border-radius: inherit;
-    border: 2px solid rgba(255,210,74,0.65);
-    box-shadow: 0 24px 48px rgba(255,210,74,0.28);
+    overflow: hidden;
+    transition: max-height .3s ease, padding .3s ease;
+    border-top: 0 solid transparent;
+}
+
+.pitch-hover-card__close-hint {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgba(244, 247, 255, 0.82);
 }
 
 .pitch-hover-card .back h3 {
@@ -168,13 +213,27 @@ body {
     font-size: 1rem;
 }
 
-.pitch-hover-card:hover .back {
-    transform: translateY(0);
+.pitch-hover-card.is-open .back {
+    max-height: 420px;
+    padding: 32px;
+    border-top: 2px solid rgba(255,210,74,0.65);
 }
 
-.pitch-hover-card:hover .front {
-    transform: translateY(-20%);
-    opacity: 0;
+.pitch-hover-card.is-open .front {
+    background: rgba(255,255,255,0.18);
+}
+
+.pitch-hover-card.is-open .pitch-hover-card__toggle {
+    box-shadow: 0 16px 32px rgba(36,95,224,0.34);
+}
+
+.pitch-hover-card.is-open .pitch-hover-card__chevron {
+    transform: translateY(-2px) rotate(135deg);
+}
+
+.pitch-hover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 54px rgba(0,0,0,0.28);
 }
 
 .btn-arrow {
@@ -280,7 +339,24 @@ pre {
     }
     
     .pitch-hover-card .back {
-        padding: 32px 24px;
+        padding: 0 24px;
+    }
+
+    .pitch-hover-card .front {
+        padding: 28px 22px;
+        align-items: flex-start;
+    }
+
+    .pitch-hover-card.is-open .back {
+        max-height: 520px;
+        padding: 24px;
+    }
+
+    .pitch-hover-card__toggle {
+        width: 56px;
+        height: 56px;
+        flex-basis: 56px;
+        font-size: 1.8rem;
     }
     
     .pitch-intro {

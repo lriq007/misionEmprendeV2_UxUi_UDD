@@ -1,5 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const pitchCard = document.querySelector("[data-pitch-card]");
     const elements = document.querySelectorAll(".typewriter");
+
+    if (pitchCard) {
+        const togglePitchCard = () => {
+            const isOpen = pitchCard.classList.toggle("is-open");
+            pitchCard.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        };
+
+        pitchCard.addEventListener("click", togglePitchCard);
+        pitchCard.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                togglePitchCard();
+            }
+        });
+    }
 
     elements.forEach((el, index) => {
         const text = el.dataset.text;

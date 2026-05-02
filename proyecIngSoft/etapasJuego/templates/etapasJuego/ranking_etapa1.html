@@ -1,0 +1,69 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ranking Etapa 1</title>
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa1.css' %}">
+</head>
+<body class="theme-login mission-ui">
+  <main
+    class="ws-container stage1-ranking-shell"
+    data-ranking-app
+    data-ranking-api-url="{{ ranking_api_url }}"
+    data-next-url="{{ next_url }}"
+    data-all-finished="{{ all_finished|yesno:'true,false' }}"
+  >
+    <div class="ws-header">
+      <h1 class="ws-title">Ranking de la sopa de letras</h1>
+    </div>
+
+    <section class="game-instructions stage1-ranking-copy">
+      <h3>Resultados en vivo</h3>
+      <p>Revisen cómo va su equipo frente a las demás tabletas conectadas a esta sesión.</p>
+      <p class="hint">La tabla se actualiza automáticamente cada pocos segundos.</p>
+    </section>
+
+    <section class="stage1-ranking-board">
+      <div class="stage1-ranking-summary">
+        <p class="question-badge">Tu equipo</p>
+        <h2>{{ team.nombre }}</h2>
+      </div>
+
+      <div class="stage1-ranking-list" data-ranking-list>
+        {% for entry in ranking_entries %}
+          <article class="stage1-ranking-card" data-team-entry data-team-id="{{ entry.team_id }}">
+            <div>
+              <p class="stage1-ranking-card__position">
+                {% if entry.position %}#{{ entry.position }}{% else %}-{% endif %}
+              </p>
+              <h3>{{ entry.team_name }}</h3>
+            </div>
+            <div class="stage1-ranking-card__meta">
+              <strong>{{ entry.elapsed_label|default:"--:--" }}</strong>
+              <span>{{ entry.status_label }}</span>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <div class="stage1-ranking-actions">
+        <p class="hint" data-ranking-status>
+          {% if all_finished %}
+            Todos los equipos ya cerraron la etapa.
+          {% else %}
+            Esperando a que las demás tabletas terminen o cierren su tiempo.
+          {% endif %}
+        </p>
+        <a class="btn btn-primary" href="{{ next_url }}">Ir a la etapa 2</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="{% static 'etapasJuego/js/ranking_etapa1.js' %}"></script>
+</body>
+</html>
