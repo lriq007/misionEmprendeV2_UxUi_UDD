@@ -542,3 +542,112 @@ body.panel-body {
         text-align: center;
     }
 }
+
+/* Nuevo 9/5 */
+.dashboard-layout{
+    display:flex !important;
+    min-height:100vh !important;
+}
+
+.sidebar{
+    width:190px !important;
+    min-width:190px !important;
+    height:92vh !important;
+    position:sticky !important;
+    top:0 !important;
+
+    background:#081028 !important;
+
+    padding:20px 12px !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:space-between !important;
+
+    overflow:hidden !important;
+}
+
+.sidebar-header h2{
+    color:white !important;
+    font-size:22 px !important;
+    margin-bottom:4px !important;
+    line-height:1.2 !important;
+}
+
+.sidebar-header p{
+    color:rgba(255,255,255,.7) !important;
+    margin-bottom:20px !important;
+    font-size:20px !important;
+}
+
+.sidebar-nav{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:14px !important;
+}
+
+.sidebar-nav a{
+    display:flex !important;
+    align-items:center !important;
+
+    width:100% !important;
+
+    padding:10px 12px !important;
+
+    background:#18233d !important;
+
+    border-radius:12px !important;
+
+    color:white !important;
+    text-decoration:none !important;
+
+    font-weight:700 !important;
+    font-size:16px !important;
+
+    box-sizing:border-box !important;
+
+    transition:.2s !important;
+}
+
+.sidebar-nav a:hover{
+    background:#243454 !important;
+}
+
+.sidebar-nav a.active{
+    background:#2563eb !important;
+}
+
+.sidebar-footer{
+    margin-top:auto !important;
+    padding-top:20px !important;
+}
+
+.logout-btn{
+    display:flex !important;
+    justify-content:center !important;
+    align-items:center !important;
+
+    width:100% !important;
+
+    padding:10px 12px !important;
+
+    background:#dc2626 !important;
+
+    border-radius:12px !important;
+
+    text-align:center !important;
+
+    color:white !important;
+    text-decoration:none !important;
+
+    font-weight:700 !important;
+    font-size:14px !important;
+
+    box-sizing:border-box !important;
+}
+
+.panel-main{
+    flex:1 !important;
+    padding:30px !important;
+}
+/* Fin nuevo 9/5 */

@@ -1,23 +1,108 @@
+<!-- Cambio completo del panel_base 9/5 -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Panel{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'login/css/panel.css' %}">
 </head>
+
 <body class="panel-body {% if request.resolver_match and request.resolver_match.app_name == 'adminpanel' %}admin-theme{% elif request.resolver_match and request.resolver_match.app_name == 'profesorpanel' %}professor-theme{% endif %}">
-    <div class="panel-container">
+
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <h2>Misión Emprende</h2>
+            <p>
+                {% if request.resolver_match.app_name == 'adminpanel' %}
+                    Administrador
+                {% else %}
+                    Profesor
+                {% endif %}
+            </p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            {% if request.resolver_match.app_name == 'adminpanel' %}
+
+                <a class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                   href="{% url 'adminpanel:dashboard' %}">
+                   Dashboard
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}"
+                   href="{% url 'adminpanel:usuarios' %}">
+                   Profesores
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'sesiones' %}active{% endif %}"
+                   href="{% url 'adminpanel:sesiones' %}">
+                   Sesiones
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'topics' %}active{% endif %}"
+                   href="{% url 'adminpanel:topics' %}">
+                   Topics
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'challenges' %}active{% endif %}"
+                   href="{% url 'adminpanel:challenges' %}">
+                   Desafíos
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'evaluaciones' %}active{% endif %}"
+                   href="{% url 'adminpanel:evaluaciones' %}">
+                   Evaluaciones
+                </a>
+
+            {% elif request.resolver_match.app_name == 'profesorpanel' %}
+
+                <a class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                   href="{% url 'profesorpanel:dashboard' %}">
+                   Dashboard
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'sesiones' %}active{% endif %}"
+                   href="{% url 'profesorpanel:sesiones' %}">
+                   Sesiones
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'equipos' %}active{% endif %}"
+                   href="{% url 'profesorpanel:equipos' %}">
+                   Equipos
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'alumnos' %}active{% endif %}"
+                   href="{% url 'profesorpanel:alumnos' %}">
+                   Alumnos
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'secciones' %}active{% endif %}"
+                   href="{% url 'profesorpanel:secciones' %}">
+                   Secciones
+                </a>
+
+            {% endif %}
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="logout-btn" 
+                href="{% url 'login:logout' %}">
+                Cerrar sesión
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="panel-main">
+
         <div class="panel-topbar">
             <div>
                 <h1>{% block header_title %}Panel{% endblock %}</h1>
-                <p>Hola {{ request.user.get_full_name|default:request.user.username }}</p>
-            </div>
-            <div class="panel-actions">
-                {% if request.user.is_authenticated %}
-                    <a class="btn-link btn-outline" href="{% url 'login:logout' %}">Cerrar sesión</a>
-                {% endif %}
+                <p>
+                    Hola
+                    {{ request.user.get_full_name|default:request.user.username }}
+                </p>
             </div>
         </div>
 
@@ -29,7 +114,12 @@
             </div>
         {% endif %}
 
-        {% block content %}{% endblock %}
-    </div>
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</div>
+
 </body>
 </html>

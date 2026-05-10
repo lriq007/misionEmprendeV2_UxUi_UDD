@@ -3,18 +3,13 @@
 {% block header_title %}Equipos{% endblock %}
 
 {% block content %}
-<div class="panel-actions-row" style="margin-bottom:12px;">
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:dashboard' %}">Volver al dashboard</a>
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:alumnos' %}">Ir a alumnos</a>
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:secciones' %}">Ir a secciones</a>
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:sesiones' %}">Sesiones</a>
-</div>
 
 <div class="panel-card">
     <div class="card-header">
         <div>
             <p class="eyebrow">Equipos</p>
-            <h3>Gestiona equipos de tus sesiones</h3>
+            <!-- Cambio de titulo 9/5-->
+            <h3>Equipos de juego</h3>
         </div>
     </div>
     <form method="post" class="panel-form" style="margin-bottom:12px;">
@@ -42,6 +37,12 @@
             </div>
         </div>
         <div class="panel-actions-row">
+            <!-- Nuevo 9/5 -->
+            <a class="btn-link btn-outline" href="#">
+                Distribuir automáticamente
+            </a>
+            <!-- Fin nuevo 9/5 -->
+
             <button type="submit" class="btn-link btn-primary">Crear equipo</button>
         </div>
     </form>
