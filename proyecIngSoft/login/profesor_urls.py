@@ -12,4 +12,25 @@ urlpatterns = [
     path("alumnos/", views.profesor_alumnos, name="alumnos"),
     path("equipos/", views.profesor_equipos, name="equipos"),
     path("secciones/", views.profesor_secciones, name="secciones"),
+
+    #Nuevo agregar urls nuevas 9/5
+    path(
+        "sesiones/<int:pk>/iniciar/",
+        views.profesor_iniciar_sesion,
+        name="iniciar_sesion",
+    ),
+
+    path(
+        "sesiones/<int:pk>/finalizar/",
+        views.profesor_finalizar_sesion,
+    name="finalizar_sesion",
+    ),
+
+    #Nuevo url subir csv 9/5
+    path(
+        "alumnos/importar-csv/",
+        views.importar_estudiantes_csv,
+        name="importar_csv",
+    ),
+    #Fin nuevo
 ]

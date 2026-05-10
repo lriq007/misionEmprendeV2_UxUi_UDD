@@ -54,7 +54,19 @@
                 {% for s in secciones %}
                     <tr>
                         <td>{{ s.nombre }}</td>
-                        <td>{{ s.carrera|default:s.carrera_fk.nombre|default:"-" }}</td>
+                        
+                        <!-- Nuevo Carrera -->
+                        <td>
+                            {% if s.carrera %}
+                                {{ s.carrera }}
+                            {% elif s.carrera_fk %}
+                                {{ s.carrera_fk.nombre }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <!-- Fin nuevo carrera -->
+                         
                         <td>{{ s.anio_ingreso|default:"-" }}</td>
                     </tr>
                 {% empty %}

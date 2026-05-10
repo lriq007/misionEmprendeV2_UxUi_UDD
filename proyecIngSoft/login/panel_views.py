@@ -1,3 +1,6 @@
+import csv
+
+from io import TextIOWrapper
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
@@ -15,6 +18,7 @@ from .forms import (
     TopicForm,
     EstudianteAdminForm,
     TeamAdminForm,
+    CSVUploadForm,
 )
 from .models import Estudiante, SeccionEstudiantes
 from .permissions import ADMIN_GROUP, PROFESOR_GROUP, admin_required, is_admin, profesor_required
@@ -635,7 +639,7 @@ def profesor_alumnos(request):
     return render(
         request,
         "login/profesor/alumnos.html",
-        {"estudiantes": estudiantes, "form": form},
+        {"estudiantes": estudiantes, "form": form, "sesiones": sesiones},
     )
 
 
@@ -651,10 +655,40 @@ def profesor_equipos(request):
 
     form = TeamAdminForm(request.POST or None)
     form.fields["sesion"].queryset = sesiones
-    form.fields["tablet"].queryset = form.fields["tablet"].queryset.filter(sesion__in=sesiones)
+    #Borrar 9/5 
+    #form.fields["tablet"].queryset = form.fields["tablet"].queryset.filter(sesion__in=sesiones)
 
     if request.method == "POST" and form.is_valid():
+
+        #Nuevo 9/5
+        cantidad_equipos = Team.objects.filter(
+            sesion=form.cleaned_data["sesion"]
+        ).count()
+
+        if cantidad_equipos >= 8:
+
+            messages.error(
+                request,
+                "Máximo 8 equipos por sesión."
+            )
+
+            return redirect("profesorpanel:equipos")
+        #Fin nuevo 9/5
+        
         form.save()
+
+        #Nuevo 9/5
+        equipo = form.save()
+        tablet_disponible = Tablet.objects.filter(
+            sesion=equipo.sesion,
+            team__isnull=True
+        ).first()
+
+        if tablet_disponible:
+            equipo.tablet = tablet_disponible
+            equipo.save(update_fields=["tablet"])
+        #Fin nuevo 9/5
+
         messages.success(request, "Equipo creado correctamente.")
         return redirect("profesorpanel:equipos")
 
@@ -665,6 +699,7 @@ def profesor_equipos(request):
     )
 
 
+#Validar si el profesor deberia poder crear secciones o si solo el admin las crea 9/5
 @profesor_required
 def profesor_secciones(request):
     sesiones = GameSession.objects.filter(profesor=request.user)
@@ -681,3 +716,177 @@ def profesor_secciones(request):
         "login/profesor/secciones.html",
         {"secciones": secciones, "form": form},
     )
+
+
+#Nuevo funcion INICIAR JUEGO 9/5
+@profesor_required
+def profesor_iniciar_sesion(request, pk):
+
+    sesion = get_object_or_404(
+        GameSession,
+        pk=pk,
+        profesor=request.user
+    )
+
+    equipos = Team.objects.filter(sesion=sesion)
+
+    if equipos.count() < 3:
+        messages.error(
+            request,
+            "La sesión necesita mínimo 3 equipos."
+        )
+        return redirect("profesorpanel:sesiones")
+
+    equipos_invalidos = [
+        e for e in equipos
+        if not e.meets_minimum()
+    ]
+
+    if equipos_invalidos:
+        messages.error(
+            request,
+            "Todos los equipos deben tener mínimo 2 integrantes."
+        )
+        return redirect("profesorpanel:sesiones")
+
+    sesion.estado = "ACTIVA"
+
+    sesion.save(update_fields=["estado"])
+
+    messages.success(
+        request,
+        "Juego iniciado correctamente."
+    )
+
+    return redirect("profesorpanel:sesiones")
+
+#Nuevo funcion FINALIZAR JUEGO 9/5
+@profesor_required
+def profesor_finalizar_sesion(request, pk):
+
+    sesion = get_object_or_404(
+        GameSession,
+        pk=pk,
+        profesor=request.user
+    )
+
+    sesion.estado = "FINALIZADA"
+
+    sesion.save(update_fields=["estado"])
+
+    messages.success(
+        request,
+        "Juego finalizado."
+    )
+
+    return redirect("profesorpanel:sesiones")
+
+#Nuevo importar CSV 9/5
+@profesor_required
+def importar_estudiantes_csv(request):
+
+    if request.method != "POST":
+
+        return redirect(
+            "profesorpanel:alumnos"
+        )
+
+    archivo = request.FILES.get("archivo")
+
+    sesion_id = request.POST.get("sesion")
+
+    sesion = get_object_or_404(
+        GameSession,
+        id=sesion_id,
+        profesor=request.user
+    )
+
+    if not archivo:
+
+        messages.error(
+            request,
+            "Debes seleccionar un archivo CSV."
+        )
+
+        return redirect(
+            "profesorpanel:alumnos"
+        )
+
+    archivo = TextIOWrapper(
+        archivo.file,
+        encoding="utf-8"
+    )
+
+    reader = csv.DictReader(archivo)
+
+    estudiantes_creados = []
+
+    for row in reader:
+
+        nombre = row.get(
+            "nombre_apellido",
+            ""
+        ).strip()
+
+        if not nombre:
+            continue
+
+        estudiante = Estudiante.objects.create(
+            nombre_apellido=nombre,
+            carrera=row.get("carrera", "").strip(),
+            seccion=sesion.seccion,
+        )
+
+        estudiantes_creados.append(estudiante)
+
+    equipos = list(
+        Team.objects.filter(
+            sesion=sesion
+        ).order_by("id")
+    )
+
+    if not equipos:
+
+        messages.error(
+            request,
+            "Primero debes crear equipos."
+        )
+
+        return redirect(
+            "profesorpanel:alumnos"
+        )
+
+    idx = 0
+
+    for estudiante in estudiantes_creados:
+
+        assigned = False
+
+        attempts = 0
+
+        while not assigned and attempts < len(equipos):
+
+            equipo = equipos[idx % len(equipos)]
+
+            if equipo.has_cupo():
+
+                estudiante.team = equipo
+
+                estudiante.save(
+                    update_fields=["team"]
+                )
+
+                assigned = True
+
+            idx += 1
+            attempts += 1
+
+    messages.success(
+        request,
+        f"{len(estudiantes_creados)} estudiantes importados y asignados."
+    )
+
+    return redirect(
+        "profesorpanel:alumnos"
+    )
+#Fin nuevo 

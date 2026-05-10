@@ -108,6 +108,15 @@ def login_view(request):
                         if team.has_cupo():
                             assigned_team = team
                             break
+                    
+                    #Nueva limitacion de creacion de tablets a 8 en vez de infinitas 9/5
+                    if len(teams) >= 8:
+                        messages.error(
+                            request,
+                            "Todos los equipos están completos"
+                        )
+                        return redirect('login:login')
+                    #Fin nueva 9/5
 
                     if assigned_team is None:
                         existing_codes = set(Team.objects.filter(sesion=game_session).values_list("codigo_grupo", flat=True))
@@ -163,7 +172,14 @@ def login_view(request):
             
         elif user_type == 'tableta':
             pin = request.POST.get('pin')
-            tablet = Tablet.objects.filter(codigo_acceso=pin).first()
+
+            #Nuevo validacion de pin 9/5
+            tablet = Tablet.objects.filter(
+                codigo_acceso=pin,
+                sesion__estado='ACTIVA'
+            ).first()
+            #Fin nueva validacion de pin 9/5
+
             if tablet is None:
                 messages.error(request, "Código de acceso inválido")
                 return redirect('login:login')
@@ -172,6 +188,16 @@ def login_view(request):
                 # Si la tablet ya tiene team asociado, guardamos la referencia
                 from etapasJuego.models import Team  # import local para evitar ciclos
                 existing_team = Team.objects.filter(tablet=tablet).first()
+
+                #Nuevo evitar acceso tablet sin equipo asignado 9/5
+                if existing_team is None:
+                    messages.error(
+                        request,
+                        "La tablet aún no tiene equipo asignado."
+                    )
+                    return redirect('login:login')
+                #Fin nuevo
+                
                 if existing_team:
                     request.session["team_id"] = existing_team.id
                 request.session.modified = True

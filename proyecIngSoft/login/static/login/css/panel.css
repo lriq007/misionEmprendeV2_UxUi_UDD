@@ -650,4 +650,10 @@ body.panel-body {
     flex:1 !important;
     padding:30px !important;
 }
+
+/* Nuevo 9/5 */
+.btn-danger{
+    background:#dc2626 !important;
+    color:white !important;
+}
 /* Fin nuevo 9/5 */

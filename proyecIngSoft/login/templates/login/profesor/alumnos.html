@@ -4,52 +4,141 @@
 
 {% block content %}
 
-
 <div class="panel-card">
+
     <div class="card-header">
         <div>
             <p class="eyebrow">Alumnos</p>
-                <!-- Cambio de titulo 9/5-->
-                <h3>Alumnos y asignaciones</h3>
+
+            <!-- Cambio de titulo 9/5 -->
+            <h3>Alumnos y asignaciones</h3>
         </div>
     </div>
+
+    <!-- FORMULARIO MANUAL -->
     <form method="post" class="panel-form" style="margin-bottom:12px;">
+
         {% csrf_token %}
+
         <div class="panel-grid two-col">
+
             <div class="form-group">
-                <label for="{{ form.nombre_apellido.id_for_label }}">Nombre</label>
+                <label for="{{ form.nombre_apellido.id_for_label }}">
+                    Nombre
+                </label>
+
                 {{ form.nombre_apellido }}
+
                 {{ form.nombre_apellido.errors }}
             </div>
+
             <div class="form-group">
-                <label for="{{ form.carrera.id_for_label }}">Carrera</label>
+                <label for="{{ form.carrera.id_for_label }}">
+                    Carrera
+                </label>
+
                 {{ form.carrera }}
+
                 {{ form.carrera.errors }}
             </div>
+
             <div class="form-group">
-                <label for="{{ form.seccion.id_for_label }}">Sección</label>
+                <label for="{{ form.seccion.id_for_label }}">
+                    Sección
+                </label>
+
                 {{ form.seccion }}
+
                 {{ form.seccion.errors }}
             </div>
+
             <div class="form-group">
-                <label for="{{ form.team.id_for_label }}">Equipo</label>
+                <label for="{{ form.team.id_for_label }}">
+                    Equipo
+                </label>
+
                 {{ form.team }}
+
                 {{ form.team.errors }}
             </div>
-        </div>
-        <div class="panel-actions-row">
-            <!-- Nuevo 9/5 -->
-            <a class="btn-link btn-outline" href="#">
-                Importar CSV/Excel
-            </a>            
-            <!-- Fin nuevo 9/5 -->
 
-            <button type="submit" class="btn-link btn-primary">Agregar alumno</button>
         </div>
+
+        <div class="panel-actions-row">
+
+            <button
+                type="submit"
+                class="btn-link btn-primary"
+            >
+                Agregar alumno
+            </button>
+
+        </div>
+
     </form>
 
+</div>
+
+<!-- IMPORTAR CSV -->
+<div class="panel-card" style="margin-bottom:20px;">
+
+    <h3>Importar estudiantes CSV</h3>
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        action="{% url 'profesorpanel:importar_csv' %}"
+        style="display:flex; gap:10px; align-items:center;"
+    >
+
+        {% csrf_token %}
+        <!-- Nuevo 9/5 -->
+        <select
+            name="sesion"
+            class="form-field"
+            required
+        >
+
+            <option value="">
+                Selecciona sesión
+            </option>
+
+            {% for s in sesiones %}
+
+            <option value="{{ s.id }}">
+                {{ s.nombre }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+<!-- Fin nuevo 9/5 -->
+ 
+        <input
+            type="file"
+            name="archivo"
+            accept=".csv"
+            required
+        >
+
+        <button
+            type="submit"
+            class="btn-link btn-outline"
+        >
+            Importar CSV
+        </button>
+
+    </form>
+
+</div>
+
+<!-- TABLA -->
+<div class="panel-card">
+
     <div class="panel-table-wrapper">
+
         <table class="panel-table compact">
+
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -59,20 +148,41 @@
                     <th>Sesión</th>
                 </tr>
             </thead>
+
             <tbody>
+
                 {% for est in estudiantes %}
+
                     <tr>
+
                         <td>{{ est.nombre_apellido }}</td>
+
                         <td>{{ est.carrera|default:"-" }}</td>
+
                         <td>{{ est.seccion.nombre|default:"-" }}</td>
+
                         <td>{{ est.team.nombre|default:"Sin equipo" }}</td>
+
                         <td>{{ est.team.sesion.nombre|default:"-" }}</td>
+
                     </tr>
+
                 {% empty %}
-                    <tr><td colspan="5">No hay estudiantes registrados en tus sesiones.</td></tr>
+
+                    <tr>
+                        <td colspan="5">
+                            No hay estudiantes registrados en tus sesiones.
+                        </td>
+                    </tr>
+
                 {% endfor %}
+
             </tbody>
+
         </table>
+
     </div>
+
 </div>
+
 {% endblock %}

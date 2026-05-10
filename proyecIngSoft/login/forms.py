@@ -229,3 +229,18 @@ class EvaluationForm(BaseStyledModelForm):
             "puntaje_creatividad": forms.NumberInput(attrs={"min": 0, "max": 100}),
             "puntaje_comunicacion": forms.NumberInput(attrs={"min": 0, "max": 100}),
         }
+
+#Nuevo agregar csv 9/5
+class CSVUploadForm(forms.Form):
+
+    archivo = forms.FileField(
+        label="Archivo CSV"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["archivo"].widget.attrs.update({
+            "class": "form-field"
+        })
+#Fin nuevo

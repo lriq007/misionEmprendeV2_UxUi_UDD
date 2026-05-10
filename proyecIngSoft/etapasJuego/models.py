@@ -74,6 +74,12 @@ class Desafio(models.Model):
 
 
 class GameSession(models.Model):
+
+    #Nuevo validacion de tablets 9/5
+    def count_tablets(self):
+        return self.tablets.count()
+    #Fin nuevo
+
     THEME_CHOICES = [
         ("SALUD", "Salud"),
         ("SUST", "Sustentabilidad"),
@@ -83,6 +89,14 @@ class GameSession(models.Model):
         ("LOGIN_RANDOM", "Asignación automática en el login"),
         ("PRECONFIGURADO", "Asignación preconfigurada por el profesor"),
     ]
+
+    #Nuevo estados juego 9/5
+    ESTADO_CHOICES = [
+        ("PREPARACION", "Preparación"),
+        ("ACTIVA", "Activa"),
+        ("FINALIZADA", "Finalizada"),
+    ]
+    #Fin nuevo 
 
     nombre = models.CharField(max_length=100)
     codigo = models.CharField(max_length=10, unique=True)
@@ -108,6 +122,16 @@ class GameSession(models.Model):
         choices=MODO_CHOICES,
         default="LOGIN_RANDOM",
     )
+
+    #Nuevo estado juego 9/5
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default="PREPARACION",
+    )
+    #Fin nuevo 
+
+
     # Metadatos opcionales de duración por etapa (segundos); controlan los timers en frontend.
     duracion_etapa1_segundos = models.PositiveIntegerField(default=5 * 60)
     duracion_etapa2_segundos = models.PositiveIntegerField(default=10 * 60)
@@ -119,18 +143,23 @@ class GameSession(models.Model):
 
     # Nota: esta restricción asume que no existen múltiples GameSession para la misma sección.
     # Si hubiera duplicados previos, la migración fallará y se deberán resolver manualmente.
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["seccion"],
-                name="unique_gamesession_per_seccion",
-            ),
-        ]
+    
+    #Nuevo borrar limite de seccion 9/5
+#    class Meta:
+ #       constraints = [
+  #          models.UniqueConstraint(
+   #             fields=["seccion"],
+    #            name="unique_gamesession_per_seccion",
+     #       ),
+      #  ]
+    #Fin nuevo borrar 9/5
+
 
     def __str__(self):
         return f"{self.nombre} ({self.codigo})"
 
-    def crear_equipos_aleatorios_desde_seccion(self, minimo=4, maximo=8):
+#Cambio de minimos y maximos de 4 a 2 y de 8 a 10 9/5
+    def crear_equipos_aleatorios_desde_seccion(self, minimo=2, maximo=10):
         """
         Crea equipos (Team) para esta sesión a partir de los estudiantes de la sección asociada,
         asignando estudiantes de forma aleatoria y respetando un rango aproximado de tamaño
@@ -157,6 +186,10 @@ class GameSession(models.Model):
         random.shuffle(estudiantes)
 
         num_equipos = max(1, (total + maximo - 1) // maximo)
+        
+        #Nuevo limite maximo de equipos 9/5
+        num_equipos = min(num_equipos, 8)
+        #Fin nuevo
 
         equipos_creados = []
 
@@ -200,13 +233,14 @@ class GameSession(models.Model):
 
         return equipos_creados
 
-    def clean(self):
-        super().clean()
-        if self.seccion:
-            exists = GameSession.objects.exclude(pk=self.pk).filter(seccion=self.seccion).exists()
-            if exists:
-                raise ValidationError("Ya existe una sesión de juego asociada a esta sección. Solo se permite una sesión por sección.")
-
+#Nuevo borrar validacion unica por seccion 9/5
+#    def clean(self):
+ #       super().clean()
+  #      if self.seccion:
+   #         exists = GameSession.objects.exclude(pk=self.pk).filter(seccion=self.seccion).exists()
+    #        if exists:
+     #           raise ValidationError("Ya existe una sesión de juego asociada a esta sección. Solo se permite una sesión por sección.")
+#Fin nuevo borrar
 
 class Tablet(models.Model):
     codigo = models.CharField(max_length=50, unique=True)
@@ -250,7 +284,8 @@ class Tablet(models.Model):
 class Team(models.Model):
     nombre = models.CharField(max_length=100)
     sesion = models.ForeignKey(GameSession, on_delete=models.CASCADE, related_name="equipos")
-    codigo_grupo = models.CharField(max_length=1)
+    #Cambio max_length de antes 1 a ahora 10
+    codigo_grupo = models.CharField(max_length=10)
     tokens_empatia = models.PositiveIntegerField(default=0)
     tokens_creatividad = models.PositiveIntegerField(default=0)
     tokens_evaluacion = models.PositiveIntegerField(default=0)
@@ -285,11 +320,12 @@ class Team(models.Model):
     def count_estudiantes(self):
         return self.estudiantes.count()
 
+#Nuevo modificaciones limites de maximo 8 a 10 y minimo de 4 a 2 9/5
     def has_cupo(self):
-        return self.count_estudiantes() < 8
+        return self.count_estudiantes() < 10
 
     def meets_minimum(self):
-        return self.count_estudiantes() >= 4
+        return self.count_estudiantes() >= 2
 
     def update_tokens(self):
         """
