@@ -52,6 +52,14 @@
 
   function createState() {
     if (!root) return null;
+    const playersNode = document.getElementById("rompehielo-players");
+    let players = [];
+    try {
+      players = playersNode ? JSON.parse(playersNode.textContent) : [];
+    } catch (error) {
+      players = [];
+    }
+    const declaredPlayerCount = Number.parseInt(root.dataset.playerCount, 10);
 
     return {
       questions: [],
@@ -59,6 +67,11 @@
       selectedId: null,
       isBusy: false,
       isTimeUp: false,
+      introIndex: 0,
+      introCompleted: root.dataset.requiresIntro !== "true",
+      modality: root.dataset.modality || "se_conocen",
+      players,
+      playerCount: Number.isFinite(declaredPlayerCount) ? declaredPlayerCount : Math.max(players.length, 1),
       currentRotation: 0,
       spinTimeoutId: null,
       bootstrapUrl: root.dataset.bootstrapUrl,
@@ -75,6 +88,12 @@
       currentQuestion: document.querySelector("[data-current-question]"),
       questionEmoji: document.querySelector("[data-question-emoji]"),
       passButton: document.querySelector("[data-pass-button]"),
+      questionBadge: document.querySelector(".question-badge"),
+      introOverlay: document.querySelector("[data-intro-overlay]"),
+      introCount: document.querySelector("[data-intro-count]"),
+      introTitle: document.querySelector("[data-intro-title]"),
+      introCopy: document.querySelector("[data-intro-copy]"),
+      introNext: document.querySelector("[data-intro-next]"),
     };
   }
 
@@ -129,6 +148,67 @@
     }
     state.turnButton.disabled = disabled;
     state.turnButton.classList.toggle("is-retry", retry);
+  }
+
+  function getPlayerLabel(state, index) {
+    const player = state.players[index] || {};
+    if (player.nombre_apellido) {
+      return player.nombre_apellido;
+    }
+    return `Jugador ${index + 1}`;
+  }
+
+  function updateIntro(state) {
+    if (!state.introOverlay || state.introCompleted) return;
+
+    const current = Math.min(state.introIndex + 1, state.playerCount);
+    const isLast = current >= state.playerCount;
+
+    if (state.introCount) {
+      state.introCount.textContent = `Jugador ${current} de ${state.playerCount}`;
+    }
+    if (state.introTitle) {
+      state.introTitle.textContent = `${getPlayerLabel(state, state.introIndex)}, preséntate`;
+    }
+    if (state.introCopy) {
+      state.introCopy.textContent = "Di tu nombre, tu carrera y algo que quieras aportar hoy.";
+    }
+    if (state.introNext) {
+      state.introNext.textContent = isLast ? "Comenzar ruleta" : "Pasar tablet al siguiente jugador";
+    }
+  }
+
+  function openIntro(state) {
+    if (!state.introOverlay || state.introCompleted) return;
+    state.introOverlay.hidden = false;
+    state.introOverlay.classList.add("is-open");
+    state.introOverlay.setAttribute("aria-hidden", "false");
+    updateIntro(state);
+    setTurnButton(state, "Presentacion", true);
+  }
+
+  function closeIntro(state) {
+    if (!state.introOverlay) return;
+    state.introOverlay.hidden = true;
+    state.introOverlay.classList.remove("is-open");
+    state.introOverlay.setAttribute("aria-hidden", "true");
+  }
+
+  function handleIntroNext(state) {
+    if (state.isTimeUp) return;
+
+    if (state.introIndex + 1 < state.playerCount) {
+      state.introIndex += 1;
+      updateIntro(state);
+      return;
+    }
+
+    state.introCompleted = true;
+    closeIntro(state);
+    setTurnButton(state, "Girar", state.questions.length === 0);
+    if (state.turnStatus) {
+      state.turnStatus.textContent = "Todos se presentaron. Presiona el centro para girar la ruleta.";
+    }
   }
 
   function updateCycleStatus(state, recycled = false) {
@@ -232,15 +312,21 @@
       }
 
       state.questions = payload.questions;
+      state.modality = payload.modality || state.modality;
       state.availableIds = payload.questions.map((question) => question.id);
       state.selectedId = null;
       setWheelRotation(state, 0);
       renderSegments(state);
       updateCycleStatus(state);
+      if (state.questionBadge) {
+        state.questionBadge.textContent = state.modality === "no_se_conocen"
+          ? "Date a conocer"
+          : "Activa una idea";
+      }
       if (state.turnStatus) {
         state.turnStatus.textContent = "La ruleta está lista. Presiona el centro para comenzar la ronda.";
       }
-      setTurnButton(state, "Girar", false);
+      setTurnButton(state, state.introCompleted ? "Girar" : "Presentacion", !state.introCompleted);
     } catch (error) {
       showError(state, "No pudimos cargar las preguntas del rompehielo. Intenta nuevamente", error.message);
     }
@@ -311,7 +397,7 @@
   }
 
   function spinRoulette(state) {
-    if (state.isBusy || state.isTimeUp) return;
+    if (state.isBusy || state.isTimeUp || !state.introCompleted) return;
 
     if (state.questions.length === 0) {
       loadQuestions(state);
@@ -379,7 +465,9 @@
 
     state.turnButton?.addEventListener("click", () => spinRoulette(state));
     state.passButton?.addEventListener("click", () => handlePassToNext(state));
+    state.introNext?.addEventListener("click", () => handleIntroNext(state));
     loadQuestions(state);
+    openIntro(state);
     startTimer(() => handleTimeUp(state));
   }
 

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -9,103 +9,87 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa2_1.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa2.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/mission_progress.css' %}">
 </head>
 
-<body class="theme-login mission-ui">
+<body class="theme-login mission-ui has-mission-topbar">
+  {% mission_story "stage2_map" as mission %}
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
-  <div id="progress-bar">
-    <div>
-      <span>Paso 2 de 6 · Desafío y empatía</span>
-      <div>
-        <div style="width:60%;"></div>
-      </div>
-    </div>
-  </div>
+  {% include "etapasJuego/_mission_progress_topbar.html" with active_stage=2 show_timer=True timer_id="e2-timer" timer_duration=stage_duration_seconds|default:600 timer_initial="10:00" %}
 
   <div class="ws-container">
-    <!-- Cronómetro Etapa 2 -->
-    <div
-      id="e2-timer"
-      class="ws-timer"
-      aria-live="polite"
-      aria-label="Tiempo restante"
-      data-duration-seconds="{{ sesion.duracion_etapa2_segundos|default:600 }}"
-    >10:00</div>
-
     <div class="stage-wrapper">
-      <h1 class="stage-title">Mapa de Empatía</h1>
-      <section class="game-instructions">
-        <h3>💬 Guía rápida</h3>
-        <p>Escriban respuestas concretas sobre lo que ve, siente, dice y hace el usuario. Mejor breve y claro que largo.</p>
-        <p class="hint">Lo que anoten aquí alimenta el LEGO y el pitch.</p>
-        <div class="help-hint" aria-label="Ayuda rápida etapa 2.1" style="margin-top:10px; position:relative;">
-          <button type="button" class="cyber-btn"><span class="loader is-inline" aria-hidden="true"></span>¿Y ahora qué?</button>
-          <div class="cyber-tooltip">
-            <strong>Empatizar antes que inventar</strong>
-            <div>Imaginen qué siente y piensa la persona. Escriban ejemplos breves de lo que ve, dice, teme o necesita.</div>
-          </div>
+      <section class="bubble-section">
+        <div class="empathy-bg-phrases" aria-hidden="true">
+          <span>Empatía</span>
+          <span>Escuchar antes de construir</span>
+          <span>Archivo 2060</span>
+          <span>Dolor del problema</span>
         </div>
-      </section>
-
-      <div class="challenge-summary">
-        <div class="summary-copy">
-          <span class="badge">Desafío activo</span>
-          <h2 class="summary-title">{{ desafio.titulo }}</h2>
-          {% if desafio.personaje %}
-            <div class="summary-section">
-              <p class="summary-label">¿Quién es nuestro cliente?</p>
-              <p class="summary-persona">{{ desafio.personaje }}</p>
+        <div id="bubbleMap" class="empathy-map-container" data-desafio="{{ desafio.numero }}" role="group" aria-label="Mapa de empatía orbital">
+          <div class="orbital-stage" aria-label="Preguntas en espiral alrededor del personaje">
+            <div class="orbit-field" aria-hidden="true">
+              <span class="orbit-ring orbit-ring--one"></span>
+              <span class="orbit-ring orbit-ring--two"></span>
+              <span class="orbit-ring orbit-ring--three"></span>
+              <span class="orbit-ring orbit-ring--four"></span>
+              <span class="orbit-sweep orbit-sweep--one"></span>
+              <span class="orbit-sweep orbit-sweep--two"></span>
             </div>
-          {% endif %}
-          {% if desafio.historia %}
-            <div class="summary-section">
-              <p class="summary-label">¿Qué sucede con nuestro cliente?</p>
-              <p class="summary-story">{{ desafio.historia }}</p>
-            </div>
-          {% endif %}
-        </div>
-        {% if desafio_persona_image %}
-          <figure class="summary-figure">
-            {% if desafio_persona_image|slice:'0:1' == '/' or desafio_persona_image|slice:'0:4' == 'http' %}
-              <img src="{{ desafio_persona_image }}" alt="Ilustración del desafío seleccionado">
-            {% else %}
-              <img src="{% static desafio_persona_image %}" alt="Ilustración del desafío seleccionado">
-            {% endif %}
-          </figure>
-        {% endif %}
-      </div>
 
-      <section class="bubble-section" style="max-width:1200px; margin:0 auto; width:100%; display:grid; justify-items:center;">
-        <div id="bubbleMap" class="empathy-map-container" data-desafio="{{ desafio.numero }}" role="group" aria-label="Mapa de empatía">
-          <div class="map-header">
-            <h2>🎯 Mapa de Empatía</h2>
-            <p>Conoce profundamente a tu usuario: {% if desafio.personaje %}{{ desafio.personaje }}{% else %}{{ desafio.titulo }}{% endif %}</p>
+            <figure class="persona-core" aria-label="Personaje del desafío activo">
+              <span class="persona-core__halo" aria-hidden="true"></span>
+              {% if desafio_persona_image %}
+                {% if desafio_persona_image|slice:'0:1' == '/' or desafio_persona_image|slice:'0:4' == 'http' %}
+                  <img src="{{ desafio_persona_image }}" alt="Ilustración de {{ desafio.personaje|default:'la persona del desafío' }}">
+                {% else %}
+                  <img src="{% static desafio_persona_image %}" alt="Ilustración de {{ desafio.personaje|default:'la persona del desafío' }}">
+                {% endif %}
+              {% else %}
+                <div class="persona-core__fallback" aria-hidden="true">{{ desafio.personaje|default:desafio.titulo|slice:":1" }}</div>
+              {% endif %}
+              <figcaption>
+                <strong>{{ desafio.personaje|default:"Persona del desafío" }}</strong>
+                <span>{{ desafio.titulo }}</span>
+              </figcaption>
+            </figure>
+
+            <div class="spiral-nodes">
+              {% for item in bubble_questions %}
+                <article class="spiral-question spiral-question--{{ forloop.counter }}" data-key="{{ item.key }}" data-label="{{ item.label }}">
+                  <button type="button" class="question-trigger" aria-label="Pregunta {{ forloop.counter }}: {{ item.label }}">
+                    <span class="question-number">{{ forloop.counter }}</span>
+                    <span class="question-text">{{ item.label }}</span>
+                  </button>
+                  <div class="answer-list" aria-live="polite"></div>
+                  <textarea class="bubble-seed" hidden>{{ item.answer|default_if_none:'' }}</textarea>
+                </article>
+              {% endfor %}
+            </div>
+
+            <form id="bubbleAnswerPanel" class="answer-panel" hidden>
+              <div class="answer-panel__banner">
+                <span>Pregunta seleccionada</span>
+                <strong id="bubblePanelQuestion">Pregunta</strong>
+              </div>
+              <label for="bubbleAnswerInput">Respuesta</label>
+              <textarea id="bubbleAnswerInput" rows="2" maxlength="120" placeholder="Escribe una respuesta breve y concreta..."></textarea>
+              <div class="answer-panel__meta">
+                <span id="bubbleAnswerHint">Mínimo 8 caracteres. Ideal: 40 a 60.</span>
+                <span id="bubbleAnswerCount">0/120</span>
+              </div>
+              <button type="submit" class="answer-save">Guardar</button>
+            </form>
           </div>
-          
-          <div class="bubble-grid">
-            {% for item in bubble_questions %}
-              <article class="bubble-card bubble-question{% if item.answer %} has-content{% endif %}" data-key="{{ item.key }}" data-label="{{ item.label }}" tabindex="0">
-                <div class="bubble-icon" aria-hidden="true">
-                  {% if forloop.counter == 1 %}🧠{% elif forloop.counter == 2 %}💭{% elif forloop.counter == 3 %}👁️{% elif forloop.counter == 4 %}💬{% elif forloop.counter == 5 %}🏃{% else %}👂{% endif %}
-                </div>
-                <div class="bubble-question-title">{{ item.label }}</div>
-                <textarea
-                  name="{{ item.key }}"
-                  class="bubble-textarea"
-                  placeholder="Escribe aquí..."
-                  maxlength="300"
-                >{% if item.answer %}{{ item.answer }}{% endif %}</textarea>
-                <div class="char-count">{{ item.answer|default_if_none:''|length }} / 300</div>
-              </article>
-            {% endfor %}
-          </div>
+
         </div>
 
         <div class="bubble-actions">
-          <button type="button" id="btnSaveBubble" class="btn btn-primary">Guardar respuestas</button>
+          <button type="button" id="btnSaveBubble" class="btn btn-primary">Finalizar mapa</button>
           <p id="bubbleFeedback" class="bubble-feedback" role="status" aria-live="polite"></p>
         </div>
       </section>
@@ -136,8 +120,35 @@
   </script>
   <script src="{% static 'etapasJuego/js/bubble-map.js' %}"></script>
 
-  <!-- Cronómetro persistente Etapa 2 -->
+  <!-- Cronómetro persistente Etapa 2 (existing) -->
   <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
+  <!-- Global session timer -->
+  <script src="{% static 'etapasJuego/js/stage_timer.js' %}"></script>
+  <!-- Timeup endpoint: called when stage 2 timer reaches 00:00 -->
+  <script>
+  (function() {
+    const TIMEUP_URL = "{% url 'api_etapa2_timeup' %}";
+    const CSRF = "{{ csrf_token }}";
+    let called = false;
+    const timerEl = document.getElementById("e2-timer");
+    if (!timerEl || !TIMEUP_URL) return;
+    const observer = new MutationObserver(() => {
+      if (!called && timerEl.textContent.trim() === "00:00") {
+        called = true;
+        fetch(TIMEUP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF },
+          body: "{}",
+        }).then(r => r.json()).then(d => {
+          if (d.redirect_url) window.location.href = d.redirect_url;
+        }).catch(() => {});
+      }
+    });
+    observer.observe(timerEl, { childList: true, subtree: true, characterData: true });
+  })();
+  </script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-stage2-map" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
   <script src="{% static 'etapasJuego/js/etapa2.js' %}"></script>
 
   <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
@@ -179,7 +190,7 @@
       <div class="timeup-glow"></div>
       <p class="timeup-chip">Tiempo agotado</p>
       <h2>Uff, lo siento. Es hora de avanzar</h2>
-      <p class="timeup-text">Pasemos a construir: lleven sus hallazgos al prototipo LEGO.</p>
+      <p class="timeup-text">Pasemos a construir: lleven la señal humana al prototipo LEGO.</p>
       <a class="btn btn-primary" href="{% url 'etapa3' %}">Ir a la Etapa 3</a>
     </div>
   </div>

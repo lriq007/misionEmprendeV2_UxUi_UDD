@@ -124,6 +124,9 @@
         throw new Error((data && data.msg) || "Error al guardar");
       }
       flashStatus((data && data.msg) || "Coevaluaciones enviadas correctamente");
+      if (data && data.redirect_url) {
+        window.location.href = data.redirect_url;
+      }
     } catch (err) {
       flashStatus(err.message || "No se pudo enviar", true);
     }

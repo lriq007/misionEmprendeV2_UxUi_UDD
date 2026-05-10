@@ -1,0 +1,8 @@
+posicion,nombreEquipo,tokensEmpatia,tokensCreatividad,tokensEvaluacion,tokensTotales,ordenExposicion,promedioEvaluacionRecibida,evaluacionesRecibidas,tokensNegociacion
+1,Equipo Alfa,17,7,6,30,4,4.60,5,6
+2,Equipo Zeta,11,7,6,24,6,4.60,5,6
+3,Equipo Beta,13,7,4,24,7,3.80,5,4
+4,Equipo Gamma,6,7,4,17,3,3.80,5,4
+5,Equipo Epsilon,2,7,4,13,1,4.40,5,4
+6,Equipo Usuario,0,0,4,4,5,4.00,6,4
+7,Equipo Delta,3,0,0,3,2,2.40,5,0

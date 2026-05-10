@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa1.css' %}">
 </head>
 <body class="theme-login mission-ui">
+  {% include "etapasJuego/_logo.html" with size="compact" extra_class="me-logo--fixed" %}
   <main
     class="ws-container stage1-ranking-shell"
     data-ranking-app
@@ -52,18 +53,30 @@
       </div>
 
       <div class="stage1-ranking-actions">
-        <p class="hint" data-ranking-status>
-          {% if all_finished %}
-            Todos los equipos ya cerraron la etapa.
-          {% else %}
-            Esperando a que las demás tabletas terminen o cierren su tiempo.
-          {% endif %}
-        </p>
-        <a class="btn btn-primary" href="{{ next_url }}">Ir a la etapa 2</a>
+        <p class="hint" data-ranking-status>Ranking final de la etapa.</p>
+        <p class="hint" id="autoadvance-msg">Avanzando en <strong id="autoadvance-count">12</strong> s…</p>
+        <a class="btn btn-primary" href="{{ next_url }}" id="advance-btn">Continuar</a>
       </div>
     </section>
   </main>
 
   <script src="{% static 'etapasJuego/js/ranking_etapa1.js' %}"></script>
+  <script>
+    // Auto-advance after 12 seconds
+    const NEXT_URL = "{{ next_url }}";
+    let remaining = 12;
+    const counter = document.getElementById("autoadvance-count");
+    const interval = setInterval(() => {
+      remaining--;
+      if (counter) counter.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(interval);
+        window.location.href = NEXT_URL;
+      }
+    }, 1000);
+    // Manual advance cancels countdown
+    const btn = document.getElementById("advance-btn");
+    if (btn) btn.addEventListener("click", () => clearInterval(interval));
+  </script>
 </body>
 </html>

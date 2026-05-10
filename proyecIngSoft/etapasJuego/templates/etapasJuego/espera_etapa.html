@@ -1,0 +1,229 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Esperando…</title>
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <style>
+    .espera-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      gap: 2rem;
+      padding: 2rem;
+      text-align: center;
+    }
+    .espera-icon {
+      font-size: 4rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .espera-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      color: var(--accent-yellow, #C3A37A);
+    }
+    .espera-subtitle {
+      font-size: 1rem;
+      color: var(--muted, #A7C3D6);
+      max-width: 420px;
+    }
+    .espera-dots span {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent-yellow, #C3A37A);
+      margin: 0 4px;
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .espera-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .espera-dots span:nth-child(3) { animation-delay: 0.4s; }
+    .global-timer {
+      font-size: 0.9rem;
+      color: var(--muted, #A7C3D6);
+      opacity: 0.7;
+    }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+      40%            { transform: scale(1.2); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body class="theme-login mission-ui">
+  {% include "etapasJuego/_logo.html" with size="medium" extra_class="me-logo--fixed" %}
+
+  <!-- Pantalla de espera -->
+  <div class="espera-container" id="espera-container">
+    <div class="espera-icon">⏳</div>
+    <h1 class="espera-title">Esperando a los otros equipos…</h1>
+    <p class="espera-subtitle">Cuando todos terminen la etapa, verán el ranking juntos.</p>
+    <div class="espera-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <p class="global-timer" id="global-timer">Tiempo de sesión: <span id="gt-display">--:--</span></p>
+  </div>
+
+  <!-- Ranking overlay (oculto hasta que todos terminen) -->
+  <div class="rk-overlay" id="rk-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rk-title">
+    <div class="rk-panel" id="rk-panel">
+
+      <div class="rk-header">
+        <div class="rk-stage-badge" id="rk-stage-badge"></div>
+        <h2 class="rk-title" id="rk-title">Ranking Final</h2>
+      </div>
+
+      <div class="rk-list" id="rk-list">
+        <!-- Filas generadas por JS -->
+      </div>
+
+      <div class="rk-footer">
+        <p class="rk-countdown" id="rk-countdown">
+          Continuando en <strong id="rk-count">12</strong> s…
+        </p>
+        <button class="btn btn-primary" id="rk-continue" style="min-width:200px">
+          Continuar →
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const POLL_URL         = "{{ poll_url }}";
+    const RANKING_DATA_URL = "{% url 'api_ranking_overlay' etapa_num %}";
+    const INITIAL_ELAPSED  = {{ global_elapsed_seconds|default:0 }};
+
+    const MEDALS = ["🥇", "🥈", "🥉"];
+
+    /* ── Global timer (cuenta hacia arriba) ── */
+    let gtSeconds = INITIAL_ELAPSED;
+    const gtDisplay = document.getElementById("gt-display");
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      return String(m).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+    }
+    gtDisplay.textContent = formatTime(gtSeconds);
+    setInterval(() => { gtSeconds++; gtDisplay.textContent = formatTime(gtSeconds); }, 1000);
+
+    /* ── CSRF helper ── */
+    function getCsrf() {
+      const m = document.cookie.match(/csrftoken=([^;]+)/);
+      return m ? m[1] : "";
+    }
+
+    /* ── Construye y muestra el overlay de ranking ── */
+    async function showRankingOverlay() {
+      let data;
+      try {
+        const r = await fetch(RANKING_DATA_URL, {
+          headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": getCsrf() },
+        });
+        data = await r.json();
+      } catch (e) {
+        /* fallback: si la API falla, redirigir al fallback legacy */
+        window.location.href = RANKING_DATA_URL.replace("ranking-overlay", "ranking").replace("api/", "");
+        return;
+      }
+
+      /* Rellena badge y título */
+      document.getElementById("rk-stage-badge").textContent =
+        `ETAPA ${data.etapa_num} · ${data.stage_label.toUpperCase()}`;
+
+      /* Construye las filas */
+      const list = document.getElementById("rk-list");
+      list.innerHTML = "";
+
+      data.entries.forEach((entry, idx) => {
+        const isMine  = entry.is_mine;
+        const medal   = MEDALS[idx] || null;
+        const posText = medal ? medal : `#${entry.position}`;
+
+        /* Columna de puntaje */
+        let scoreMain   = `${entry.score} pts`;
+        let scoreDetail = "";
+        if (data.etapa_num === 1 && entry.elapsed_label && entry.elapsed_label !== "--:--") {
+          scoreDetail = entry.elapsed_label;
+        }
+        if (data.etapa_num === 1 && entry.progress_pct != null && entry.progress_pct < 100) {
+          scoreDetail = `${entry.progress_pct}% completo`;
+        }
+
+        const item = document.createElement("article");
+        item.className = "rk-item" + (isMine ? " is-mine" : "");
+        item.dataset.teamId = entry.team_id;
+        item.innerHTML = `
+          <span class="rk-pos-col${medal ? " is-medal" : ""}">${posText}</span>
+          <span class="rk-name">
+            ${entry.team_name}
+            ${isMine ? '<span class="rk-you-badge">TÚ ★</span>' : ""}
+          </span>
+          <span class="rk-score">
+            <span class="rk-score-main">${scoreMain}</span>
+            ${scoreDetail ? `<span class="rk-score-detail">${scoreDetail}</span>` : ""}
+          </span>
+        `;
+        list.appendChild(item);
+      });
+
+      /* Muestra el overlay */
+      const overlay = document.getElementById("rk-overlay");
+      overlay.classList.add("is-open");
+      overlay.setAttribute("aria-hidden", "false");
+
+      /* Scroll hacia la fila propia si queda fuera de vista */
+      setTimeout(() => {
+        const myRow = list.querySelector(".is-mine");
+        if (myRow) myRow.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 500);
+
+      /* Cuenta regresiva → continuar */
+      const NEXT_URL  = data.next_url;
+      const countEl   = document.getElementById("rk-count");
+      const continueBtn = document.getElementById("rk-continue");
+      let remaining   = 12;
+
+      const countdown = setInterval(() => {
+        remaining--;
+        if (countEl) countEl.textContent = remaining;
+        if (remaining <= 0) {
+          clearInterval(countdown);
+          window.location.href = NEXT_URL;
+        }
+      }, 1000);
+
+      continueBtn.addEventListener("click", () => {
+        clearInterval(countdown);
+        window.location.href = NEXT_URL;
+      }, { once: true });
+    }
+
+    /* ── Polling de cierre de etapa ── */
+    async function poll() {
+      try {
+        const r = await fetch(POLL_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": getCsrf() },
+          body: "{}",
+        });
+        const data = await r.json();
+        if (data.closed) {
+          await showRankingOverlay();
+          return;
+        }
+      } catch (e) { /* retry silencioso */ }
+      setTimeout(poll, 3000);
+    }
+
+    setTimeout(poll, 1000);
+  </script>
+</body>
+</html>

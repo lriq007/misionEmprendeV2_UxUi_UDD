@@ -63,7 +63,7 @@
   }
 
   function paintBoard() {
-    elBoard.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, 42px)`;
+    elBoard.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, var(--ws-cell-size, 42px))`;
     elBoard.innerHTML = "";
     for (let i = 0; i < BOARD_SIZE; i += 1) {
       for (let j = 0; j < BOARD_SIZE; j += 1) {
@@ -77,6 +77,14 @@
     }
   }
 
+  function updateProgress() {
+    if (!elProgress) return;
+    const value = Math.max(0, Math.min(100, PROGRESS));
+    elProgress.textContent = `Progreso: ${value.toFixed(0)}%`;
+    elProgress.style.setProperty("--progress", `${value}%`);
+    elProgress.setAttribute("aria-label", `Progreso de la sopa de letras: ${value.toFixed(0)}%`);
+  }
+
   function paintWords() {
     elWords.innerHTML = "";
     for (const word of WORDS) {
@@ -85,7 +93,7 @@
       if (FOUND.has(word)) item.classList.add("found");
       elWords.appendChild(item);
     }
-    elProgress.textContent = `Progreso: ${PROGRESS.toFixed(0)}%`;
+    updateProgress();
   }
 
   function lockCellsFromActive() {
@@ -143,14 +151,16 @@
   }
 
   async function notifyTimeUpAndRedirect() {
+    let redirectUrl = rankingUrl;
     if (timeupUrl) {
       try {
-        await POST(timeupUrl, {});
+        const data = await POST(timeupUrl, {});
+        if (data && data.redirect_url) redirectUrl = data.redirect_url;
       } catch (error) {
-        // Ignore and continue to the ranking fallback.
+        // use fallback on error
       }
     }
-    goToRanking();
+    window.location.href = redirectUrl;
   }
 
   const pointerMap = new Map();
@@ -275,7 +285,7 @@
     }
     if (typeof response.progress_pct === "number") {
       PROGRESS = response.progress_pct;
-      elProgress.textContent = `Progreso: ${PROGRESS.toFixed(0)}%`;
+      updateProgress();
     }
 
     if (response.status) {

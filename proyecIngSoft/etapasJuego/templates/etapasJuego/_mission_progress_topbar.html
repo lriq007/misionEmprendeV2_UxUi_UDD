@@ -1,0 +1,100 @@
+<header
+  class="mission-progress-topbar{% if not show_timer %} mission-progress-topbar--no-timer{% endif %}"
+  aria-label="Progreso de misiones"
+>
+  <div class="mission-progress-brand" aria-hidden="true">
+    <span class="mpb__mision">MISIÓN</span>
+    <strong class="mpb__emprende">EMPRENDE</strong>
+  </div>
+  <nav class="mission-progress-track" aria-label="Ruta de misiones">
+    <ol class="mission-progress-list">
+      <li class="mission-progress-step{% if active_stage > 1 %} is-complete{% elif active_stage == 1 %} is-active{% else %} is-pending{% endif %}">
+        <span class="mission-progress-node">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 L4 14 H11 L10 22 L20 9 H13 Z"/></svg>
+        </span>
+        <span class="mission-progress-label">Trabajo en equipo</span>
+      </li>
+      <li class="mission-progress-step{% if active_stage > 2 %} is-complete{% elif active_stage == 2 %} is-active{% else %} is-pending{% endif %}">
+        <span class="mission-progress-node">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18 H15"/><path d="M10 22 H14"/><path d="M8 14 C5 12 5 7 8 5 C10 3 14 3 16 5 C19 8 18 12 15 14 C14 15 14 16 14 17 H10 C10 16 10 15 8 14 Z"/></svg>
+        </span>
+        <span class="mission-progress-label">Empatía</span>
+      </li>
+      <li class="mission-progress-step{% if active_stage > 3 %} is-complete{% elif active_stage == 3 %} is-active{% else %} is-pending{% endif %}">
+        <span class="mission-progress-node">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="7" r="2"/><path d="M3 20 C4 15 7 13 10 13 C13 13 16 15 17 20"/><path d="M14 12 C17 12 20 15 21 20"/></svg>
+        </span>
+        <span class="mission-progress-label">Creatividad</span>
+      </li>
+      <li class="mission-progress-step{% if active_stage > 4 %} is-complete{% elif active_stage == 4 %} is-active{% else %} is-pending{% endif %}">
+        <span class="mission-progress-node">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 C8 11 13 7 21 5 C19 13 15 18 7 21 Z"/><path d="M9 15 L4 20"/></svg>
+        </span>
+        <span class="mission-progress-label">Comunicación</span>
+      </li>
+      <li class="mission-progress-step{% if active_stage > 5 %} is-complete{% elif active_stage == 5 %} is-active{% else %} is-pending{% endif %}">
+        <span class="mission-progress-node">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11 H17"/><path d="M8 7 H16"/><path d="M5 15 H12"/><path d="M14 15 H19"/><path d="M7 19 H10"/><path d="M14 19 H17"/><path d="M4 4 H20 V20 H4 Z"/></svg>
+        </span>
+        <span class="mission-progress-label">Negociación</span>
+      </li>
+      <li class="mission-progress-step{% if active_stage > 6 %} is-complete{% elif active_stage == 6 %} is-active{% else %} is-pending{% endif %}">
+        <span class="mission-progress-node">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21 H16"/><path d="M12 17 V21"/><path d="M7 4 H17 V9 C17 12 15 15 12 16 C9 15 7 12 7 9 Z"/><path d="M7 7 H3 C3 11 5 13 8 13"/><path d="M17 7 H21 C21 11 19 13 16 13"/></svg>
+        </span>
+        <span class="mission-progress-label">Campeón</span>
+      </li>
+    </ol>
+  </nav>
+
+  {% if show_timer %}
+    <aside class="mission-progress-timer" aria-label="Tiempo restante">
+      <span class="mission-progress-timer__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 7 V12 L15 14"/></svg>
+      </span>
+      <span class="mission-progress-timer__copy">
+        <span class="mission-progress-timer__label">TIEMPO RESTANTE</span>
+        <span
+          id="{{ timer_id }}"
+          class="ws-timer"
+          aria-live="polite"
+          aria-label="Tiempo restante"
+          data-duration-seconds="{{ timer_duration }}"
+          {% if timer_next_url %}data-next-url="{{ timer_next_url }}"{% endif %}
+        >{{ timer_initial }}</span>
+      </span>
+    </aside>
+  {% endif %}
+</header>
+{% if show_timer %}
+  <script>
+    (() => {
+      const script = document.currentScript;
+      const topbar = script?.previousElementSibling;
+      const timer = topbar?.querySelector("#{{ timer_id }}");
+      const timerShell = topbar?.querySelector(".mission-progress-timer");
+      if (!timer || !timerShell) return;
+
+      const readRemainingSeconds = () => {
+        const match = timer.textContent.trim().match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) return Number.NaN;
+        return Number(match[1]) * 60 + Number(match[2]);
+      };
+
+      const syncCriticalState = () => {
+        const remaining = readRemainingSeconds();
+        timerShell.classList.toggle(
+          "is-critical",
+          Number.isFinite(remaining) && remaining > 0 && remaining <= 15
+        );
+      };
+
+      syncCriticalState();
+      new MutationObserver(syncCriticalState).observe(timer, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+      });
+    })();
+  </script>
+{% endif %}

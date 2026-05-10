@@ -1,0 +1,8 @@
+posicion,nombreEquipo,tokensEmpatia,tokensCreatividad,tokensEvaluacion,tokensTotales,tokensSopa,tokensBubbleMap,tokensLego,tokensPitchCreacion,tokensNegociacion,subioImagenLego,imagenLego,mensajesLego,tipoMensajeLego,nombreProductoPitch,finalizoPitchCreacion,tiempoPitchCreacionSegundos,ordenExposicion,promedioEvaluacionRecibida,evaluacionesRecibidas,tiempoGlobalSegundos,tiempoSopaSegundos,tiempoBubbleMapSegundos,porcentajeSopa,posicionSopa,finalizoBubbleMap,bonusEspera,ordenLlegada
+1,Equipo Alfa,17,7,6,30,6,11,3,4,6,1,lego_alfa.jpg,2,ayuda,EcoRuta,1,78,4,4.60,5,167,95,52,100.00,1,1,1,1
+2,Equipo Zeta,11,7,6,24,2,9,3,4,6,1,lego_zeta.jpg,2,ayuda,MascotaQR,1,80,6,4.60,5,167,,58,80.00,4,1,1,6
+3,Equipo Beta,13,7,4,24,4,9,3,4,4,1,lego_beta.jpg,2,ayuda,AulaLink,1,82,7,3.80,5,167,110,66,100.00,2,1,0,2
+4,Equipo Gamma,6,7,4,17,2,4,3,4,4,1,lego_gamma.jpg,3,ayuda,SaludBox,1,88,3,3.80,5,167,,80,80.00,3,1,0,3
+5,Equipo Epsilon,2,7,4,13,0,2,3,4,4,1,lego_epsilon.jpg,3,ayuda,AguaCerca,1,85,1,4.40,5,167,,90,30.00,6,1,0,5
+6,Equipo Usuario,0,0,4,4,0,0,0,0,4,0,,3,ayuda,,0,,5,4.00,6,167,,,0.00,7,0,0,99
+7,Equipo Delta,3,0,0,3,1,2,0,0,0,0,,3,ayuda,,0,,2,2.40,5,167,,,60.00,5,0,0,4

@@ -1,0 +1,8 @@
+posicion,nombreEquipo,tokensEmpatia,tokensCreatividad,tokensEvaluacion,tokensTotales,tokensLego,subioImagenLego,imagenLego,mensajesLego,tipoMensajeLego
+1,Equipo Alfa,17,7,6,30,3,1,lego_alfa.jpg,2,ayuda
+2,Equipo Zeta,11,7,6,24,3,1,lego_zeta.jpg,2,ayuda
+3,Equipo Beta,13,7,4,24,3,1,lego_beta.jpg,2,ayuda
+4,Equipo Gamma,6,7,4,17,3,1,lego_gamma.jpg,3,ayuda
+5,Equipo Epsilon,2,7,4,13,3,1,lego_epsilon.jpg,3,ayuda
+6,Equipo Usuario,0,4,4,8,0,0,,3,ayuda
+7,Equipo Delta,3,0,0,3,0,0,,3,ayuda

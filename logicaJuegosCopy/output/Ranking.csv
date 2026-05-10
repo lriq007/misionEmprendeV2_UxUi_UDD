@@ -1,0 +1,8 @@
+posicion,nombreEquipo,tokensEmpatia,tokensCreatividad,tokensEvaluacion,tokensTotales,tiempoGlobalSegundos,tiempoSopaSegundos,porcentajeSopa,bonusEspera,posicionSopa
+1,Equipo Alfa,17,7,6,30,3,95,100.00,1,1
+2,Equipo Zeta,11,7,6,24,3,,80.00,0,4
+3,Equipo Beta,11,7,4,22,3,110,100.00,0,2
+4,Equipo Gamma,6,7,4,17,3,,80.00,0,3
+5,Equipo Epsilon,2,7,4,13,3,,30.00,0,6
+6,Equipo Usuario,1,7,4,12,3,,0.00,0,7
+7,Equipo Delta,3,0,0,3,3,,60.00,0,5

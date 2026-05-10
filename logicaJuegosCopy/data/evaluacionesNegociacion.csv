@@ -1,0 +1,37 @@
+evaluador,evaluado,puntajeEquipo,puntajeEmpatia,puntajeCreatividad,puntajeComunicacion,comentario
+Equipo Beta,Equipo Alfa,5,5,4,5,Presentacion clara y coordinada.
+Equipo Gamma,Equipo Alfa,4,5,5,4,Buen enfoque del problema.
+Equipo Delta,Equipo Alfa,5,4,4,5,Convincente.
+Equipo Epsilon,Equipo Alfa,5,5,5,5,Muy buen pitch.
+Equipo Zeta,Equipo Alfa,4,4,5,4,Buena solucion.
+Equipo Alfa,Equipo Beta,4,4,4,4,Solucion entendible.
+Equipo Gamma,Equipo Beta,4,3,4,4,Buen relato.
+Equipo Delta,Equipo Beta,3,4,4,3,Falto mas coordinacion.
+Equipo Epsilon,Equipo Beta,4,4,3,4,Correcto.
+Equipo Zeta,Equipo Beta,4,4,4,4,Buen equipo.
+Equipo Alfa,Equipo Gamma,4,5,4,4,Conecta bien con el usuario.
+Equipo Beta,Equipo Gamma,4,4,4,3,Claro.
+Equipo Delta,Equipo Gamma,3,4,3,3,Podria persuadir mas.
+Equipo Epsilon,Equipo Gamma,4,4,4,4,Buen caso.
+Equipo Zeta,Equipo Gamma,4,5,4,4,Empatico.
+Equipo Alfa,Equipo Delta,2,3,2,2,Falto desarrollo.
+Equipo Beta,Equipo Delta,3,3,2,3,Idea inicial interesante.
+Equipo Gamma,Equipo Delta,2,3,3,2,Falto claridad.
+Equipo Epsilon,Equipo Delta,3,2,3,3,Debe mejorar.
+Equipo Zeta,Equipo Delta,2,2,3,2,Poco convincente.
+Equipo Alfa,Equipo Epsilon,4,4,4,4,Buena propuesta.
+Equipo Beta,Equipo Epsilon,5,4,4,5,Persuasivo.
+Equipo Gamma,Equipo Epsilon,4,4,5,4,Creativo.
+Equipo Delta,Equipo Epsilon,4,3,4,4,Bien explicado.
+Equipo Zeta,Equipo Epsilon,5,4,4,5,Convincente.
+Equipo Alfa,Equipo Zeta,5,4,5,4,Original.
+Equipo Beta,Equipo Zeta,4,4,5,4,Buen MVP.
+Equipo Gamma,Equipo Zeta,5,4,5,5,Muy claro.
+Equipo Delta,Equipo Zeta,4,3,5,4,Buena tecnologia.
+Equipo Epsilon,Equipo Zeta,5,4,5,5,Gran cierre.
+Equipo Alfa,Equipo Usuario,4,4,4,4,Buen avance del MVP.
+Equipo Beta,Equipo Usuario,4,3,4,4,Propuesta clara.
+Equipo Gamma,Equipo Usuario,3,4,4,3,Debe reforzar el cierre.
+Equipo Delta,Equipo Usuario,4,4,3,4,Interesante.
+Equipo Epsilon,Equipo Usuario,4,4,4,4,Buen potencial.
+Equipo Zeta,Equipo Usuario,5,4,4,5,Convincente.

@@ -1,44 +1,53 @@
-from __future__ import annotations
-
 import random
-from typing import Iterable
 
 
 class RouletteEngine:
-    """Stateless question catalog used by the rompehielo ruleta."""
+    MODALITY_NEW_TEAM = "no_se_conocen"
+    MODALITY_KNOWN_TEAM = "se_conocen"
 
-    _QUESTIONS = [
-        {"id": 1, "emoji": "🚀", "text": "¿Que habilidad tuya crees que el grupo aun no conoce?"},
-        {"id": 2, "emoji": "🔥", "text": "¿Que te motiva a estudiar tu carrera hoy?"},
-        {"id": 3, "emoji": "🎯", "text": "¿Que desafio te gustaria convertir en oportunidad este año?"},
-        {"id": 4, "emoji": "🎧", "text": "¿Que hobby te recarga energia fuera de clases?"},
-        {"id": 5, "emoji": "🤝", "text": "¿Que fortaleza aportarias a un equipo emprendedor?"},
-        {"id": 6, "emoji": "🧠", "text": "¿Que experiencia te ha enseñado a resolver problemas rapido?"},
-        {"id": 7, "emoji": "💡", "text": "¿Que idea de emprendimiento te gustaria explorar algun dia?"},
-        {"id": 8, "emoji": "⭐", "text": "¿Que valor no puede faltar en un equipo de trabajo para ti?"},
+    NEW_TEAM_QUESTIONS = [
+        {"id": 1, "text": "¿Qué habilidad tuya puede ayudar al equipo?", "emoji": "🤝"},
+        {"id": 2, "text": "¿Qué tema te entusiasma aprender en esta misión?", "emoji": "🎯"},
+        {"id": 3, "text": "¿Qué forma de trabajar te acomoda más?", "emoji": "🧭"},
+        {"id": 4, "text": "¿Qué experiencia personal puede sumar al desafío?", "emoji": "✨"},
+        {"id": 5, "text": "¿Qué rol te gustaría probar hoy?", "emoji": "🧩"},
+        {"id": 6, "text": "¿Qué te ayuda a confiar en un equipo nuevo?", "emoji": "🌱"},
+        {"id": 7, "text": "¿Qué fortaleza tuya suele aparecer bajo presión?", "emoji": "⚡"},
+        {"id": 8, "text": "¿Qué esperas que tus compañeros sepan de ti para trabajar mejor?", "emoji": "💬"},
     ]
 
-    def get_questions(self) -> list[dict[str, object]]:
-        return [question.copy() for question in self._QUESTIONS]
+    KNOWN_TEAM_QUESTIONS = [
+        {"id": 1, "text": "¿Qué problema de tu comunidad te gustaría resolver?", "emoji": "💡"},
+        {"id": 2, "text": "¿Qué habilidad del equipo deberíamos aprovechar más?", "emoji": "🤝"},
+        {"id": 3, "text": "Si crearas una startup hoy, ¿qué vendería?", "emoji": "🚀"},
+        {"id": 4, "text": "¿Qué producto cotidiano mejorarías?", "emoji": "🛠️"},
+        {"id": 5, "text": "¿Qué te motiva a emprender?", "emoji": "🔥"},
+        {"id": 6, "text": "¿Qué usuario te interesa entender mejor?", "emoji": "👀"},
+        {"id": 7, "text": "¿Qué tecnología usarías para crear impacto?", "emoji": "⚙️"},
+        {"id": 8, "text": "¿Qué aprendizaje quieres llevarte de esta misión?", "emoji": "🎯"},
+    ]
+    QUESTIONS = KNOWN_TEAM_QUESTIONS
 
-    def select_question(self, available_ids: Iterable[int] | None) -> dict[str, object]:
-        catalog = self.get_questions()
-        valid_ids = {question["id"] for question in catalog}
-        requested_ids = {
-            question_id
-            for question_id in (available_ids or [])
-            if isinstance(question_id, int) and question_id in valid_ids
-        }
+    def normalize_modality(self, modality):
+        if modality == self.MODALITY_NEW_TEAM:
+            return self.MODALITY_NEW_TEAM
+        return self.MODALITY_KNOWN_TEAM
 
-        pool = [question for question in catalog if question["id"] in requested_ids]
-        if not pool:
-            pool = catalog
+    def get_questions(self, modality=None):
+        normalized = self.normalize_modality(modality)
+        if normalized == self.MODALITY_NEW_TEAM:
+            return list(self.NEW_TEAM_QUESTIONS)
+        return list(self.KNOWN_TEAM_QUESTIONS)
 
-        return random.choice(pool).copy()
+    def select_question(self, available_ids, modality=None):
+        questions = self.get_questions(modality)
+        ids = set(available_ids or [])
+        pool = [question for question in questions if question["id"] in ids] or questions
+        return random.choice(pool)
 
-    def handle_error(self, context: str) -> dict[str, object]:
+    def handle_error(self, context):
         return {
             "success": False,
-            "message": "No pudimos cargar las preguntas del rompehielo. Intenta nuevamente.",
             "context": context,
+            "message": "Intenta nuevamente en unos segundos.",
         }

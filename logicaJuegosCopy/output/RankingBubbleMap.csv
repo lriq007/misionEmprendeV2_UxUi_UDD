@@ -1,0 +1,8 @@
+posicion,nombreEquipo,tokensEmpatia,tokensCreatividad,tokensEvaluacion,tokensTotales,tiempoGlobalSegundos,tiempoBubbleMapSegundos,finalizoBubbleMap,preguntasCompletas,preguntasDetalleIdeal,preguntasDesarrolladas,preguntasSuperficiales,apendicesBasura,apendicesExcesivos,puntajeContenidoBubbleMap,bonusExcelenciaVelocidad,bonusEspera,tokensBubbleMap
+1,Equipo Alfa,17,7,6,30,6,52,1,5,4,3,1,0,0,7,2,1,11
+2,Equipo Zeta,11,7,6,24,6,58,1,5,4,2,2,0,3,5,2,1,9
+3,Equipo Beta,13,7,4,24,6,66,1,5,3,3,2,0,0,6,2,0,9
+4,Equipo Gamma,6,7,4,17,6,80,1,4,2,2,3,1,0,3,0,0,4
+5,Equipo Epsilon,2,7,4,13,6,90,1,3,1,1,3,3,0,1,0,0,2
+6,Equipo Usuario,0,7,4,11,6,,0,0,0,0,0,0,0,0,0,0,0
+7,Equipo Delta,3,0,0,3,6,,0,4,1,1,4,0,0,3,0,0,2

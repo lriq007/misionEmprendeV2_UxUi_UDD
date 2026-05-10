@@ -1,4 +1,4 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -8,82 +8,142 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/rompehielo.css' %}">
 </head>
 <body class="theme-login mission-ui rompehielo-page">
+  {% mission_story "rompehielo" as mission %}
+  {% include "etapasJuego/_logo.html" with size="compact" extra_class="me-logo--fixed" %}
 
   <main
     class="ws-container rompehielo-shell"
     data-rompehielo-app
     data-bootstrap-url="{{ rompehielo_bootstrap_url }}"
+    data-modality="{{ rompehielo_modality }}"
+    data-requires-intro="{% if rompehielo_requires_intro %}true{% else %}false{% endif %}"
+    data-player-count="{{ rompehielo_player_count }}"
   >
     <section class="roulette-screen">
-      <div class="roulette-timer-stack">
-        <section class="timer-panel" aria-label="Tiempo restante del rompehielo">
-          <div class="timer-panel__header">
-            <span class="timer-panel__label">Tiempo restante</span>
-          </div>
-          <div
-            id="rompehielo-timer"
-            class="timer-panel__value"
-            aria-live="polite"
-            aria-label="Tiempo restante"
-            data-duration-seconds="{{ rompehielo_duration_seconds }}"
-          >05:00</div>
-        </section>
-        <div class="roulette-pointer" aria-hidden="true"></div>
-      </div>
-
-      <article class="roulette-stage">
-        <div class="roulette-wheel-shell">
-          <div class="roulette-wheel" data-roulette-wheel>
-            <svg class="roulette-wheel__vector" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-              <defs>
-                <radialGradient id="rouletteOuterRing" cx="34%" cy="28%" r="78%">
-                  <stop offset="0%" stop-color="#ffe78e" />
-                  <stop offset="48%" stop-color="#f7be08" />
-                  <stop offset="100%" stop-color="#be8600" />
-                </radialGradient>
-              </defs>
-
-              <circle cx="50" cy="50" r="47.5" fill="none" stroke="url(#rouletteOuterRing)" stroke-width="5" />
-              <circle cx="50" cy="50" r="44.5" fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="1.6" />
-
-              <g class="roulette-wheel__dividers">
-                <line x1="50" y1="50" x2="50" y2="4.9" />
-                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(45 50 50)" />
-                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(90 50 50)" />
-                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(135 50 50)" />
-                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(180 50 50)" />
-                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(225 50 50)" />
-                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(270 50 50)" />
-                <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(315 50 50)" />
-              </g>
+      <aside class="phase-brief" aria-label="Briefing fase 1">
+        <p class="phase-brief__kicker">Fase 1</p>
+        <h1 class="phase-brief__title">De grupo a escuadrón</h1>
+        <span class="phase-brief__accent" aria-hidden="true"></span>
+        <p class="phase-brief__copy">Giren, respondan y pasen la tablet: todos deben activar su voz.</p>
+        <div class="phase-brief__card">
+          <span class="phase-brief__icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" focusable="false">
+              <circle cx="11" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2.5"/>
+              <circle cx="21" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2.5"/>
+              <path d="M5 26c1.2-5.2 4.3-8 8-8 2.2 0 4 1 5.2 2.9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M15 26c1.2-5.2 4.3-8 8-8 2.5 0 4.6 1.4 5.9 4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
             </svg>
-            <div class="roulette-segments" data-roulette-segments aria-hidden="true"></div>
-            <div class="roulette-glow" aria-hidden="true"></div>
-            <div class="roulette-core">
-              <button
-                class="turn-button"
-                type="button"
-                data-turn-button
-              >
-                <span class="turn-button__icon" aria-hidden="true">↻</span>
-                <span class="turn-button__text">¡Girar!</span>
-              </button>
-            </div>
+          </span>
+          <div>
+            <strong>Trabajo en equipo y comunicación inicial</strong>
+            <p>El objetivo es romper el hielo y empezar a colaborar.</p>
           </div>
         </div>
-      </article>
+      </aside>
+
+      <div class="roulette-focus">
+        <div class="roulette-timer-stack">
+          <section class="timer-panel" aria-label="Tiempo restante del rompehielo">
+            <div class="timer-panel__header">
+              <span class="timer-panel__label"><span>Tiempo</span> restante</span>
+            </div>
+            <div
+              id="rompehielo-timer"
+              class="timer-panel__value"
+              aria-live="polite"
+              aria-label="Tiempo restante"
+              data-duration-seconds="{{ rompehielo_duration_seconds }}"
+            >05:00</div>
+          </section>
+          <div class="roulette-pointer" aria-hidden="true"></div>
+        </div>
+
+        <article class="roulette-stage">
+          <div class="roulette-wheel-shell">
+            <div class="roulette-wheel" data-roulette-wheel>
+              <svg class="roulette-wheel__vector" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                <defs>
+                  <radialGradient id="rouletteOuterRing" cx="34%" cy="28%" r="78%">
+                    <stop offset="0%" stop-color="#f6c84e" />
+                    <stop offset="48%" stop-color="#e5a914" />
+                    <stop offset="100%" stop-color="#9b6b05" />
+                  </radialGradient>
+                </defs>
+
+                <circle cx="50" cy="50" r="47.5" fill="none" stroke="url(#rouletteOuterRing)" stroke-width="5" />
+                <circle cx="50" cy="50" r="44.5" fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="1.6" />
+
+                <g class="roulette-wheel__dividers">
+                  <line x1="50" y1="50" x2="50" y2="4.9" />
+                  <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(45 50 50)" />
+                  <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(90 50 50)" />
+                  <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(135 50 50)" />
+                  <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(180 50 50)" />
+                  <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(225 50 50)" />
+                  <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(270 50 50)" />
+                  <line x1="50" y1="50" x2="50" y2="4.9" transform="rotate(315 50 50)" />
+                </g>
+              </svg>
+              <div class="roulette-segments" data-roulette-segments aria-hidden="true"></div>
+              <div class="roulette-glow" aria-hidden="true"></div>
+              <div class="roulette-core">
+                <button
+                  class="turn-button"
+                  type="button"
+                  data-turn-button
+                >
+                  <span class="turn-button__icon" aria-hidden="true">↻</span>
+                  <span class="turn-button__text">Girar</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <img
+        class="friends-foreground"
+        src="/media/imgHistoria/personajesAmigos.png"
+        alt=""
+        aria-hidden="true"
+      >
+
+      <div class="roulette-bottom-actions" aria-label="Acciones de apoyo">
+        <button class="roulette-help-pill" type="button" aria-label="Abrir ayuda">
+          <span aria-hidden="true">?</span>
+          <strong>¿Necesitas ayuda?</strong>
+        </button>
+      </div>
     </section>
   </main>
+
+  {{ rompehielo_players|json_script:"rompehielo-players" }}
+
+  <div class="intro-overlay" data-intro-overlay aria-hidden="true" hidden>
+    <article class="intro-sheet" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+      <p class="intro-badge" data-intro-count>Jugador 1 de {{ rompehielo_player_count }}</p>
+      <h2 id="intro-title" class="intro-sheet__title" data-intro-title>{{ mission.headline }}</h2>
+      <p class="intro-sheet__copy" data-intro-copy>{{ mission.mission_prompt }}</p>
+      <div class="story-gem-signal">
+        <p class="story-gem-signal__label">Dato real</p>
+        <p class="story-gem-signal__text">{{ mission.gem_fact }}</p>
+      </div>
+      <button class="intro-sheet__action" type="button" data-intro-next>
+        Pasar tablet al siguiente jugador
+      </button>
+    </article>
+  </div>
 
   <div class="question-overlay" data-question-overlay aria-hidden="true" hidden>
     <article class="question-sheet" role="dialog" aria-modal="true" aria-labelledby="question-title">
       <div class="question-sheet__glow" aria-hidden="true"></div>
       <span class="question-emoji" data-question-emoji aria-hidden="true">✨</span>
       <div class="question-sheet__body">
-        <p class="question-badge">Responde a tus compañeros</p>
+        <p class="question-badge">Activa tu voz en el escuadrón</p>
         <h2 id="question-title" class="question-sheet__title" data-current-question>
           Presiona “Girar” para mostrar la primera pregunta.
         </h2>
@@ -102,12 +162,14 @@
       <div class="timeup-glow"></div>
       <p class="timeup-chip">Tiempo agotado</p>
       <h2>Uff, lo siento. Es hora de avanzar</h2>
-      <p class="timeup-text">Lleven esta energía al Paso 1: sopa de letras. Avancen cuando estén listos.</p>
+      <p class="timeup-text">Lleven esta confianza al Paso 1: recuperar el vocabulario emprendedor perdido.</p>
       <a class="btn btn-primary" href="{% url 'etapa1' %}">Ir a la sopa de letras</a>
     </div>
   </div>
 
   <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-rompehielo" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
   <script src="{% static 'etapasJuego/js/rompehielo.js' %}"></script>
 </body>
 </html>

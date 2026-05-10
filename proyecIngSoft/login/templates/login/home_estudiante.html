@@ -4,37 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel del Estudiante - Mision Emprende</title>
-    {% load static %}
+    {% load static story_tags %}
     <link rel="stylesheet" href="{% static 'login/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;900&display=swap">
 </head>
 <body class="home-estudiante-body mission-ui">
+    {% mission_story "home" as mission %}
     <main class="mission-shell" aria-live="polite">
         <section class="mission-screen mission-screen--start is-active" data-screen="start" aria-label="Inicio de Mision Emprende">
             <figure class="hero-character hero-character--left" aria-label="Personaje de energia azul">
-                <img class="hero-character__image" src="/media/personajesPortada/jobb.png" alt="Personaje izquierdo listo para iniciar la mision">
+                <img class="hero-character__image" src="/media/personajesPortada/bezosJobbMusk.png" alt="Personajes izquierdos listos para iniciar la mision">
                 <span class="hero-character__aura" aria-hidden="true"></span>
-                <span class="hero-character__orb hero-character__orb--blue" aria-hidden="true"></span>
-                <span class="hero-character__orb hero-character__orb--gold" aria-hidden="true"></span>
                 <span class="hero-character__circuit" aria-hidden="true"></span>
                 <span class="hero-character__spark hero-character__spark--one" aria-hidden="true"></span>
                 <span class="hero-character__spark hero-character__spark--two" aria-hidden="true"></span>
             </figure>
 
             <div class="mission-brand">
-                <h1 class="mission-logo" aria-label="Misión Emprende">
-                    <span>Misión</span>
-                    <strong>Emprende</strong>
-                </h1>
+                {% include "etapasJuego/_logo.html" with size="large" %}
                 <button class="start-button" type="button" data-open-video>
-                    <span>Start</span>
+                    <span>START</span>
                 </button>
             </div>
 
             <figure class="hero-character hero-character--right" aria-label="Personaje de energia dorada">
-                <img class="hero-character__image" src="/media/personajesPortada/musk.png" alt="Personaje derecho listo para iniciar la mision">
+                <img class="hero-character__image" src="/media/personajesPortada/nexus.png" alt="Personaje Nexus listo para iniciar la mision">
                 <span class="hero-character__aura" aria-hidden="true"></span>
-                <span class="hero-character__orb hero-character__orb--blue" aria-hidden="true"></span>
-                <span class="hero-character__orb hero-character__orb--gold" aria-hidden="true"></span>
                 <span class="hero-character__circuit" aria-hidden="true"></span>
                 <span class="hero-character__spark hero-character__spark--one" aria-hidden="true"></span>
                 <span class="hero-character__spark hero-character__spark--two" aria-hidden="true"></span>
@@ -46,24 +45,33 @@
         <section class="mission-screen mission-screen--route" data-screen="route" aria-label="Ruta de misiones">
             <div class="route-board">
                 <div class="route-stage">
-                    <div class="team-orbit" aria-label="Equipo Empresa, 5 misiones, 60 minutos">
+                    <aside class="route-story-dialog" aria-label="Briefing narrativo de la ruta">
+                        <div class="route-story-dialog__signal" aria-hidden="true"></div>
+                        <div class="route-story-dialog__copy">
+                            <p class="route-story-dialog__eyebrow">{{ mission.kicker }}</p>
+                            <h2>{{ mission.headline }}</h2>
+                            <p>Completen la ruta para acumular <strong class="route-story-dialog__energy">Energia Emprendedora</strong> antes de que la epidemia avance.</p>
+                            <span>{{ mission.gem_fact }}</span>
+                        </div>
+                    </aside>
+                    <div class="team-orbit" aria-label="Equipo Empresa, 6 misiones, 60 minutos">
                         <div class="orbit-ring orbit-ring--outer"></div>
                         <div class="orbit-ring orbit-ring--inner"></div>
                         <div class="orbit-grid"></div>
                         <div class="orbit-node">
                             <div class="mission-token" aria-hidden="true">
                                 <div class="mission-token__face mission-token__face--front">
-                                    <span>T</span>
+                                    <span></span>
                                 </div>
                                 <div class="mission-token__face mission-token__face--back">
-                                    <span>T</span>
+                                    <span></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="route-summary">
-                        <div><strong>5</strong><span>Misiones</span></div>
+                        <div><strong>6</strong><span>Misiones</span></div>
                         <i></i>
                         <div><strong>60</strong><span>Minutos</span></div>
                     </div>
@@ -81,7 +89,7 @@
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 L4 14 H11 L10 22 L20 9 H13 Z"/></svg>
                         </span>
                         <span class="mission-item__copy">
-                            <strong>Activacion</strong>
+                            <strong>Trabajo en equipo</strong>
                             <small>5 min</small>
                         </span>
                         <span class="mission-item__dot"></span>
@@ -92,7 +100,7 @@
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18 H15"/><path d="M10 22 H14"/><path d="M8 14 C5 12 5 7 8 5 C10 3 14 3 16 5 C19 8 18 12 15 14 C14 15 14 16 14 17 H10 C10 16 10 15 8 14 Z"/></svg>
                         </span>
                         <span class="mission-item__copy">
-                            <strong>Ideacion</strong>
+                            <strong>Empatia</strong>
                             <small>8 min</small>
                         </span>
                         <span class="mission-item__dot"></span>
@@ -103,7 +111,7 @@
                             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="7" r="2"/><path d="M3 20 C4 15 7 13 10 13 C13 13 16 15 17 20"/><path d="M14 12 C17 12 20 15 21 20"/></svg>
                         </span>
                         <span class="mission-item__copy">
-                            <strong>Colaboracion</strong>
+                            <strong>Creatividad</strong>
                             <small>10 min</small>
                         </span>
                         <span class="mission-item__dot"></span>
@@ -114,7 +122,7 @@
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 C8 11 13 7 21 5 C19 13 15 18 7 21 Z"/><path d="M9 15 L4 20"/></svg>
                         </span>
                         <span class="mission-item__copy">
-                            <strong>Lanzamiento</strong>
+                            <strong>Comunicacion</strong>
                             <small>6 min</small>
                         </span>
                         <span class="mission-item__dot"></span>
@@ -122,10 +130,21 @@
                     <li class="mission-item mission-item--blue">
                         <span class="mission-item__number">5</span>
                         <span class="mission-item__icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11 H17"/><path d="M8 7 H16"/><path d="M5 15 H12"/><path d="M14 15 H19"/><path d="M7 19 H10"/><path d="M14 19 H17"/><path d="M4 4 H20 V20 H4 Z"/></svg>
+                        </span>
+                        <span class="mission-item__copy">
+                            <strong>Negociación</strong>
+                            <small>8 min</small>
+                        </span>
+                        <span class="mission-item__dot"></span>
+                    </li>
+                    <li class="mission-item mission-item--gold">
+                        <span class="mission-item__number">6</span>
+                        <span class="mission-item__icon">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21 H16"/><path d="M12 17 V21"/><path d="M7 4 H17 V9 C17 12 15 15 12 16 C9 15 7 12 7 9 Z"/><path d="M7 7 H3 C3 11 5 13 8 13"/><path d="M17 7 H21 C21 11 19 13 16 13"/></svg>
                         </span>
                         <span class="mission-item__copy">
-                            <strong>Victoria</strong>
+                            <strong>Campeon</strong>
                             <small>8 min</small>
                         </span>
                         <span class="mission-item__dot"></span>
@@ -135,7 +154,7 @@
             </div>
 
             <div class="route-actions">
-                <a href="{% url 'login:mission_launch' %}" class="route-start btn-home btn-continue">Iniciar ruta</a>
+                <a href="/etapasJuego/tablet/seleccion-modalidad/" class="route-start btn-home btn-continue">Iniciar ruta</a>
                 <button class="route-help" type="button" data-open-help>
                     <span>?</span>
                     Necesitas Ayuda?
@@ -151,7 +170,7 @@
             <button class="video-close" type="button" data-close-video aria-label="Cerrar video">x</button>
             <div class="video-dialog__header">
                 <span>Briefing</span>
-                <h2 id="video-title">Mision Empresa</h2>
+                <h2 id="video-title">Archivo de Mision 2060</h2>
             </div>
             <div class="home-estudiante-video-container">
                 <div class="home-estudiante-video-wrapper">
@@ -170,28 +189,32 @@
     <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
         <div class="howto-card" role="dialog" aria-modal="true" aria-labelledby="howto-title">
             <h2 id="howto-title">Como se juega?</h2>
-            <p>Avancen por las cinco misiones, cuiden el tiempo y completen cada decision como equipo. La ruta termina cuando pasan al flujo de lanzamiento del juego.</p>
+            <p>Avancen por las misiones, cuiden el tiempo y recuperen habilidades emprendedoras como escuadron contra la Epidemia del Miedo.</p>
             <div class="howto-grid">
                 <div>
                     <strong>Ruta</strong>
                     <ul>
-                        <li>Activacion: preparar energia del equipo.</li>
-                        <li>Ideacion: transformar ideas en una direccion clara.</li>
-                        <li>Colaboracion: construir acuerdos y tareas.</li>
+                        <li>Trabajo en equipo: activar confianza y coordinacion.</li>
+                        <li>Empatia: entender problemas reales antes de proponer.</li>
+                        <li>Creatividad: transformar evidencia en solucion.</li>
                     </ul>
                 </div>
                 <div>
                     <strong>Cierre</strong>
                     <ul>
-                        <li>Lanzamiento: presentar con foco.</li>
-                        <li>Victoria: revisar avance y resultado.</li>
-                        <li>El boton Iniciar ruta conserva la navegacion original.</li>
+                        <li>Comunicacion: transmitir valor con claridad.</li>
+                        <li>Negociacion: evaluar, acordar y dar apoyo justo.</li>
+                        <li>Campeon: revisar avance y restaurar energia emprendedora.</li>
+                        <li>El boton Iniciar ruta lleva directo a la seleccion de modalidad.</li>
                     </ul>
                 </div>
             </div>
             <button type="button" class="howto-close" data-close-help>Cerrar</button>
         </div>
     </div>
+
+    {% include "etapasJuego/_story_drawer.html" with story_id="story-home" %}
+    <script src="{% static 'etapasJuego/js/story.js' %}"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

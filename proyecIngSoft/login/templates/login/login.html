@@ -4,16 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
-    {% load static %}
+    {% load static story_tags %}
     <link rel="stylesheet" href="{% static 'login/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
 </head>
 <body>
+    {% mission_story "login" as mission %}
     <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
-    <div class="login-container">
-        <div class="login-card">
+    <main class="login-page-shell">
+        <section class="story-intro" aria-label="Inicio de la historia">
+            <figure class="story-visual">
+                <img src="/media/imgHistoria/portada.png" alt="Agente de misión observando una metrópolis futurista bajo lluvia">
+                <figcaption class="story-copy story-briefing-hero">
+                    <p class="story-briefing-hero__eyebrow">{{ mission.kicker }}</p>
+                    <h1 class="story-briefing-hero__title">{{ mission.headline }}</h1>
+                    <p class="story-briefing-hero__copy">{{ mission.summary }}</p>
+                    <div class="story-gem-signal login-gem-capsule">
+                        <p class="story-gem-signal__label">Sustento real</p>
+                        <p class="story-gem-signal__text">{{ mission.gem_fact }}</p>
+                    </div>
+                </figcaption>
+            </figure>
+        </section>
+
+        <section class="login-container" aria-label="Ingreso al sistema">
+            <div class="login-card">
             <div class="login-header">
-                <h2>¡Bienvenido a: <br> misión emprende!</h2>
-                <p>Inicia sesión para tu rol. Equipos usan “Tableta” (PIN), estudiantes pueden entrar como “Estudiante”.</p>
+                <h2>Acceso</h2>
+                <p class="login-mission-copy">{{ mission.mission_prompt }}</p>
             </div>
             
             {% if messages %}
@@ -83,12 +101,13 @@
                 <button type="submit" class="login-btn" id="submitBtn">Iniciar sesión</button>
             </form>
         </div>
-    </div>
+        </section>
+    </main>
 
     <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
         <div class="howto-card">
             <h2>¿Cómo se juega?</h2>
-            <p>El juego dura ~60 minutos en 6 pasos. Necesitan un dispositivo por equipo. Roles: Estudiante crea equipo, Profesor supervisa, Tableta usa el PIN asignado para jugar.</p>
+      <p>El juego dura ~60 minutos en 6 pasos. Necesitan un dispositivo por equipo. Roles: Estudiante crea equipo, Profesor supervisa, Tableta usa el PIN asignado para jugar.</p>
             <div class="howto-grid">
                 <div>
                     <strong>Pasos del juego</strong>
@@ -105,13 +124,16 @@
                     <ul>
                         <li>Tokens por completar bien y a tiempo cada paso.</li>
                         <li>Coevaluación suma; no se autoevalúan.</li>
-                        <li>Objetivo: aprender habilidades emprendedoras en equipo.</li>
+                        <li>Objetivo: entrenar habilidades para combatir la Epidemia del Miedo al Emprendimiento.</li>
                     </ul>
                 </div>
             </div>
             <button type="button" class="howto-close" onclick="document.getElementById('howto-overlay').classList.remove('is-open')">Cerrar</button>
         </div>
     </div>
+
+    {% include "etapasJuego/_story_drawer.html" with story_id="story-login" %}
+    <script src="{% static 'etapasJuego/js/story.js' %}"></script>
 
     <script>
         function toggleFormFields() {

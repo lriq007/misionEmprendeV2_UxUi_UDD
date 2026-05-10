@@ -1,4 +1,4 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -9,18 +9,16 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa3.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/mission_progress.css' %}">
 </head>
 
-<body class="theme-login mission-ui">
+<body class="theme-login mission-ui has-mission-topbar">
+  {% mission_story "stage3" as mission %}
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
-  <div id="progress-bar">
-    <div>
-      <span>Paso 3 de 6 · Creatividad</span>
-      <div><div style="width:75%;"></div></div>
-    </div>
-  </div>
+  {% include "etapasJuego/_mission_progress_topbar.html" with active_stage=3 show_timer=True timer_id="e3-timer" timer_duration=stage_duration_seconds|default:900 timer_initial="15:00" %}
 
   <div class="ws-container">
     <form id="etapa3-form"
@@ -29,97 +27,83 @@
           action="{% url 'etapa3_guardar_foto' %}">
       {% csrf_token %}
 
-      <div
-        id="e3-timer"
-        class="ws-timer"
-        aria-live="polite"
-        aria-label="Tiempo restante"
-        data-duration-seconds="{{ sesion.duracion_etapa3_segundos|default:900 }}"
-      >15:00</div>
-
-      <div class="ws-header">
-        <h1 class="ws-title">Etapa 3 — Creatividad</h1>
-      </div>
-
-      <section class="game-instructions" style="max-width:820px; margin-left:auto; margin-right:auto;">
-        <h3>🧱 Guía rápida</h3>
-        <p>Construyan un LEGO que represente su solución y súbanle una foto clara. En el resumen conecten la construcción con el problema del usuario.</p>
-        <p class="hint">El prototipo y el texto alimentan el pitch y los tokens de creatividad.</p>
-        <div class="help-hint help-hint-top" aria-label="Ayuda rápida etapa 3" style="margin-top:10px;">
-          <button type="button" class="cyber-btn btn-lost"><span class="loader is-inline" aria-hidden="true"></span>¿Perdidos?</button>
-          <div class="cyber-tooltip">
-            <strong>Mostrar vale tanto como decir</strong>
-            <div>Usen piezas para explicar la idea y tomen una foto nítida. Digan cómo responde al problema del usuario.</div>
-          </div>
+      <header class="creativity-hero">
+        <div class="creativity-hero__copy">
+          <p class="creativity-hero__kicker">Fase 3 · Creatividad</p>
+          <h1 class="ws-title">Construyan una solución visible</h1>
+          <p class="creativity-hero__lead">Las ideas desaparecen cuando no se construyen.</p>
         </div>
-      </section>
+        <p class="creativity-hero__status">Protocolo: activando creatividad</p>
+      </header>
 
-      <div class="lego-content-wrapper">
-        <section class="lego-uploader game-instructions" id="legoUploader">
-          <input id="legoInput" name="lego_image" type="file" accept="image/*" capture="environment" hidden>
+      <div class="creativity-stage">
+        <section class="instructions-panel main-instructions" aria-labelledby="activityInstructions">
+          <h2 id="activityInstructions">Protocolo de construcción</h2>
 
-          <label for="legoInput" id="legoBtn" class="lego-btn" role="button" tabindex="0">
-            <div class="lego-btn-inner">
-              <span class="lego-icon">📸</span>
-              <span class="lego-text">Haz clic o arrastra una foto de tu LEGO</span>
-              <small>Formatos: JPG o PNG · Máx 8 MB</small>
+          <ol class="instructions-list">
+            <li>
+              <span class="instruction-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3 L21 8 V16 L12 21 L3 16 V8 Z"/><path d="M12 12 L21 8"/><path d="M12 12 V21"/><path d="M12 12 L3 8"/></svg>
+              </span>
+              <span class="instruction-number">1</span>
+              <span>Construyan<br>el prototipo</span>
+            </li>
+            <li>
+              <span class="instruction-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H8 L10 4 H14 L16 7 H20 V20 H4 Z"/><circle cx="12" cy="13" r="4"/></svg>
+              </span>
+              <span class="instruction-number">2</span>
+              <span>Fotografíen<br>la solución</span>
+            </li>
+          </ol>
+
+          <aside class="prototype-insight">
+            <span class="prototype-insight__icon" aria-hidden="true">i</span>
+            <p>Un buen prototipo hace tu idea difícil de ignorar.</p>
+          </aside>
+        </section>
+
+        <div class="creativity-main">
+          <section class="lego-workbench" id="legoUploader" aria-labelledby="legoUploadTitle">
+            <input id="legoInput" name="lego_image" type="file" accept="image/*" capture="environment" hidden>
+
+            <label
+              for="legoInput"
+              id="legoBtn"
+              class="lego-btn{% if project.foto_prototipo %} has-image{% endif %}"
+              role="button"
+              tabindex="0"
+              data-has-saved-image="{% if project.foto_prototipo %}true{% else %}false{% endif %}"
+            >
+              <span class="scanner-corner scanner-corner--tl" aria-hidden="true"></span>
+              <span class="scanner-corner scanner-corner--tr" aria-hidden="true"></span>
+              <span class="scanner-corner scanner-corner--bl" aria-hidden="true"></span>
+              <span class="scanner-corner scanner-corner--br" aria-hidden="true"></span>
+              <span class="scanner-line" aria-hidden="true"></span>
+              <span class="lego-hologram" aria-hidden="true">
+                <img src="/media/imgHistoria/legoCreacion.png" alt="">
+              </span>
+              <span id="legoUploadTitle" class="lego-text">Arrastren o fotografíen<br>su prototipo</span>
+              <small>PNG o JPG · Máx 8 MB</small>
+              <img
+                id="legoImg"
+                alt="Vista previa del prototipo LEGO"
+                {% if project.foto_prototipo %}src="{{ project.foto_prototipo.url }}"{% else %}hidden{% endif %}
+              >
+            </label>
+
+            <p id="legoStatus" class="lego-status" role="status" aria-live="polite">
+              {% if project.foto_prototipo %}Prototipo detectado.{% else %}Esperando imagen del producto.{% endif %}
+            </p>
+            <p id="legoEpicMessage" class="lego-epic-message" {% if not project.foto_prototipo %}hidden{% endif %}>
+              Crear es resistir: su solución ya tiene forma.
+            </p>
+
+            <div class="lego-actions">
+              <button type="button" id="legoClear" class="lego-clear" {% if not project.foto_prototipo %}hidden{% endif %}>Cambiar foto</button>
             </div>
-            <img id="legoImg" alt="Vista previa del LEGO" hidden>
-          </label>
-
-          <input id="groupPhotoInput" name="foto_grupal" type="file" accept="image/*" capture="environment" hidden>
-          <button type="button" class="btn btn-secondary group-photo-cta" id="groupPhotoBtn">
-            {% if project.foto_grupal %}
-              Foto Grupal Subida
-            {% else %}
-              Subir Foto Grupal
-            {% endif %}
-          </button>
-
-          <div class="lego-actions">
-            <button type="button" id="legoClear" class="lego-clear" hidden>Quitar foto</button>
-          </div>
-        </section>
-
-        <section class="instructions-panel game-instructions main-instructions">
-          <div class="instructions-content">
-
-            <h3>🎯 Instrucciones de la Actividad</h3>
-
-            <ol class="instructions-list">
-              <li>Construye una figura LEGO que represente tu solución creativa al desafío seleccionado anteriormente</li>
-              <li>Toma una foto clara del LEGO con la tableta</li>
-              <li>Asegúrate de que la imagen muestre todos los detalles importantes</li>
-              <li>¡Sé creativo! Esta es tu oportunidad de pensar fuera de la caja</li>
-            </ol>
-
-            <div class="instructions-tips">
-              <h4>💡 Consejos:</h4>
-              <ul>
-                <li>Relación clara con el desafío</li>
-                <li>Creatividad en la construcción</li>
-                <li>Calidad de la fotografía</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section class="instructions-panel idea-summary-panel game-instructions summary-full">
-          <div class="instructions-content">
-            <h3>📝 Resumen de la idea</h3>
-            <textarea
-              id="resumenIdea"
-              name="resumen_idea"
-              minlength="70"
-              maxlength="280"
-              placeholder="Resume la idea en 70–280 caracteres"
-              class="bubble-textarea"
-            >{{ project.resumen_idea|default_if_none:'' }}</textarea>
-            <div class="char-count"><span id="charCount">{{ project.resumen_idea|default_if_none:''|length }}</span> / 280</div>
-            <button type="submit" class="btn btn-primary">Guardar resumen</button>
-          </div>
-        </section>
-
+          </section>
+        </div>
       </div>
 
       <div class="etapa3-footer">
@@ -143,45 +127,37 @@
     });
   </script>
   <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
+  <script>
+  (function() {
+    const TIMEUP_URL = "{% url 'api_etapa3_timeup' %}";
+    const CSRF = "{{ csrf_token }}";
+    let called = false;
+    const timerEl = document.getElementById("e3-timer");
+    if (!timerEl || !TIMEUP_URL) return;
+    const observer = new MutationObserver(() => {
+      if (!called && timerEl.textContent.trim() === "00:00") {
+        called = true;
+        fetch(TIMEUP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF },
+          body: "{}",
+        }).then(r => r.json()).then(d => {
+          if (d.redirect_url) window.location.href = d.redirect_url;
+        }).catch(() => {});
+      }
+    });
+    observer.observe(timerEl, { childList: true, subtree: true, characterData: true });
+  })();
+  </script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-stage3" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
   <script defer src="{% static 'etapasJuego/js/etapa3.js' %}"></script>
-  <script>
-    (function() {
-      const btn = document.getElementById("groupPhotoBtn");
-      const input = document.getElementById("groupPhotoInput");
-      if (!btn || !input) return;
-      btn.addEventListener("click", () => input.click());
-      input.addEventListener("change", () => {
-        if (input.files && input.files.length > 0) {
-          btn.textContent = "Foto Grupal Subida";
-        }
-      });
-    })();
-  </script>
-  <script>
-    (function() {
-      const textarea = document.getElementById('resumenIdea');
-      const counter = document.getElementById('charCount');
-      if (!textarea || !counter) return;
-
-      const MAX_LEN = 280;
-
-      const updateCount = () => {
-        if (textarea.value.length > MAX_LEN) {
-          textarea.value = textarea.value.slice(0, MAX_LEN);
-        }
-        counter.textContent = textarea.value.length;
-      };
-
-      textarea.addEventListener('input', updateCount);
-      updateCount();
-    })();
-  </script>
   <div id="timeup-overlay" class="timeup-overlay" aria-hidden="true">
     <div class="timeup-card" role="dialog" aria-modal="true">
       <div class="timeup-glow"></div>
       <p class="timeup-chip">Tiempo agotado</p>
       <h2>Uff, lo siento. Es hora de avanzar</h2>
-      <p class="timeup-text">Pasemos al pitch: usen su LEGO y resumen para brillar en la siguiente etapa.</p>
+      <p class="timeup-text">Pasemos al pitch: usen su LEGO y resumen para transmitir energia innovadora.</p>
       <a class="btn btn-primary" href="{% url 'etapa4' %}">Ir a la Etapa 4</a>
     </div>
   </div>
@@ -209,7 +185,7 @@
           </ul>
         </div>
       </div>
-      <p style="margin-top:10px;">Reflexionen: ¿cómo su solución responde a lo que siente y necesita la persona?</p>
+      <p class="howto-reflection">Reflexionen: ¿cómo su solución responde a lo que siente y necesita la persona?</p>
       <button type="button" class="howto-close" onclick="document.getElementById('howto-overlay').classList.remove('is-open')">Cerrar</button>
     </div>
   </div>
@@ -220,179 +196,4 @@
     })();
   </script>
 </body>
-  <style>
-    .lego-content-wrapper {
-      display: grid;
-      grid-template-columns: minmax(360px, 1fr) minmax(360px, 1fr);
-      grid-template-areas:
-        "uploader instructions"
-        "summary  summary";
-      gap: 24px;
-      align-items: start;
-      justify-content: center;
-      margin: 30px auto 0;
-      max-width: 1200px;
-    }
-
-    .lego-uploader {
-      grid-area: uploader;
-      align-self: center;
-    }
-    .instructions-panel.main-instructions {
-      grid-area: instructions;
-      align-self: center;
-    }
-    .lego-uploader {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-    .lego-left-column {
-      display: grid;
-      gap: 20px;
-    }
-
-    .instructions-panel {
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(255,255,255,0.25);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
-      border-radius: 20px;
-      padding: 22px 26px;
-      min-height: 420px;
-      color: #f8fafc;
-      width: 100%;
-    }
-    .idea-summary-panel {
-      min-height: 420px;
-      width: 100%;
-      grid-area: summary;
-    }
-    .idea-summary-panel .instructions-content {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      height: 100%;
-    }
-    .idea-summary-panel textarea {
-      flex: 1;
-      min-height: 260px;
-      border-radius: 18px;
-      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-      font-size: 1rem;
-    }
-    .idea-summary-panel .char-count {
-      text-align: right;
-      font-weight: 600;
-      color: #f8fafc;
-    }
-
-    .instructions-content h3 {
-      color: #FFD24A;
-      font-size: 1.8rem;
-      margin-bottom: 25px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .instructions-list {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-bottom: 30px;
-      padding-left: 0;
-      list-style: none;
-    }
-
-    .instructions-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 15px;
-      padding: 15px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 12px;
-      border-left: 4px solid #FFD24A;
-      color: #f8fafc;
-      font-size: 1rem;
-      line-height: 1.4;
-      font-weight: 500;
-      position: relative;
-    }
-
-    .instructions-list li::before {
-      content: counter(list-item);
-      counter-increment: list-item;
-      background: #FFD24A;
-      color: #0b1733;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      flex-shrink: 0;
-      font-size: 0.9rem;
-    }
-
-    .instructions-tips {
-      background: linear-gradient(135deg, #23325A 0%, #103c8e 100%);
-      color: white;
-      padding: 20px;
-      border-radius: 15px;
-      margin-top: 20px;
-    }
-
-    .instructions-tips h4 {
-      margin: 0 0 15px 0;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .instructions-tips ul {
-      margin: 0;
-      padding-left: 20px;
-    }
-
-    .instructions-tips li {
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .instructions-tips li:last-child {
-      margin-bottom: 0;
-    }
-
-    @media (max-width: 1024px) {
-      .lego-content-wrapper {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-          "uploader"
-          "instructions"
-          "summary";
-        gap: 24px;
-        max-width: 900px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .instructions-panel {
-        padding: 18px;
-      }
-      
-      .instructions-content h3 {
-        font-size: 1.5rem;
-      }
-      
-      .instructions-list li {
-        padding: 12px;
-        font-size: 0.9rem;
-      }
-    }
-  </style>
 </html>
