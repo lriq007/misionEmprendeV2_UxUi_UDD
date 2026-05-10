@@ -618,49 +618,125 @@ def profesor_sesion_eliminar(request, pk):
     )
 
 
+#@profesor_required
+#def profesor_alumnos(request):
+#    sesiones = GameSession.objects.filter(profesor=request.user)
+ #   equipos = Team.objects.filter(sesion__in=sesiones)
+  #  secciones = SeccionEstudiantes.objects.filter(sesiones__in=sesiones).distinct()
+   # estudiantes = Estudiante.objects.select_related("seccion", "team", "team__sesion").filter(
+    #    Q(team__sesion__in=sesiones) | Q(seccion__in=secciones)
+    #).order_by("team_id", "team","nombre_apellido")
+
+#    form = EstudianteAdminForm(request.POST or None)
+ #   form.fields["team"].queryset = equipos
+  #  form.fields["seccion"].queryset = secciones
+
+   # if request.method == "POST" and form.is_valid():
+    #    form.save()
+     #   messages.success(request, "Estudiante creado correctamente.")
+      #  return redirect("profesorpanel:alumnos")
+
+#    return render(
+ #       request,
+  #      "login/profesor/alumnos.html",
+   ##)
+
+#Nuevo cambio profesor_alumnos 9/5
 @profesor_required
 def profesor_alumnos(request):
-    sesiones = GameSession.objects.filter(profesor=request.user)
-    equipos = Team.objects.filter(sesion__in=sesiones)
-    secciones = SeccionEstudiantes.objects.filter(sesiones__in=sesiones).distinct()
-    estudiantes = Estudiante.objects.select_related("seccion", "team", "team__sesion").filter(
-        Q(team__sesion__in=sesiones) | Q(seccion__in=secciones)
-    ).order_by("nombre_apellido")
 
-    form = EstudianteAdminForm(request.POST or None)
+    sesiones = GameSession.objects.filter(
+        profesor=request.user
+    )
+
+    equipos = Team.objects.filter(
+        sesion__in=sesiones
+    )
+
+    secciones = SeccionEstudiantes.objects.filter(
+        sesiones__in=sesiones
+    ).distinct()
+
+    sesion_id = request.GET.get("sesion")
+
+    estudiantes = Estudiante.objects.select_related(
+        "seccion",
+        "team",
+        "team__sesion",
+        "team__tablet",
+    ).filter(
+        team__sesion__in=sesiones
+    )
+
+    if sesion_id:
+
+        estudiantes = estudiantes.filter(
+            team__sesion_id=sesion_id
+        )
+
+    estudiantes = estudiantes.order_by(
+        "team__tablet__codigo",
+        "team__codigo_grupo",
+        "nombre_apellido"
+    )
+
+    form = EstudianteAdminForm(
+        request.POST or None
+    )
+
     form.fields["team"].queryset = equipos
+
     form.fields["seccion"].queryset = secciones
 
     if request.method == "POST" and form.is_valid():
+
         form.save()
-        messages.success(request, "Estudiante creado correctamente.")
-        return redirect("profesorpanel:alumnos")
+
+        messages.success(
+            request,
+            "Estudiante creado correctamente."
+        )
+
+        return redirect(
+            "profesorpanel:alumnos"
+        )
 
     return render(
         request,
         "login/profesor/alumnos.html",
-        {"estudiantes": estudiantes, "form": form, "sesiones": sesiones},
+        {
+            "estudiantes": estudiantes,
+            "form": form,
+            "sesiones": sesiones,
+        },
     )
+#Fin nuevo cambio profesor_alumnos 9/5
 
-
+#Nuevo cambio profesor_equipos 10/5
 @profesor_required
 def profesor_equipos(request):
-    sesiones = GameSession.objects.filter(profesor=request.user)
-    equipos = (
-        Team.objects.select_related("sesion", "tablet")
-        .prefetch_related("estudiantes")
-        .filter(sesion__in=sesiones)
-        .order_by("sesion__nombre", "codigo_grupo")
+
+    sesiones = GameSession.objects.filter(
+        profesor=request.user
     )
 
-    form = TeamAdminForm(request.POST or None)
+    equipos = Team.objects.filter(
+        sesion__in=sesiones
+    ).prefetch_related(
+        "estudiantes",
+        "tablet",
+    ).order_by(
+        "tablet__codigo"
+    )
+
+    form = TeamAdminForm(
+        request.POST or None
+    )
+
     form.fields["sesion"].queryset = sesiones
-    #Borrar 9/5 
-    #form.fields["tablet"].queryset = form.fields["tablet"].queryset.filter(sesion__in=sesiones)
 
     if request.method == "POST" and form.is_valid():
 
-        #Nuevo 9/5
         cantidad_equipos = Team.objects.filter(
             sesion=form.cleaned_data["sesion"]
         ).count()
@@ -672,32 +748,44 @@ def profesor_equipos(request):
                 "Máximo 8 equipos por sesión."
             )
 
-            return redirect("profesorpanel:equipos")
-        #Fin nuevo 9/5
-        
-        form.save()
+            return redirect(
+                "profesorpanel:equipos"
+            )
 
-        #Nuevo 9/5
         equipo = form.save()
+
         tablet_disponible = Tablet.objects.filter(
             sesion=equipo.sesion,
             team__isnull=True
         ).first()
 
         if tablet_disponible:
-            equipo.tablet = tablet_disponible
-            equipo.save(update_fields=["tablet"])
-        #Fin nuevo 9/5
 
-        messages.success(request, "Equipo creado correctamente.")
-        return redirect("profesorpanel:equipos")
+            equipo.tablet = tablet_disponible
+
+            equipo.save(
+                update_fields=["tablet"]
+            )
+
+        messages.success(
+            request,
+            "Equipo creado correctamente."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
 
     return render(
         request,
         "login/profesor/equipos.html",
-        {"equipos": equipos, "form": form},
+        {
+            "equipos": equipos,
+            "form": form,
+            "sesiones": sesiones,
+        },
     )
-
+#Fin cambio profesor_equipos 10/5
 
 #Validar si el profesor deberia poder crear secciones o si solo el admin las crea 9/5
 @profesor_required
@@ -889,4 +977,415 @@ def importar_estudiantes_csv(request):
     return redirect(
         "profesorpanel:alumnos"
     )
-#Fin nuevo 
+
+#Nuevo generar equipos automaticos 10/5
+@profesor_required
+def generar_equipos_automaticos(request):
+
+    sesion = GameSession.objects.filter(
+        profesor=request.user,
+        estado="PREPARACION"
+    ).first()
+
+    if not sesion:
+
+        messages.error(
+            request,
+            "No tienes una sesión en preparación."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    equipos = list(
+        Team.objects.filter(
+            sesion=sesion
+        ).order_by("id")
+    )
+
+    if not equipos:
+
+        messages.error(
+            request,
+            "La sesión no tiene equipos."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    estudiantes = list(
+        Estudiante.objects.filter(
+            Q(team__sesion=sesion)
+            |
+            Q(
+                seccion=sesion.seccion,
+                team__isnull=True
+            )
+        )
+    )
+
+    import random
+
+    random.shuffle(estudiantes)
+
+    for equipo in equipos:
+
+        equipo.estudiantes.clear()
+
+    idx = 0
+
+    for estudiante in estudiantes:
+
+        assigned = False
+
+        attempts = 0
+
+        while not assigned and attempts < len(equipos):
+
+            equipo = equipos[idx % len(equipos)]
+
+            if equipo.has_cupo():
+
+                estudiante.team = equipo
+
+                estudiante.save(
+                    update_fields=["team"]
+                )
+
+                assigned = True
+
+            idx += 1
+            attempts += 1
+
+    messages.success(
+        request,
+        "Equipos mezclados correctamente."
+    )
+
+    return redirect(
+        "profesorpanel:equipos"
+    )
+#Fin nuevo generar equipos 10/5 
+
+#Nuevo eliminar alumnos 9/5
+@profesor_required
+def eliminar_alumno(request):
+
+    sesion = GameSession.objects.filter(
+        profesor=request.user,
+        estado="PREPARACION"
+    ).first()
+
+    if not sesion:
+
+        messages.error(
+            request,
+            "No hay sesión disponible."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    equipos = Team.objects.filter(
+        sesion=sesion
+    ).order_by("-id")
+
+    if equipos.count() <= 3:
+
+        messages.error(
+            request,
+            "Debe existir mínimo 3 equipos."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    equipo_eliminar = equipos.first()
+
+    otros_equipos = list(
+        Team.objects.filter(
+            sesion=sesion
+        ).exclude(
+            id=equipo_eliminar.id
+        )
+    )
+
+    estudiantes = list(
+        Estudiante.objects.filter(
+            team=equipo_eliminar
+        )
+    )
+
+    idx = 0
+
+    for estudiante in estudiantes:
+
+        assigned = False
+
+        attempts = 0
+
+        while not assigned and attempts < len(otros_equipos):
+
+            destino = otros_equipos[
+                idx % len(otros_equipos)
+            ]
+
+            if destino.has_cupo():
+
+                estudiante.team = destino
+
+                estudiante.save(
+                    update_fields=["team"]
+                )
+
+                assigned = True
+
+            idx += 1
+            attempts += 1
+
+    tablet = equipo_eliminar.tablet
+
+    equipo_eliminar.delete()
+
+    if tablet:
+
+        tablet.sesion = None
+
+        tablet.save(
+            update_fields=["sesion"]
+        )
+
+    messages.success(
+        request,
+        "Tablet/equipo eliminado correctamente."
+    )
+
+    return redirect(
+        "profesorpanel:equipos"
+    )
+
+#Fin nuevo 9/5
+
+#Nuevo mover alumno 10/5
+@profesor_required
+def mover_alumno(request, pk):
+
+    alumno = get_object_or_404(
+        Estudiante,
+        pk=pk,
+        team__sesion__profesor=request.user
+    )
+
+    nuevo_team = get_object_or_404(
+        Team,
+        pk=request.POST.get("team"),
+        sesion__profesor=request.user
+    )
+
+    if not nuevo_team.has_cupo():
+
+        messages.error(
+            request,
+            "El equipo ya está completo."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    alumno.team = nuevo_team
+
+    alumno.save(update_fields=["team"])
+
+    messages.success(
+        request,
+        "Alumno movido correctamente."
+    )
+
+    return redirect(
+        "profesorpanel:equipos"
+    )
+#Fin nuevo mover alumno 10/5 
+
+#Nuevo modificar cantidad equipos 10/5
+@profesor_required
+def agregar_equipo(request):
+
+    sesion = GameSession.objects.filter(
+        profesor=request.user,
+        estado="PREPARACION"
+    ).first()
+
+    if not sesion:
+
+        messages.error(
+            request,
+            "No hay una sesión en preparación."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    cantidad = Team.objects.filter(
+        sesion=sesion
+    ).count()
+
+    if cantidad >= 8:
+
+        messages.error(
+            request,
+            "Máximo 8 tablets/equipos."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    tablet_disponible = Tablet.objects.filter(
+        sesion__isnull=True,
+        team__isnull=True
+    ).first()
+
+    if not tablet_disponible:
+
+        messages.error(
+            request,
+            "No hay tablets disponibles."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    tablet_disponible.sesion = sesion
+
+    tablet_disponible.save(
+        update_fields=["sesion"]
+    )
+
+    ultimo = Team.objects.filter(
+        sesion=sesion
+    ).order_by("-id").first()
+
+    nuevo_numero = 1
+
+    if ultimo:
+
+        try:
+            nuevo_numero = int(
+                ultimo.codigo_grupo
+            ) + 1
+
+        except:
+            nuevo_numero = cantidad + 1
+
+    codigo = f"Equipo {nuevo_numero}"
+
+    Team.objects.create(
+        nombre=codigo,
+        codigo_grupo=str(nuevo_numero),
+        sesion=sesion,
+        tablet=tablet_disponible,
+    )
+
+    messages.success(
+        request,
+        "Tablet/equipo agregado."
+    )
+
+    return redirect(
+        "profesorpanel:equipos"
+    )
+
+@profesor_required
+def eliminar_equipo(request):
+
+    sesion = GameSession.objects.filter(
+        profesor=request.user,
+        estado="PREPARACION"
+    ).first()
+
+    if not sesion:
+
+        messages.error(
+            request,
+            "No hay sesión activa."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    equipos = Team.objects.filter(
+        sesion=sesion
+    ).order_by("-id")
+
+    if equipos.count() <= 3:
+
+        messages.error(
+            request,
+            "Debe existir mínimo 3 equipos."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    equipo = equipos.first()
+
+    estudiantes = list(
+        equipo.estudiantes.all()
+    )
+
+    otros = Team.objects.filter(
+        sesion=sesion
+    ).exclude(
+        id=equipo.id
+    )
+
+    idx = 0
+
+    for estudiante in estudiantes:
+
+        for _ in range(len(otros)):
+
+            destino = otros[idx % len(otros)]
+
+            idx += 1
+
+            if destino.has_cupo():
+
+                estudiante.team = destino
+
+                estudiante.save(
+                    update_fields=["team"]
+                )
+
+                break
+
+    tablet = equipo.tablet
+
+    equipo.delete()
+
+    if tablet:
+
+        tablet.sesion = None
+
+        tablet.save(
+            update_fields=["sesion"]
+        )
+
+    messages.success(
+        request,
+        "Tablet/equipo eliminado."
+    )
+
+    return redirect(
+        "profesorpanel:equipos"
+    )
+#Fin nuevo modificar cantidad equipos 10/5

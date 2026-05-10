@@ -113,7 +113,7 @@
 
         </select>
 <!-- Fin nuevo 9/5 -->
- 
+
         <input
             type="file"
             name="archivo"
@@ -132,6 +132,46 @@
 
 </div>
 
+<!-- Nuevo 9/5-->
+<form
+    method="GET"
+    style="margin-bottom:20px;"
+>
+
+    <select
+        name="sesion"
+        class="form-field"
+    >
+
+        <option value="">
+            Todas las sesiones
+        </option>
+
+        {% for s in sesiones %}
+
+        <option
+            value="{{ s.id }}"
+            {% if request.GET.sesion == s.id|stringformat:"s" %}
+                selected
+            {% endif %}
+        >
+            {{ s.nombre }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <button
+        type="submit"
+        class="btn-link btn-outline"
+    >
+        Filtrar
+    </button>
+
+</form>
+<!-- Fin nuevo 9/5 -->
+
 <!-- TABLA -->
 <div class="panel-card">
 
@@ -146,6 +186,7 @@
                     <th>Sección</th>
                     <th>Equipo</th>
                     <th>Sesión</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
 
@@ -164,7 +205,17 @@
                         <td>{{ est.team.nombre|default:"Sin equipo" }}</td>
 
                         <td>{{ est.team.sesion.nombre|default:"-" }}</td>
-
+<!-- Nuevo agregar columna sesion 10/5 -->
+                        <td>
+                            <a
+                                href="{% url 'profesorpanel:eliminar_alumno' est.id %}"
+                                class="btn-link btn-danger"
+                                onclick="return confirm('¿Estás seguro de que quieres eliminar este alumno?');"
+                            >
+                                Eliminar
+                            </a>
+                        </td>
+<!-- Fin nuevo agregar columna sesion 10/5 -->
                     </tr>
 
                 {% empty %}

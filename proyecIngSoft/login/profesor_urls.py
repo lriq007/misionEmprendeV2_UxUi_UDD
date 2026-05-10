@@ -32,5 +32,43 @@ urlpatterns = [
         views.importar_estudiantes_csv,
         name="importar_csv",
     ),
-    #Fin nuevo
+    
+    #Nuevo generar equipos automaticos 9/5
+    path(
+        "equipos/generar/",
+        views.generar_equipos_automaticos,
+        name="generar_equipos",
+    ),
+
+    #Nuevo eliminar alumnos 9/5
+    path(
+        "alumnos/<int:pk>/eliminar/",
+        views.eliminar_alumno,
+        name="eliminar_alumno",
+    ),
+
+    #Fin nuevo 9/5
+
+    #Nuevo url mover alumno 10/5
+    path(
+        "alumnos/<int:pk>/mover/",
+        views.mover_alumno,
+        name="mover_alumno",
+    ),
+    #Fin nuevo url mover alumno 10/5
+
+    #Nuevo modificar cantidad equipos 10/5
+    path(
+        "equipos/agregar/",
+        views.agregar_equipo,
+        name="agregar_equipo",
+    ),
+
+    path(
+        "equipos/eliminar/",
+        views.eliminar_equipo,
+        name="eliminar_equipo",
+    ),
+    #Fin nuevo modificar cantidad equipos 10/5
 ]
+

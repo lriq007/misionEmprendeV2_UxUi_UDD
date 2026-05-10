@@ -656,4 +656,190 @@ body.panel-body {
     background:#dc2626 !important;
     color:white !important;
 }
+
+select.form-field option{
+    color:#111827 !important;
+    background:white !important;
+}
 /* Fin nuevo 9/5 */
+
+/* Nuevo equipos 10/5 */
+.teams-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:20px;
+}
+
+.team-card{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 6px 20px rgba(0,0,0,.08);
+    color:#111827;
+}
+
+.team-card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.team-card-header h3{
+    margin:0;
+    font-size:22px;
+}
+
+.team-card-header p{
+    margin:4px 0 0 0;
+    color:#6b7280;
+}
+
+.team-chip{
+    background:#dbeafe;
+    color:#1d4ed8;
+    padding:8px 12px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:14px;
+}
+
+.team-members{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.student-row{
+    padding:12px;
+    border-radius:12px;
+    background:#dee1e7;
+    font-weight:600;
+    color:#111827;
+}
+
+.team-card h3{
+    color:#111827;
+}
+
+.team-card p{
+    color:#4b5563;
+}
+/* Fin nuevo equipos 10/5 */
+
+/* Nuevo mover alumno 10/5 */
+.student-row{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.move-student-form{
+    display:flex;
+    gap:8px;
+}
+
+.move-student-form select{
+    flex:1;
+}
+
+.move-student-form .btn-outline{
+    color:#111827 !important;
+    border:1px solid #d1d5db !important;
+    background:white !important;
+}
+
+.move-student-form .btn-outline:hover{
+    background:#f3f4f6 !important;
+}
+
+.move-student-form select{
+    color:#111827 !important;
+    background:white !important;
+}
+/* Fin nuevo mover alumno 10/5 */
+
+/* Nuevo modificar equipos 10/5 */
+.btn-secondary{
+    background:#0d44da !important;
+    color:white !important;
+    border:none !important;
+}
+
+.btn-secondary:hover{
+    background:#1d4fd8 !important;
+}
+
+.btn-soft-danger{
+    background:#7f1d1d !important;
+    color:white !important;
+    border:none !important;
+}
+
+.btn-soft-danger:hover{
+    background:#991b1b !important;
+}
+/* Fin nuevo modificar equipos 10/5 */
+
+.teams-actions{
+    display:flex;
+    align-items:center;
+    gap:18px;
+
+    margin-top:20px;
+
+    flex-wrap:wrap;
+
+    background:transparent !important;
+}
+.teams-actions form{
+    background:transparent !important;
+    padding:0 !important;
+    box-shadow:none !important;
+    border:none !important;
+
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.teams-actions form{
+    margin:0 !important;
+
+    display:flex;
+    align-items:center;
+}
+
+.teams-actions .btn-link{
+    height:48px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.teams-actions .btn-link{
+    width:150px;
+    height:37px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:700;
+    font-size:17px;
+
+    border-radius:14px;
+
+    text-align:center;
+}
+
+.btn-primary{
+    font-size:20px !important;
+}
+
+.teams-actions .btn-primary{
+    width:210px !important;
+    height:57px;
+    font-size:19px !important;
+}

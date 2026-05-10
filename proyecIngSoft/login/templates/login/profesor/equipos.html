@@ -1,79 +1,170 @@
+<!-- Nuevo html 10/5 -->
 {% extends "login/panel_base.html" %}
+
 {% block title %}Equipos{% endblock %}
-{% block header_title %}Equipos{% endblock %}
+{% block header_title %}Distribución de equipos{% endblock %}
 
 {% block content %}
 
-<div class="panel-card">
-    <div class="card-header">
+<div class="panel-card" style="margin-bottom:20px;">
+
+    <div class="panel-flex-between">
+
         <div>
-            <p class="eyebrow">Equipos</p>
-            <!-- Cambio de titulo 9/5-->
-            <h3>Equipos de juego</h3>
-        </div>
-    </div>
-    <form method="post" class="panel-form" style="margin-bottom:12px;">
-        {% csrf_token %}
-        <div class="panel-grid two-col">
-            <div class="form-group">
-                <label for="{{ form.nombre.id_for_label }}">Nombre</label>
-                {{ form.nombre }}
-                {{ form.nombre.errors }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.codigo_grupo.id_for_label }}">Código</label>
-                {{ form.codigo_grupo }}
-                {{ form.codigo_grupo.errors }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.sesion.id_for_label }}">Sesión</label>
-                {{ form.sesion }}
-                {{ form.sesion.errors }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.tablet.id_for_label }}">Tablet</label>
-                {{ form.tablet }}
-                {{ form.tablet.errors }}
-            </div>
-        </div>
-        <div class="panel-actions-row">
-            <!-- Nuevo 9/5 -->
-            <a class="btn-link btn-outline" href="#">
-                Distribuir automáticamente
-            </a>
-            <!-- Fin nuevo 9/5 -->
 
-            <button type="submit" class="btn-link btn-primary">Crear equipo</button>
-        </div>
-    </form>
+            <p class="eyebrow">
+                Organización de equipos
+            </p>
 
-    <div class="panel-table-wrapper">
-        <table class="panel-table compact">
-            <thead>
-                <tr>
-                    <th>Equipo</th>
-                    <th>Sesión</th>
-                    <th>Código</th>
-                    <th>Integrantes</th>
-                    <th>Puntaje</th>
-                    <th>Tablet</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for e in equipos %}
-                    <tr>
-                        <td>{{ e.nombre }}</td>
-                        <td>{{ e.sesion.nombre|default:"N/A" }}</td>
-                        <td>{{ e.codigo_grupo }}</td>
-                        <td>{{ e.estudiantes.count }}</td>
-                        <td><strong>{{ e.tokens_totales|default:0 }}</strong></td>
-                        <td>{{ e.tablet.codigo|default:"Sin asignar" }}</td>
-                    </tr>
-                {% empty %}
-                    <tr><td colspan="6">No hay equipos registrados en tus sesiones.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            <h2>
+                Distribución de tablets y alumnos
+            </h2>
+
+        </div>
+
     </div>
+
+    <!-- BOTONES -->
+    <div class="teams-actions">
+
+        <!-- Mezclar -->
+        <form
+            method="GET"
+            action="{% url 'profesorpanel:generar_equipos' %}"
+        >
+
+            <button
+                type="submit"
+                class="btn-link btn-primary"
+            >
+                Mezclar equipos
+            </button>
+
+        </form>
+
+        <!-- Agregar -->
+        <a
+            href="{% url 'profesorpanel:agregar_equipo' %}"
+            class="btn-link btn-secondary"
+        >
+            + Agregar tablet
+        </a>
+
+        <!-- Eliminar -->
+        <a
+            href="{% url 'profesorpanel:eliminar_equipo' %}"
+            class="btn-link btn-soft-danger"
+        >
+            - Eliminar tablet
+        </a>
+
+    </div>
+
 </div>
+
+<!-- GRID EQUIPOS -->
+<div class="teams-grid">
+
+    {% for equipo in equipos %}
+
+    <div class="team-card">
+
+        <div class="team-card-header">
+
+            <div>
+
+                <h3>
+                    {{ equipo.nombre }}
+                </h3>
+
+                <p>
+                    {{ equipo.tablet.codigo }}
+                </p>
+
+            </div>
+
+            <div class="team-chip">
+                {{ equipo.estudiantes.count }} integrantes
+            </div>
+
+        </div>
+
+        <div class="team-members">
+
+            {% for estudiante in equipo.estudiantes.all %}
+
+            <div class="student-row">
+
+                <div class="student-row-top">
+
+                    <span>
+                        {{ estudiante.nombre_apellido }}
+                    </span>
+
+                </div>
+
+                <form
+                    method="POST"
+                    action="{% url 'profesorpanel:mover_alumno' estudiante.id %}"
+                    class="move-student-form"
+                >
+
+                    {% csrf_token %}
+
+                    <select
+                        name="team"
+                        class="form-field"
+                        required
+                    >
+
+                        {% for t in equipos %}
+
+                        <option
+                            value="{{ t.id }}"
+                            {% if estudiante.team.id == t.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ t.nombre }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <button
+                        type="submit"
+                        class="btn-link btn-outline"
+                    >
+                        Mover
+                    </button>
+
+                </form>
+
+            </div>
+
+            {% empty %}
+
+            <div class="student-row muted">
+                Sin integrantes
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="panel-card">
+
+        No hay equipos generados.
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
 {% endblock %}
