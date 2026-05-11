@@ -843,3 +843,27 @@ select.form-field option{
     height:57px;
     font-size:19px !important;
 }
+
+/* Nuevo boton inciar juego 11/5 */
+.teams-actions-wrapper{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-top:24px;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+}
+
+.start-game-btn{
+    min-width:240px;
+
+    height:40px;
+
+    font-size:29px !important;
+
+    font-weight:800 !important;
+}
+/* Fin nuevo boton iniciar juego 11/5 */

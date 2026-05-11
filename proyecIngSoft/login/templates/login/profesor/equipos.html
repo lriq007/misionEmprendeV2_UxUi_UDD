@@ -1,4 +1,4 @@
-<!-- Nuevo html 10/5 -->
+<!-- Nuevo html 11/5 -->
 {% extends "login/panel_base.html" %}
 
 {% block title %}Equipos{% endblock %}
@@ -25,37 +25,49 @@
     </div>
 
     <!-- BOTONES -->
-    <div class="teams-actions">
+    <div class="teams-actions-wrapper">
 
-        <!-- Mezclar -->
-        <form
-            method="GET"
-            action="{% url 'profesorpanel:generar_equipos' %}"
-        >
+        <div class="teams-actions">
 
-            <button
-                type="submit"
-                class="btn-link btn-primary"
+            <!-- Mezclar -->
+            <form
+                method="GET"
+                action="{% url 'profesorpanel:generar_equipos' %}"
             >
-                Mezclar equipos
-            </button>
 
-        </form>
+                <button
+                    type="submit"
+                    class="btn-link btn-primary"
+                >
+                    Mezclar equipos
+                </button>
 
-        <!-- Agregar -->
+            </form>
+
+            <!-- Agregar -->
+            <a
+                href="{% url 'profesorpanel:agregar_equipo' %}"
+                class="btn-link btn-secondary"
+            >
+                + Agregar tablet
+            </a>
+
+            <!-- Eliminar -->
+            <a
+                href="{% url 'profesorpanel:eliminar_equipo' %}"
+                class="btn-link btn-soft-danger"
+            >
+                - Eliminar tablet
+            </a>
+
+        </div>
+
+        <!-- INICIAR JUEGO -->
         <a
-            href="{% url 'profesorpanel:agregar_equipo' %}"
-            class="btn-link btn-secondary"
+            href="{% url 'profesorpanel:iniciar_sesion' equipos.0.sesion.id %}"
+            class="btn-link btn-success start-game-btn"
         >
-            + Agregar tablet
-        </a>
-
-        <!-- Eliminar -->
-        <a
-            href="{% url 'profesorpanel:eliminar_equipo' %}"
-            class="btn-link btn-soft-danger"
-        >
-            - Eliminar tablet
+            ▶ Iniciar juego
         </a>
 
     </div>
@@ -77,8 +89,23 @@
                     {{ equipo.nombre }}
                 </h3>
 
-                <p>
+                <p class="tablet-label">
                     {{ equipo.tablet.codigo }}
+                </p>
+
+                <!-- PIN -->
+                <p
+                    style="
+                        font-size:40px;
+                        color:#2563eb;
+                        font-weight:700;
+                        margin-top:4px;
+                    "
+                >
+
+                    PIN:
+                    {{ equipo.tablet.codigo_acceso }}
+
                 </p>
 
             </div>

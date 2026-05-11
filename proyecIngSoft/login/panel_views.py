@@ -22,7 +22,7 @@ from .forms import (
 )
 from .models import Estudiante, SeccionEstudiantes
 from .permissions import ADMIN_GROUP, PROFESOR_GROUP, admin_required, is_admin, profesor_required
-
+import math
 
 def _secciones_de_profesor(user):
     return SeccionEstudiantes.objects.filter(sesiones__profesor=user).distinct()
@@ -618,28 +618,6 @@ def profesor_sesion_eliminar(request, pk):
     )
 
 
-#@profesor_required
-#def profesor_alumnos(request):
-#    sesiones = GameSession.objects.filter(profesor=request.user)
- #   equipos = Team.objects.filter(sesion__in=sesiones)
-  #  secciones = SeccionEstudiantes.objects.filter(sesiones__in=sesiones).distinct()
-   # estudiantes = Estudiante.objects.select_related("seccion", "team", "team__sesion").filter(
-    #    Q(team__sesion__in=sesiones) | Q(seccion__in=secciones)
-    #).order_by("team_id", "team","nombre_apellido")
-
-#    form = EstudianteAdminForm(request.POST or None)
- #   form.fields["team"].queryset = equipos
-  #  form.fields["seccion"].queryset = secciones
-
-   # if request.method == "POST" and form.is_valid():
-    #    form.save()
-     #   messages.success(request, "Estudiante creado correctamente.")
-      #  return redirect("profesorpanel:alumnos")
-
-#    return render(
- #       request,
-  #      "login/profesor/alumnos.html",
-   ##)
 
 #Nuevo cambio profesor_alumnos 9/5
 @profesor_required
@@ -712,7 +690,7 @@ def profesor_alumnos(request):
     )
 #Fin nuevo cambio profesor_alumnos 9/5
 
-#Nuevo cambio profesor_equipos 10/5
+#Nuevo arreglo cambio profesor_equipos 10/5
 @profesor_required
 def profesor_equipos(request):
 
@@ -720,14 +698,26 @@ def profesor_equipos(request):
         profesor=request.user
     )
 
-    equipos = Team.objects.filter(
-        sesion__in=sesiones
-    ).prefetch_related(
-        "estudiantes",
-        "tablet",
-    ).order_by(
-        "tablet__codigo"
-    )
+    sesion_activa = GameSession.objects.filter(
+        profesor=request.user,
+        estado__in=[
+            "PREPARACION",
+            "ACTIVA",
+        ]
+    ).first()
+
+    equipos = Team.objects.none()
+
+    if sesion_activa:
+
+        equipos = Team.objects.filter(
+            sesion=sesion_activa
+        ).prefetch_related(
+            "estudiantes",
+            "tablet",
+        ).order_by(
+            "tablet__codigo"
+        )
 
     form = TeamAdminForm(
         request.POST or None
@@ -761,6 +751,12 @@ def profesor_equipos(request):
 
         if tablet_disponible:
 
+            tablet_disponible.sesion = equipo.sesion
+
+            tablet_disponible.save(
+                update_fields=["sesion"]
+            )
+
             equipo.tablet = tablet_disponible
 
             equipo.save(
@@ -785,7 +781,7 @@ def profesor_equipos(request):
             "sesiones": sesiones,
         },
     )
-#Fin cambio profesor_equipos 10/5
+#Fin arreglo cambio profesor_equipos 10/5
 
 #Validar si el profesor deberia poder crear secciones o si solo el admin las crea 9/5
 @profesor_required
@@ -823,7 +819,7 @@ def profesor_iniciar_sesion(request, pk):
             request,
             "La sesión necesita mínimo 3 equipos."
         )
-        return redirect("profesorpanel:sesiones")
+        return redirect("profesorpanel:equipos")
 
     equipos_invalidos = [
         e for e in equipos
@@ -835,7 +831,7 @@ def profesor_iniciar_sesion(request, pk):
             request,
             "Todos los equipos deben tener mínimo 2 integrantes."
         )
-        return redirect("profesorpanel:sesiones")
+        return redirect("profesorpanel:equipos")
 
     sesion.estado = "ACTIVA"
 
@@ -846,9 +842,9 @@ def profesor_iniciar_sesion(request, pk):
         "Juego iniciado correctamente."
     )
 
-    return redirect("profesorpanel:sesiones")
+    return redirect("profesorpanel:equipos")
 
-#Nuevo funcion FINALIZAR JUEGO 9/5
+#Nuevo arreglar funcion FINALIZAR JUEGO 10/5
 @profesor_required
 def profesor_finalizar_sesion(request, pk):
 
@@ -858,18 +854,35 @@ def profesor_finalizar_sesion(request, pk):
         profesor=request.user
     )
 
+    # Eliminar equipos
+    Team.objects.filter(
+        sesion=sesion
+    ).delete()
+
+    # Liberar tablets
+    Tablet.objects.filter(
+        sesion=sesion
+    ).update(
+        sesion=None
+    )
+
     sesion.estado = "FINALIZADA"
 
-    sesion.save(update_fields=["estado"])
+    sesion.save(
+        update_fields=["estado"]
+    )
 
     messages.success(
         request,
         "Juego finalizado."
     )
 
-    return redirect("profesorpanel:sesiones")
+    return redirect(
+        "profesorpanel:sesiones"
+    )
+#Fin arreglo funcion FINALIZAR JUEGO 10/5
 
-#Nuevo importar CSV 9/5
+#Nuevo arreglo importar CSV 10/5
 @profesor_required
 def importar_estudiantes_csv(request):
 
@@ -927,23 +940,74 @@ def importar_estudiantes_csv(request):
 
         estudiantes_creados.append(estudiante)
 
+    # CREAR EQUIPOS AUTOMÁTICAMENTE
     equipos = list(
         Team.objects.filter(
             sesion=sesion
-        ).order_by("id")
+        )
     )
 
     if not equipos:
 
-        messages.error(
-            request,
-            "Primero debes crear equipos."
+        cantidad_estudiantes = len(
+            estudiantes_creados
         )
 
-        return redirect(
-            "profesorpanel:alumnos"
+        cantidad_equipos = max(
+            3,
+            min(
+                8,
+                math.ceil(
+                    cantidad_estudiantes / 6
+                )
+            )
         )
 
+        tablets_ocupadas = Team.objects.values_list(
+            "tablet_id",
+            flat=True
+        )
+
+        tablets = list(
+            Tablet.objects.exclude(
+                id__in=tablets_ocupadas
+            )[:cantidad_equipos]
+        )
+
+        if len(tablets) < cantidad_equipos:
+
+            messages.error(
+                request,
+                f"No hay suficientes tablets disponibles "
+                f"({len(tablets)}/{cantidad_equipos})."
+            )
+
+            return redirect(
+                "profesorpanel:alumnos"
+            )
+
+        equipos = []
+
+        for i in range(cantidad_equipos):
+
+            tablet = tablets[i]
+
+            tablet.sesion = sesion
+
+            tablet.save(
+                update_fields=["sesion"]
+            )
+
+            equipo = Team.objects.create(
+                nombre=f"Equipo {i+1}",
+                codigo_grupo=str(i+1),
+                sesion=sesion,
+                tablet=tablet,
+            )
+
+            equipos.append(equipo)
+
+    # DISTRIBUIR ESTUDIANTES
     idx = 0
 
     for estudiante in estudiantes_creados:
@@ -977,8 +1041,7 @@ def importar_estudiantes_csv(request):
     return redirect(
         "profesorpanel:alumnos"
     )
-
-#Nuevo generar equipos automaticos 10/5
+#Nuevo arreglo generar equipos automaticos v2 10/5
 @profesor_required
 def generar_equipos_automaticos(request):
 
@@ -1015,6 +1078,17 @@ def generar_equipos_automaticos(request):
             "profesorpanel:equipos"
         )
 
+    # SINCRONIZAR TABLETS CON SESIÓN
+    for equipo in equipos:
+
+        if equipo.tablet:
+
+            equipo.tablet.sesion = sesion
+
+            equipo.tablet.save(
+                update_fields=["sesion"]
+            )
+
     estudiantes = list(
         Estudiante.objects.filter(
             Q(team__sesion=sesion)
@@ -1023,16 +1097,12 @@ def generar_equipos_automaticos(request):
                 seccion=sesion.seccion,
                 team__isnull=True
             )
-        )
+        ).distinct()
     )
 
     import random
 
     random.shuffle(estudiantes)
-
-    for equipo in equipos:
-
-        equipo.estudiantes.clear()
 
     idx = 0
 
@@ -1067,7 +1137,7 @@ def generar_equipos_automaticos(request):
     return redirect(
         "profesorpanel:equipos"
     )
-#Fin nuevo generar equipos 10/5 
+#Fin nuevo arreglo generar equipos 10/5 
 
 #Nuevo eliminar alumnos 9/5
 @profesor_required
@@ -1245,11 +1315,22 @@ def agregar_equipo(request):
         return redirect(
             "profesorpanel:equipos"
         )
+    #Nuevo cambio tablets disponibles 10/5
+    tablets_ocupadas = Team.objects.values_list(
+        "tablet_id",
+        flat=True
+    )
 
-    tablet_disponible = Tablet.objects.filter(
-        sesion__isnull=True,
-        team__isnull=True
+    tablet_disponible = Tablet.objects.exclude(
+        id__in=tablets_ocupadas
     ).first()
+
+    tablet_disponible.sesion = sesion
+
+    tablet_disponible.save(
+        update_fields=["sesion"]
+    )
+    #Fin nuevo cambio tablets disponibles 10/5
 
     if not tablet_disponible:
 
