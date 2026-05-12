@@ -75,12 +75,16 @@
 
         {% else %}
 
+        {% if equipos %}
+
         <a
             href="{% url 'profesorpanel:iniciar_sesion' equipos.0.sesion.id %}"
             class="btn-link btn-success start-game-btn"
         >
             ▶ Iniciar juego
         </a>
+
+        {% endif %}
 
         {% endif %}
 

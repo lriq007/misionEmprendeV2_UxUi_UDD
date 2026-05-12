@@ -162,7 +162,7 @@ class GameSessionForm(BaseStyledModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        allowed_secciones = kwargs.pop("allowed_secciones", None)
+        #Eliminar campo seccion del form de GameSession 12/5
         super().__init__(*args, **kwargs)
         User = get_user_model()
 
@@ -172,8 +172,8 @@ class GameSessionForm(BaseStyledModelForm):
             self.fields["profesor"].initial = self.request.user
         self.fields["profesor"].queryset = prof_qs
 
-        if allowed_secciones is not None:
-            self.fields["seccion"].queryset = allowed_secciones
+#Eliminar campo seccion del form de GameSession 12/5
+
 
 
 class TopicForm(BaseStyledModelForm):

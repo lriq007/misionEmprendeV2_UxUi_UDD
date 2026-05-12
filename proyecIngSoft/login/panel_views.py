@@ -64,11 +64,58 @@ def admin_seccion_eliminar(request, pk):
         "back_url": "adminpanel:secciones", "title": "Eliminar sección",
     })
 
-
+#Nuevo Cambio de la funcion 12/5
+@admin_required
 def admin_sesiones(request):
-    if request.method == "POST":
-        return redirect("adminpanel:sesiones")
-    return render(request, "login/admin/sesiones.html", {"sesiones": [], "q": ""})
+
+    q = request.GET.get(
+        "q",
+        ""
+    ).strip()
+
+    sesiones = GameSession.objects.select_related(
+        "profesor"
+    ).order_by(
+        "-id"
+    )
+
+    if q:
+
+        sesiones = sesiones.filter(
+            Q(nombre__icontains=q)
+            | Q(codigo__icontains=q)
+            | Q(profesor__username__icontains=q)
+            | Q(profesor__email__icontains=q)
+        )
+
+    form = GameSessionForm(
+        request.POST or None,
+        request=request
+    )
+
+    if request.method == "POST" and form.is_valid():
+
+        form.save()
+
+        messages.success(
+            request,
+            "Sesión creada correctamente."
+        )
+
+        return redirect(
+            "adminpanel:sesiones"
+        )
+
+    return render(
+        request,
+        "login/admin/sesiones.html",
+        {
+            "sesiones": sesiones,
+            "form": form,
+            "q": q,
+        },
+    )
+#Fin nuevo cambio de la funcion 12/5
 
 
 def admin_sesion_editar(request, pk):
@@ -107,7 +154,17 @@ def admin_topics(request):
 
         messages.success(request, "Tema guardado.")
         return redirect("adminpanel:topics")
-    return render(request, "login/admin/topics.html", {"topics": [], "q": ""})
+    #Nuevo cambio 12/5
+    return render(
+        request,
+        "login/admin/topics.html",
+        {
+            "topics": topics,
+            "form": form,
+            "q": q,
+        },
+    )
+#Fin nuevo cambio 12/5
 
 
 def admin_topic_editar(request, pk):
@@ -125,11 +182,58 @@ def admin_topic_eliminar(request, pk):
         "back_url": "adminpanel:topics", "title": "Eliminar tema",
     })
 
-
+#Nuevo cambio de la funcion 12/5
+@admin_required
 def admin_challenges(request):
-    if request.method == "POST":
-        return redirect("adminpanel:challenges")
-    return render(request, "login/admin/challenges.html", {"challenges": [], "q": ""})
+
+    q = request.GET.get(
+        "q",
+        ""
+    ).strip()
+
+    challenges = Challenge.objects.select_related(
+        "topic"
+    ).order_by(
+        "topic__nombre",
+        "orden"
+    )
+
+    if q:
+
+        challenges = challenges.filter(
+            Q(titulo__icontains=q)
+            | Q(topic__nombre__icontains=q)
+        )
+
+    form = ChallengeForm(
+        request.POST or None,
+        request=request,
+        files=request.FILES or None
+    )
+
+    if request.method == "POST" and form.is_valid():
+
+        form.save()
+
+        messages.success(
+            request,
+            "Desafío guardado."
+        )
+
+        return redirect(
+            "adminpanel:challenges"
+        )
+
+    return render(
+        request,
+        "login/admin/challenges.html",
+        {
+            "challenges": challenges,
+            "form": form,
+            "q": q,
+        },
+    )
+#Fin nuevo cambio de la funcion 12/5
 
 
 def admin_challenge_editar(request, pk):
@@ -389,7 +493,6 @@ def profesor_sesiones(request):
     form = GameSessionForm(
         request.POST or None,
         request=request,
-        allowed_secciones=secciones_disponibles,
     )
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -412,7 +515,6 @@ def profesor_sesion_editar(request, pk):
         request.POST or None,
         request=request,
         instance=sesion,
-        allowed_secciones=secciones_disponibles,
     )
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -471,40 +573,7 @@ def admin_estudiante_editar(request, pk):
     })
 
 
-# ===============================
-#   Panel PROFESOR — páginas estáticas
-# ===============================
-
-def profesor_dashboard(request):
-    return render(request, "login/profesor/dashboard.html", {
-        "sesiones": [], "secciones": [], "sesion_count": 0,
-        "seccion_count": 0, "equipos_count": 0, "estudiantes_count": 0,
-        "top_equipos": [], "ranking": [], "q": "",
-    })
-
-
-def profesor_sesiones(request):
-    if request.method == "POST":
-        return redirect("profesorpanel:sesiones")
-    return render(request, "login/profesor/sesiones.html", {"sesiones": []})
-
-
-def profesor_sesion_editar(request, pk):
-    if request.method == "POST":
-        return redirect("profesorpanel:sesiones")
-    return render(request, "login/admin/form.html", {
-        "title": "Editar sesión", "back_url": "profesorpanel:sesiones",
-    })
-
-
-def profesor_sesion_eliminar(request, pk):
-    if request.method == "POST":
-        return redirect("profesorpanel:sesiones")
-    return render(request, "login/admin/confirm_delete.html", {
-        "back_url": "profesorpanel:sesiones", "title": "Eliminar sesión",
-    })
-
-
+#Eliminar funciones Lucas de profesor 12/5
 
 #Nuevo cambio profesor_alumnos 9/5
 @profesor_required

@@ -124,8 +124,14 @@
             <div>
                 <h1>{% block header_title %}Panel{% endblock %}</h1>
                 <p>
+                    <!--Nuevo cambio 11/5-->
                     Hola
-                    {{ request.user.get_full_name|default:request.user.username }}
+                    {% if request.user.first_name %}
+                        {{ request.user.first_name }}
+                        {{ request.user.last_name }}
+                    {% else %}
+                        {{ request.user.username }}
+                    {% endif %}
                 </p>
             </div>
         </div>

@@ -27,11 +27,19 @@ urlpatterns = [
     path('', RedirectView.as_view(pattern_name='login:login', permanent=False)),
     path('admin/', admin.site.urls),
     path('login/', include('login.urls')),
-    path('admin-panel/', include('login.admin_urls')),
-    path('profesor/', include('login.profesor_urls')),
-    path('etapasJuego/', include('etapasJuego.urls')),
-    path('etapa-final/', include('etapaFinal.urls', namespace='etapaFinal')),  # ← nuevo
-]
+#Nuevo cambio 11/5
+    path(
+        'admin-panel/',
+        include(('login.admin_urls', 'adminpanel'), namespace='adminpanel')
+    ),
+
+    path(
+        'profesor/',
+        include(('login.profesor_urls', 'profesorpanel'), namespace='profesorpanel')
+    ),
+        path('etapasJuego/', include('etapasJuego.urls')),
+        path('etapa-final/', include('etapaFinal.urls', namespace='etapaFinal')),  # ← nuevo
+    ]
 
 # Serve uploaded/demo media files directly from Django.
 # `static(...)` is skipped by Django when DEBUG=False, so we add the route explicitly.
