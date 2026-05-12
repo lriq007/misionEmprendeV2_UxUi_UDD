@@ -70,5 +70,20 @@ urlpatterns = [
         name="eliminar_equipo",
     ),
     #Fin nuevo modificar cantidad equipos 10/5
+
+    #Nuevo url mi perfil 11/5
+    path(
+        "perfil/",
+        views.profesor_mi_perfil,
+        name="mi_perfil",
+    ),
+
+    #Nuevo url ver progreso 11/5
+    path(
+        "progreso/",
+        views.progreso_juego,
+        name="progreso_juego",
+    ),
+    #Fin nuevo url ver progreso 11/5
 ]
 

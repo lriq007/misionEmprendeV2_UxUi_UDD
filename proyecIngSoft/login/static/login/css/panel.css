@@ -867,3 +867,89 @@ select.form-field option{
     font-weight:800 !important;
 }
 /* Fin nuevo boton iniciar juego 11/5 */
+
+/* Nuevo placeholder progreso 11/5 */
+/*.progress-bar{
+    width:100%;
+    height:14px;
+
+    background:#e5e7eb;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+    margin-top:12px;
+}
+
+.progress-fill{
+    height:100%;
+
+    background:#2563eb;
+
+    border-radius:999px;
+}
+*/
+
+/* Nuevo panel temas 11/5 */
+.switch{
+    position:relative;
+
+    display:inline-block;
+
+    width:58px;
+    height:30px;
+
+    margin-top:8px;
+}
+
+.switch input{
+    opacity:0;
+
+    width:0;
+    height:0;
+}
+
+.slider{
+    position:absolute;
+
+    cursor:pointer;
+
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+
+    background:#374151;
+
+    transition:.25s;
+
+    border-radius:999px;
+}
+
+.slider:before{
+    position:absolute;
+
+    content:"";
+
+    height:22px;
+    width:22px;
+
+    left:4px;
+    bottom:4px;
+
+    background:white;
+
+    transition:.25s;
+
+    border-radius:50%;
+}
+
+.switch input:checked + .slider{
+    background:#2563eb;
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(28px);
+}
+/* Fin nuevo panel temas 11/5 */

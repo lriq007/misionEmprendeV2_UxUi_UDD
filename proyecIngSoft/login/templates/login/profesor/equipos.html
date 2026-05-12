@@ -63,12 +63,28 @@
         </div>
 
         <!-- INICIAR JUEGO -->
+        <!-- Nuevo agregar "Ver progreso" 11/5--> 
+        {% if equipos and equipos.0.sesion.estado == "ACTIVA" %}
+
+        <a
+            href="{% url 'profesorpanel:progreso_juego' %}"
+            class="btn-link btn-primary start-game-btn"
+        >
+            📊 Ver progreso
+        </a>
+
+        {% else %}
+
         <a
             href="{% url 'profesorpanel:iniciar_sesion' equipos.0.sesion.id %}"
             class="btn-link btn-success start-game-btn"
         >
             ▶ Iniciar juego
         </a>
+
+        {% endif %}
+
+        <!-- Fin agregar "Ver progreso" 11/5-->
 
     </div>
 
@@ -130,6 +146,8 @@
 
                 </div>
 
+                {% if equipo.sesion.estado != "ACTIVA" %}
+
                 <form
                     method="POST"
                     action="{% url 'profesorpanel:mover_alumno' estudiante.id %}"
@@ -167,6 +185,8 @@
                     </button>
 
                 </form>
+
+                {% endif %}
 
             </div>
 

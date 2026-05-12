@@ -23,6 +23,7 @@ from .forms import (
 from .models import Estudiante, SeccionEstudiantes
 from .permissions import ADMIN_GROUP, PROFESOR_GROUP, admin_required, is_admin, profesor_required
 import math
+from .forms import ProfesorPerfilForm
 
 def _secciones_de_profesor(user):
     return SeccionEstudiantes.objects.filter(sesiones__profesor=user).distinct()
@@ -215,8 +216,17 @@ def admin_topics(request):
         topics = topics.filter(Q(nombre__icontains=q) | Q(slug__icontains=q))
     topics = topics.order_by("nombre")
     form = TopicForm(request.POST or None, request=request, files=request.FILES or None)
+    #Nuevo cambiar slugs que se generen automaticamente 11/5
     if request.method == "POST" and form.is_valid():
-        form.save()
+        topic =form.save(commit=False)
+
+        from django.utils.text import slugify
+        topic.slug = slugify(topic.nombre)
+        
+        if not topic.color_hex:
+            topic.color_hex = "#2563eb"
+        topic.save()
+
         messages.success(request, "Tema guardado.")
         return redirect("adminpanel:topics")
     return render(
@@ -529,6 +539,48 @@ def admin_estudiante_editar(request, pk):
         request,
         "login/admin/form.html",
         {"form": form, "title": "Editar estudiante", "back_url": "adminpanel:estudiantes"},
+    )
+
+#Nuevo boton "Mi perfil" 11/5
+@admin_required
+def admin_mi_perfil(request):
+
+    form = ProfesorPerfilForm(
+        request.POST or None,
+        instance=request.user
+    )
+
+    if request.method == "POST" and form.is_valid():
+
+        user = form.save(commit=False)
+
+        nueva_password = form.cleaned_data.get(
+            "nueva_password"
+        )
+
+        if nueva_password:
+
+            user.set_password(
+                nueva_password
+            )
+
+        user.save()
+
+        messages.success(
+            request,
+            "Perfil actualizado correctamente."
+        )
+
+        return redirect(
+            "login:login"
+        )
+
+    return render(
+        request,
+        "login/admin/mi_perfil.html",
+        {
+            "form": form,
+        },
     )
 
 
@@ -1250,6 +1302,19 @@ def mover_alumno(request, pk):
         team__sesion__profesor=request.user
     )
 
+    #Nuevo bloque de mover alumnos en sesiones activas 11/5
+    if alumno.team.sesion.estado == "ACTIVA":
+
+        messages.error(
+            request,
+            "No puedes mover alumnos durante el juego."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+    #Fin nuevo bloque de mover alumnos en sesiones activas 11/5    
+
     nuevo_team = get_object_or_404(
         Team,
         pk=request.POST.get("team"),
@@ -1469,4 +1534,83 @@ def eliminar_equipo(request):
     return redirect(
         "profesorpanel:equipos"
     )
+
+#Nuevo boton "Mi perfil" 11/5
+@profesor_required
+def profesor_mi_perfil(request):
+
+    form = ProfesorPerfilForm(
+        request.POST or None,
+        instance=request.user
+    )
+
+    if request.method == "POST" and form.is_valid():
+
+        user = form.save(commit=False)
+
+        nueva_password = form.cleaned_data.get(
+            "nueva_password"
+        )
+
+        if nueva_password:
+
+            user.set_password(nueva_password)
+
+        user.save()
+
+        messages.success(
+            request,
+            "Perfil actualizado correctamente."
+        )
+
+        return redirect(
+            "login:login"
+        )
+
+
+    return render(
+        request,
+        "login/profesor/mi_perfil.html",
+        {
+            "form": form,
+        },
+    )
 #Fin nuevo modificar cantidad equipos 10/5
+
+#Nuevo progreso juego 11/5
+@profesor_required
+def progreso_juego(request):
+
+    sesion = GameSession.objects.filter(
+        profesor=request.user,
+        estado="ACTIVA"
+    ).first()
+
+    if not sesion:
+
+        messages.error(
+            request,
+            "No hay un juego activo."
+        )
+
+        return redirect(
+            "profesorpanel:equipos"
+        )
+
+    equipos = Team.objects.filter(
+        sesion=sesion
+    ).prefetch_related(
+        "estudiantes"
+    ).order_by(
+        "-tokens_totales"
+    )
+
+    return render(
+        request,
+        "login/profesor/progreso.html",
+        {
+            "sesion": sesion,
+            "equipos": equipos,
+        },
+    )
+#Fin progreso juego 11/5

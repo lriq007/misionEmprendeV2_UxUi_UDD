@@ -153,12 +153,12 @@ class SeccionEstudiantesForm(BaseStyledModelForm):
 class GameSessionForm(BaseStyledModelForm):
     class Meta:
         model = GameSession
-        fields = ["nombre", "codigo", "profesor", "seccion", "modo_asignacion", "etapa_actual"]
+        fields = ["nombre", "codigo", "profesor"]
+        labels = {
+            "nombre": "Nombre Sesión",}
         widgets = {
             "nombre": forms.TextInput(attrs={"placeholder": "Nombre visible de la sesión"}),
             "codigo": forms.TextInput(attrs={"placeholder": "Código único"}),
-            "modo_asignacion": forms.Select(attrs={"class": "form-field"}),
-            "etapa_actual": forms.TextInput(attrs={"placeholder": "ETAPA1"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -179,12 +179,11 @@ class GameSessionForm(BaseStyledModelForm):
 class TopicForm(BaseStyledModelForm):
     class Meta:
         model = Topic
-        fields = ["nombre", "slug", "descripcion", "imagen", "color_hex", "activo"]
+        #Nuevo borrar slug y color_hex 11/5
+        fields = ["nombre", "descripcion", "imagen", "activo"]
         widgets = {
             "nombre": forms.TextInput(attrs={"placeholder": "Nombre del tema"}),
-            "slug": forms.TextInput(attrs={"placeholder": "slug-unico"}),
-            "descripcion": forms.Textarea(attrs={"rows": 3}),
-            "color_hex": forms.TextInput(attrs={"placeholder": "#ffee00"}),
+            "descripcion": forms.Textarea(attrs={"placeholder": "Descripción del tema", "rows": 3}),
         }
 
 
@@ -192,9 +191,10 @@ class ChallengeForm(BaseStyledModelForm):
     class Meta:
         model = Challenge
         fields = ["topic", "titulo", "descripcion", "activo", "orden", "video_file"]
+        labels = {"topic": "Tema"}
         widgets = {
             "titulo": forms.TextInput(attrs={"placeholder": "Título del desafío"}),
-            "descripcion": forms.Textarea(attrs={"rows": 3}),
+            "descripcion": forms.Textarea(attrs={"placeholder": "Descripción del desafío", "rows": 3}),
             "orden": forms.NumberInput(attrs={"min": 1}),
         }
 
@@ -244,3 +244,75 @@ class CSVUploadForm(forms.Form):
             "class": "form-field"
         })
 #Fin nuevo
+
+#Nuevo boton "Mi perfil" 11/5
+from django import forms
+from django.contrib.auth.models import User
+
+
+class ProfesorPerfilForm(forms.ModelForm):
+
+    nueva_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-field",
+                "placeholder": "Nueva contraseña",
+            }
+        ),
+    )
+
+    repetir_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-field",
+                "placeholder": "Repetir contraseña",
+            }
+        ),
+    )
+
+    class Meta:
+
+        model = User
+
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+        ]
+
+        widgets = {
+            "first_name": forms.TextInput(
+                attrs={"class": "form-field"}
+            ),
+            "last_name": forms.TextInput(
+                attrs={"class": "form-field"}
+            ),
+            "email": forms.EmailInput(
+                attrs={"class": "form-field"}
+            ),
+        }
+
+    def clean(self):
+
+        cleaned_data = super().clean()
+
+        password1 = cleaned_data.get(
+            "nueva_password"
+        )
+
+        password2 = cleaned_data.get(
+            "repetir_password"
+        )
+
+        if password1 or password2:
+
+            if password1 != password2:
+
+                raise forms.ValidationError(
+                    "Las contraseñas no coinciden."
+                )
+
+        return cleaned_data
+#Fin nuevo boton "Mi perfil" 11/5

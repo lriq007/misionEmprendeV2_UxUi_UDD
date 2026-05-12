@@ -7,13 +7,9 @@
     <div class="panel-card kpi">
         <p class="kpi-label">Sesiones asignadas</p>
         <p class="kpi-value">{{ sesion_count }}</p>
-        <span class="kpi-sub">Solo las que te asignó el administrador</span>
+        <span class="kpi-sub">Sesiones jugadas</span>
     </div>
-    <div class="panel-card kpi">
-        <p class="kpi-label">Secciones</p>
-        <p class="kpi-value">{{ seccion_count }}</p>
-        <span class="kpi-sub">Vinculadas a tus sesiones</span>
-    </div>
+
     <div class="panel-card kpi">
         <p class="kpi-label">Equipos</p>
         <p class="kpi-value">{{ equipos_count }}</p>
@@ -26,31 +22,7 @@
     </div>
 </div>
 
-<!-- Nuevo 9/5 -->
-<div class="panel-grid quick-links" style="margin-bottom:20px;">
 
-    <a class="panel-card link-card" href="{% url 'profesorpanel:sesiones' %}">
-        <h4>Sesiones</h4>
-        <p>Crear y administrar sesiones de juego.</p>
-    </a>
-
-    <a class="panel-card link-card" href="{% url 'profesorpanel:equipos' %}">
-        <h4>Equipos</h4>
-        <p>Crear equipos y asignar tablets.</p>
-    </a>
-
-    <a class="panel-card link-card" href="{% url 'profesorpanel:alumnos' %}">
-        <h4>Estudiantes</h4>
-        <p>Gestionar alumnos y asignaciones.</p>
-    </a>
-
-    <a class="panel-card link-card" href="{% url 'profesorpanel:secciones' %}">
-        <h4>Secciones</h4>
-        <p>Administrar secciones asociadas.</p>
-    </a>
-
-</div>
-<!-- Fin nuevo 9/5 -->
 
 <div class="panel-card">
     <div class="card-header">

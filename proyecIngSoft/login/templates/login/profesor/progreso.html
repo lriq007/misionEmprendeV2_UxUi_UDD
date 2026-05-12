@@ -1,0 +1,106 @@
+<!--Nuevo archivo "Ver progreso" 11/5-->
+{% extends "login/panel_base.html" %}
+
+{% block title %}Progreso{% endblock %}
+{% block header_title %}Progreso del juego{% endblock %}
+
+{% block content %}
+
+<div class="panel-card">
+
+    <h2>
+        Ranking de equipos
+    </h2>
+
+</div>
+
+<div class="teams-grid">
+
+    {% for equipo in equipos %}
+
+    <div class="team-card">
+
+        <div class="team-card-header">
+
+            <div>
+
+                <h3>
+                    {{ forloop.counter }}. {{ equipo.nombre }}
+                </h3>
+
+                <p class="tablet-label">
+                    {{ equipo.tablet.codigo }}
+                </p>
+
+                <!-- PIN -->
+                <p
+                    style="
+                        font-size:40px;
+                        color:#2563eb;
+                        font-weight:700;
+                        margin-top:4px;
+                    "
+                >
+
+                    PIN:
+                    {{ equipo.tablet.codigo_acceso }}
+
+                </p>
+
+
+            </div>
+
+            <div
+                class="team-chip"
+                style="
+                    font-size:22px;
+                    font-weight:800;
+                "
+            >
+                {{ equipo.tokens_totales }} tokens
+            </div>
+
+        </div>
+
+        <div class="team-members">
+
+            {% for estudiante in equipo.estudiantes.all %}
+
+            <div class="student-row">
+
+                {{ estudiante.nombre_apellido }}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<!--Placeholder progreso 11/5
+<div class="progress-bar">
+
+    <div
+        class="progress-fill"
+        style="width:60%;"
+    ></div>
+
+</div>
+
+<p>
+    Etapa:
+    Ideación
+</p>
+
+<p>
+    Ronda:
+    2 / 5
+</p>
+-->
+
+{% endblock %}

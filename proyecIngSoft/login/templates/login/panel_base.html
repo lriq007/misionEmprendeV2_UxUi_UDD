@@ -30,55 +30,79 @@
 
         <nav class="sidebar-nav">
 
+            <!-- Menu admin-->
+
             {% if request.resolver_match.app_name == 'adminpanel' %}
 
                 <a class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
                    href="{% url 'adminpanel:dashboard' %}">
                    Dashboard
                 </a>
-                <a class="{% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}"
-                   href="{% url 'adminpanel:usuarios' %}">
-                   Profesores
-                </a>
+
                 <a class="{% if request.resolver_match.url_name == 'sesiones' %}active{% endif %}"
                    href="{% url 'adminpanel:sesiones' %}">
                    Sesiones
+                </a>                
+
+                <a class="{% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}"
+                   href="{% url 'adminpanel:usuarios' %}">
+                   Usuarios
                 </a>
+
                 <a class="{% if request.resolver_match.url_name == 'topics' %}active{% endif %}"
                    href="{% url 'adminpanel:topics' %}">
-                   Topics
+                   Temas
                 </a>
                 <a class="{% if request.resolver_match.url_name == 'challenges' %}active{% endif %}"
                    href="{% url 'adminpanel:challenges' %}">
                    Desafíos
                 </a>
-                <a class="{% if request.resolver_match.url_name == 'evaluaciones' %}active{% endif %}"
-                   href="{% url 'adminpanel:evaluaciones' %}">
-                   Evaluaciones
+                <!-- Quitar boton "Evaluaciones" 11/5-->
+                <!-- Nuevo agregar boton "Mi perfil" 11/5-->
+                <a class="{% if request.resolver_match.url_name == 'admin_mi_perfil' %}active{% endif %}"
+                   href="{% url 'adminpanel:admin_mi_perfil' %}">
+                   Mi perfil
                 </a>
 
+
+            <!-- Menú profesor -->
+
             {% elif request.resolver_match.app_name == 'profesorpanel' %}
+
+                <!-- Nuevo cambio orden menu desplegable 11/5-->
 
                 <a class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
                    href="{% url 'profesorpanel:dashboard' %}">
                    Dashboard
                 </a>
-                <a class="{% if request.resolver_match.url_name == 'sesiones' %}active{% endif %}"
-                   href="{% url 'profesorpanel:sesiones' %}">
-                   Sesiones
+                <a class="{% if request.resolver_match.url_name == 'alumnos' %}active{% endif %}"
+                   href="{% url 'profesorpanel:alumnos' %}">
+                   Alumnos
                 </a>
                 <a class="{% if request.resolver_match.url_name == 'equipos' %}active{% endif %}"
                    href="{% url 'profesorpanel:equipos' %}">
                    Equipos
                 </a>
-                <a class="{% if request.resolver_match.url_name == 'alumnos' %}active{% endif %}"
-                   href="{% url 'profesorpanel:alumnos' %}">
-                   Alumnos
+                <a class="{% if request.resolver_match.url_name == 'sesiones' %}active{% endif %}"
+                   href="{% url 'profesorpanel:sesiones' %}">
+                   Sesiones
                 </a>
+                <!-- Fin cambio orden 11/5-->
+
+                <!--Nuevo boton "Mi perfil" 11/5-->
+                <a class="{% if request.resolver_match.url_name == 'mi_perfil' %}active{% endif %}"
+                   href="{% url 'profesorpanel:mi_perfil' %}">
+                   Mi perfil
+                </a>
+                <!--Fin nuevo boton 11/5-->
+
+
+                <!-- Nuevo borrar secciones (Obsoleto) 11/5
                 <a class="{% if request.resolver_match.url_name == 'secciones' %}active{% endif %}"
                    href="{% url 'profesorpanel:secciones' %}">
                    Secciones
                 </a>
+                -->
 
             {% endif %}
 

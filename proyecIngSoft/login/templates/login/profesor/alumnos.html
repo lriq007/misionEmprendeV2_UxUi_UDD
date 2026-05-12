@@ -4,80 +4,7 @@
 
 {% block content %}
 
-<div class="panel-card">
 
-    <div class="card-header">
-        <div>
-            <p class="eyebrow">Alumnos</p>
-
-            <!-- Cambio de titulo 9/5 -->
-            <h3>Alumnos y asignaciones</h3>
-        </div>
-    </div>
-
-    <!-- FORMULARIO MANUAL -->
-    <form method="post" class="panel-form" style="margin-bottom:12px;">
-
-        {% csrf_token %}
-
-        <div class="panel-grid two-col">
-
-            <div class="form-group">
-                <label for="{{ form.nombre_apellido.id_for_label }}">
-                    Nombre
-                </label>
-
-                {{ form.nombre_apellido }}
-
-                {{ form.nombre_apellido.errors }}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.carrera.id_for_label }}">
-                    Carrera
-                </label>
-
-                {{ form.carrera }}
-
-                {{ form.carrera.errors }}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.seccion.id_for_label }}">
-                    Sección
-                </label>
-
-                {{ form.seccion }}
-
-                {{ form.seccion.errors }}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.team.id_for_label }}">
-                    Equipo
-                </label>
-
-                {{ form.team }}
-
-                {{ form.team.errors }}
-            </div>
-
-        </div>
-
-        <div class="panel-actions-row">
-
-            <button
-                type="submit"
-                class="btn-link btn-primary"
-            >
-                Agregar alumno
-            </button>
-
-        </div>
-
-    </form>
-
-</div>
 
 <!-- IMPORTAR CSV -->
 <div class="panel-card" style="margin-bottom:20px;">
@@ -132,6 +59,87 @@
 
 </div>
 
+<!-- Cambio orden 11/5-->
+ <div class="panel-card">
+
+    <div class="card-header">
+        <div>
+            <p class="eyebrow">Alumnos</p>
+
+            <!-- Cambio de titulo 9/5 -->
+            <h3>Alumnos y asignaciones</h3>
+        </div>
+    </div>
+
+    <!-- FORMULARIO MANUAL -->
+    <form method="post" class="panel-form" style="margin-bottom:12px;">
+
+        {% csrf_token %}
+
+        <div class="panel-grid two-col">
+
+            <div class="form-group">
+                <label for="{{ form.nombre_apellido.id_for_label }}">
+                    Nombre
+                </label>
+
+                {{ form.nombre_apellido }}
+
+                {{ form.nombre_apellido.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.carrera.id_for_label }}">
+                    Carrera
+                </label>
+
+                {{ form.carrera }}
+
+                {{ form.carrera.errors }}
+            </div>
+
+            <!-- Nuevo quitar seccion 11/5
+
+            <div class="form-group">
+                <label for="{{ form.seccion.id_for_label }}">
+                    Sección
+                </label>
+
+                {{ form.seccion }}
+
+                {{ form.seccion.errors }}
+            </div>
+            -->
+
+            <div class="form-group">
+                <label for="{{ form.team.id_for_label }}">
+                    Equipo
+                </label>
+
+                {{ form.team }}
+
+                {{ form.team.errors }}
+            </div>
+
+        </div>
+
+        <div class="panel-actions-row">
+
+            <button
+                type="submit"
+                class="btn-link btn-primary"
+            >
+                Agregar alumno
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+<!-- Fin cambio orden 11/5-->
+
+
 <!-- Nuevo 9/5-->
 <form
     method="GET"
@@ -183,7 +191,9 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Carrera</th>
+                    <!-- Nuevo borrar seccion 11/5 
                     <th>Sección</th>
+                    -->
                     <th>Equipo</th>
                     <th>Sesión</th>
                     <th>Acciones</th>
