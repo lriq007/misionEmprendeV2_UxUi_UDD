@@ -19,7 +19,9 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.static import serve
 from django.views.generic import RedirectView
+from django.urls import re_path
 
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='login:login', permanent=False)),
@@ -31,5 +33,8 @@ urlpatterns = [
     path('etapa-final/', include('etapaFinal.urls', namespace='etapaFinal')),  # ← nuevo
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded/demo media files directly from Django.
+# `static(...)` is skipped by Django when DEBUG=False, so we add the route explicitly.
+urlpatterns += [
+    re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
+]

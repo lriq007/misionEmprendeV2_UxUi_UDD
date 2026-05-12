@@ -1,9 +1,44 @@
-/* === Tema inspirado en login, scopeado para Etapas === */
-/* 1) Fondo y tipografía */
+/* === Tema base compartido para Etapas === */
 .theme-login {
   min-height: 100vh;
-  background: linear-gradient(135deg, #020713 0%, #0b1733 50%, #020713 100%);
+  position: relative;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #f7fbff;
+  background:
+    radial-gradient(circle at 18% 70%, rgba(31, 95, 220, 0.44), transparent 30%),
+    radial-gradient(circle at 86% 34%, rgba(255, 210, 10, 0.16), transparent 28%),
+    linear-gradient(120deg, #030716 0%, #081741 44%, #162963 74%, #030407 100%);
+  background-attachment: fixed;
+}
+
+.theme-login.mission-ui {
+  overflow-x: hidden;
+  isolation: isolate;
+}
+
+.theme-login.mission-ui::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.48;
+  pointer-events: none;
+}
+
+.theme-login.mission-ui::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 36%),
+    radial-gradient(circle at 78% 22%, rgba(255, 210, 10, 0.08), transparent 18%),
+    radial-gradient(circle at 20% 72%, rgba(77, 156, 255, 0.12), transparent 22%);
+  pointer-events: none;
 }
 
 /* 2) Contenedor central opcional (si quieres alguna sección “tipo login”) */

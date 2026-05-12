@@ -1,4 +1,4 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -9,14 +9,76 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa2.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa2_v2.css' %}">
   <link rel="icon" href="{% static 'favicon.ico' %}">
+  <style>
+    .launch-spinner {
+      width: 126px;
+      height: 126px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 219, 74, 0.16), rgba(77, 156, 255, 0.08) 64%, transparent 78%);
+      box-shadow: 0 0 42px rgba(255, 197, 24, 0.22), 0 0 66px rgba(77, 156, 255, 0.18);
+    }
+
+    .spinner {
+      width: 96px;
+      height: 96px;
+      position: relative;
+      border-radius: 50%;
+      text-align: center;
+      background-image: linear-gradient(#4d9cff 35%, #215dff);
+      filter: blur(1px);
+      box-shadow: 0 -5px 20px 0 rgba(77, 156, 255, 0.84), 0 5px 20px 0 rgba(33, 93, 255, 0.84);
+      animation: launchSpin 1.7s linear infinite;
+    }
+
+    .spinner1 {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background-color: #215dff;
+      filter: blur(10px);
+      animation: launchFlicker 2s linear infinite;
+    }
+
+    .circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes launchSpin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes launchFlicker {
+      0%, 100% {
+        box-shadow: 0 -10px 40px 0 rgba(77, 156, 255, 0.9), 0 10px 40px 0 rgba(33, 93, 255, 0.9), 0 0 20px 0 #ffffff;
+      }
+
+      50% {
+        box-shadow: 0 -10px 48px 0 rgba(77, 156, 255, 0.96), 0 10px 48px 0 rgba(255, 210, 10, 0.42), 0 0 24px 0 #ffffff;
+      }
+    }
+  </style>
 </head>
 
-<body class="theme-login">
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui">
+  {% mission_story "stage2" as mission %}
+  {% include "etapasJuego/_logo.html" with size="compact" extra_class="me-logo--fixed" %}
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
   <!-- Barra de progreso -->
@@ -29,18 +91,31 @@
 
   <!-- Contenido -->
   <div class="ws-container" id="mainContent">
+    {% include "etapasJuego/_story_hud.html" %}
     <div class="ws-header">
       <h1 class="ws-title">Etapa 2 — Desafío y Empatía</h1>
     </div>
     <section class="game-instructions">
-      <h3>🎯 Guía rápida</h3>
-      <p>Elijan un solo desafío para el equipo. El video es una referencia para entender el contexto y a la persona afectada.</p>
-      <p class="hint">Definir bien el problema hará más fácil el mapa de empatía, el LEGO y el pitch.</p>
+      <h3>{{ mission.kicker }}</h3>
+      {% if topic %}
+        <p><strong>Tema seleccionado:</strong> {{ topic.nombre }}</p>
+      {% endif %}
+      <p><strong>{{ mission.headline }}.</strong> {{ mission.mission_prompt }}</p>
+      <div class="story-chip-row" aria-label="Señales de etapa">
+        <span class="story-chip">{{ mission.skill }}</span>
+        <span class="story-chip">{{ mission.gem_fact }}</span>
+      </div>
+      <div class="launch-spinner" aria-hidden="true">
+        <div class="spinner">
+          <div class="spinner1"></div>
+          <div class="circle"></div>
+        </div>
+      </div>
       <div class="help-hint" aria-label="Ayuda rápida etapa 2" style="margin-top:10px;">
         <button type="button" class="cyber-btn btn-lost"><span class="loader is-inline" aria-hidden="true"></span>¿Perdidos?</button>
         <div class="cyber-tooltip">
           <strong>Elegir con foco</strong>
-          <div>Busquen el desafío que mejor puedan explicar. Piensen en la persona detrás del problema y cómo la ayudarán después.</div>
+          <div>Busquen el desafío que mejor puedan comprender. Piensen en la persona detrás del problema y cómo la ayudarán después.</div>
         </div>
       </div>
     </section>
@@ -51,9 +126,8 @@
         <span class="qmark left">❝</span>
         <span class="et2-target" aria-hidden="true"></span>
         <p>
-          Es importante tener un desafío o problemática en un emprendimiento porque proporciona un propósito claro,
-          guía la creatividad y la innovación, y ayuda a identificar oportunidades de negocio al resolver necesidades
-          reales del mercado.
+          Una oportunidad emprendedora nace cuando el escuadron detecta una necesidad real, entiende a quien afecta
+          y decide crear valor antes de que el miedo vuelva a paralizar la accion.
         </p>
         <span class="qmark right">❞</span>
       </div>
@@ -111,7 +185,7 @@
   </div>
 
   <!-- Flechas -->
-  <a href="{% url 'etapa2_tema' %}" class="btn-arrow btn-arrow-left" title="Volver a selección de tema">
+  <a href="{% url 'inicioHistoria' %}" class="btn-arrow btn-arrow-left" title="Volver a selección de escuadrón temático">
     <span class="arrow-icon">➜</span>
   </a>
   <a href="{% url 'etapa2_1' %}" class="btn-arrow btn-arrow-right" title="Avanzar al mapa de empatía">
@@ -198,6 +272,8 @@
       });
     })();
   </script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-stage2" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
 
   <script src="{% static 'etapasJuego/js/token-counter.js' %}"></script>
   <script>
@@ -208,7 +284,6 @@
       }
     });
   </script>
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
 
   <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
     <div class="howto-card">

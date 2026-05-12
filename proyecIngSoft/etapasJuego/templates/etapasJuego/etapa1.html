@@ -1,4 +1,4 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -10,76 +10,95 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/wordsearch.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa1.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/mission_progress.css' %}">
 </head>
 
-<body>
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
+<body class="theme-login mission-ui has-mission-topbar stage1-sopa-bg" style="--stage1-bg-image: url('/media/imgHistoria/fondoSopa.png');">
+  {% mission_story "stage1" as mission %}
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
-  <!-- Barra de progreso -->
-  <div id="progress-bar">
-    <div>
-      <span>Paso 1 de 6 · Trabajo en equipo</span>
-      <div>
-        <div style="width:25%;"></div>
-      </div>
-    </div>
-  </div>
+  {% url 'inicioHistoria' as stage1_next_url %}
+  {% include "etapasJuego/_mission_progress_topbar.html" with active_stage=1 show_timer=True timer_id="ws-timer" timer_duration=sesion.duracion_etapa1_segundos|default:300 timer_initial="05:00" timer_next_url=stage1_next_url %}
 
   <!-- Contenido principal -->
-  <div class="ws-container">
-    <!-- Cronómetro -->
-    <div
-      id="ws-timer"
-      class="ws-timer"
-      aria-live="polite"
-      aria-label="Tiempo restante"
-      data-duration-seconds="{{ sesion.duracion_etapa1_segundos|default:300 }}"
-      data-next-url="{% url 'etapa2_tema' %}"
-    >05:00</div>
+  <div
+    class="ws-container"
+    data-stage1-app
+    data-start-url="{% url 'api_stage1_start' %}"
+    data-timeup-url="{% url 'api_stage1_timeup' %}"
+    data-ranking-url="{{ ranking_url }}"
+  >
+    {% include "etapasJuego/_story_hud.html" %}
 
-    <div class="ws-header">
-      <h1 class="ws-title">Etapa 1 — Sopa de Letras</h1>
-    </div><br>
+    <section class="stage1-command" aria-labelledby="stage1-title">
+      <div class="ws-header">
+        <p class="stage1-kicker">{{ mission.kicker }}</p>
+        <h1 id="stage1-title" class="ws-title">Sopa de Letras</h1>
+      </div>
 
-    <section class="game-instructions" style="text-align:left; max-width:780px;">
-      <h3>🧠 Guía rápida</h3>
-      <p>Encuentren como grupo las palabras de emprendimiento. Toquen y arrastren; hablen para dividirse palabras y probar direcciones.</p>
-      <p class="hint">El tiempo y el trabajo en equipo mejoran sus tokens en esta etapa.</p>
-      <div class="help-hint" aria-label="Ayuda rápida etapa 1" style="margin-top:10px;">
-        <button type="button" class="cyber-btn btn-lost"><span class="loader is-inline" aria-hidden="true"></span>¿Perdidos?</button>
-        <div class="cyber-tooltip">
-          <strong>Emprender es explorar juntos</strong>
-          <div>Busquen palabras en distintas direcciones y compartan pistas entre ustedes. Completar rápido sube sus tokens.</div>
+      <section class="game-instructions stage1-brief">
+        <div>
+          <h2>{{ mission.title }}</h2>
+          <p>{{ mission.mission_prompt }}</p>
         </div>
+      </section>
+      <div class="story-chip-row" aria-label="Señales de etapa">
+        <span class="story-chip">{{ mission.skill }}</span>
+        <span class="story-chip">{{ mission.gem_fact }}</span>
       </div>
     </section>
 
     <main class="ws-main">
-      <div id="ws-board" class="ws-board" aria-label="Sopa de letras"></div>
+      <section class="stage1-board-panel" aria-label="Tablero de sopa de letras">
+        <div class="stage1-board-frame">
+          <div id="ws-board" class="ws-board" aria-label="Sopa de letras"></div>
+        </div>
+      </section>
 
       <aside class="ws-sidebar">
-        <h2>Palabras</h2>
-        <ul id="ws-words"></ul>
-        <div class="ws-legend">
-          <div><span class="dot dot1"></span>Jugador A</div>
-          <div><span class="dot dot2"></span>Jugador B</div>
+        <div class="ws-sidebar__header">
+          <p>Objetivos</p>
+          <h2>Palabras</h2>
         </div>
-        
+        <ul id="ws-words"></ul>
         <div class="ws-actions">
           <!-- Botón Reiniciar eliminado -->
-          <div id="ws-progress" class="comic-progress">Progreso: 0%</div>
+          <div id="ws-progress" class="comic-progress" role="status" aria-live="polite" style="--progress: 0%;">Progreso: 0%</div>
         </div>
       </aside>
     </main>
   </div>
 
+  <div id="stage1-intro-overlay" class="question-overlay stage1-intro is-open" aria-hidden="false">
+    <article class="question-sheet stage1-intro__card" role="dialog" aria-modal="true" aria-labelledby="stage1-intro-title">
+      <div class="question-sheet__glow" aria-hidden="true"></div>
+      <div class="question-sheet__body">
+        <p class="question-badge">Antes de comenzar</p>
+        <h2 id="stage1-intro-title" class="question-sheet__title">La recuperacion empieza cuando ustedes lo decidan.</h2>
+        <p class="question-sheet__prompt">
+          Presionen <strong>Comenzar</strong> y empezarán a competir con los otros equipos.
+          Encuentren el vocabulario emprendedor lo más rápido posible:
+          <strong>gana el equipo que resuelve la sopa en menos tiempo.</strong>
+        </p>
+      </div>
+      <div class="question-sheet__footer">
+        <button
+          id="stage1-start-button"
+          class="question-sheet__action"
+          type="button"
+          onclick="if (window.__stage1StartBridge) { window.__stage1StartBridge(); } else { const error = document.getElementById('stage1-start-error'); if (error) { error.hidden = false; error.textContent = 'No pudimos cargar la interaccion de esta etapa. Recarga e intenta nuevamente.'; } }"
+        >Comenzar</button>
+        <p id="stage1-start-error" class="stage1-intro__error" hidden>No pudimos iniciar la etapa. Intenta nuevamente.</p>
+      </div>
+    </article>
+  </div>
+
   <!-- Modal de etapa completada -->
   <div id="complete-overlay" class="timeup-overlay" aria-hidden="true">
-    <div class="timeup-card" role="dialog" aria-modal="true">
+    <div class="timeup-card stage1-complete-card" role="dialog" aria-modal="true">
       <div class="timeup-glow"></div>
       <p class="timeup-chip">¡Felicidades!</p>
       <h2>Has terminado la sopa de letras</h2>
@@ -89,7 +108,7 @@
 
   <!-- Navegación -->
   <div class="nav-actions">
-    <a href="{% url 'etapa2_tema' %}" class="btn-arrow btn-arrow-right" title="Avanzar">
+    <a href="{% url 'inicioHistoria' %}" class="btn-arrow btn-arrow-right" title="Avanzar">
       <span class="arrow-icon">➜</span>
     </a>
   </div>
@@ -104,9 +123,10 @@
     window.CSRF_TOKEN = getCookie('csrftoken');
   </script>
 
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
   <script src="{% static 'etapasJuego/js/token-counter.js' %}"></script>
   <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-stage1" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
   <script src="{% static 'etapasJuego/js/wordsearch.js' %}"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -121,8 +141,8 @@
       <div class="timeup-glow"></div>
       <p class="timeup-chip">Tiempo agotado</p>
       <h2>Uff, lo siento. Es hora de avanzar</h2>
-      <p class="timeup-text">Pasemos al Paso 2: elijan un tema para su desafío y sigan sumando tokens.</p>
-      <a class="btn btn-primary" href="{% url 'etapa2_tema' %}">Ir a la Etapa 2</a>
+      <p class="timeup-text">Pasemos al Archivo de Misión 2060 antes de continuar al Paso 2.</p>
+      <a class="btn btn-primary" href="{% url 'inicioHistoria' %}">Ir a la historia</a>
     </div>
   </div>
   <div id="howto-overlay" class="howto-overlay" aria-hidden="true">

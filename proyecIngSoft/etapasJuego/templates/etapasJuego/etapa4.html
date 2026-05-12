@@ -1,4 +1,4 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -9,131 +9,136 @@
   <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/mission_progress.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/etapa4.css' %}">
 </head>
 
-<body class="theme-login">
-  <div class="app-noise"></div>
-  <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
-  <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
+<body class="theme-login mission-ui has-mission-topbar">
+  {% mission_story "stage4" as mission %}
+  <button type="button" class="howto-btn" data-open-howto>Protocolo 2060</button>
 
-  <div id="progress-bar">
-    <div>
-      <span>Paso 4 de 6 · Comunicación</span>
-      <div>
-        <div style="width:100%;"></div>
-      </div>
-    </div>
-  </div>
+  {% include "etapasJuego/_mission_progress_topbar.html" with active_stage=4 show_timer=True timer_id="e4-timer" timer_duration=stage_duration_seconds|default:600 timer_initial="10:00" %}
 
-  <div class="ws-container">
-    <div
-      id="e4-timer"
-      class="ws-timer"
-      aria-live="polite"
-      aria-label="Tiempo restante"
-      data-duration-seconds="{{ sesion.duracion_etapa4_segundos|default:600 }}"
-    >10:00</div>
-
-    <div class="ws-header">
-      <h1 class="ws-title">Etapa 4 — Pitch Final</h1>
-    </div>
-
-    <section class="game-instructions" style="max-width:700px;">
-      <h3>🎤 Guía rápida</h3>
-      <p>Redacten un pitch corto: problema del usuario, su solución y por qué importa. Luego lo presentarán en 90 segundos.</p>
-      <p class="hint">Usen hallazgos del mapa y el prototipo LEGO para darle fuerza.</p>
-      <div class="help-hint help-hint-top" aria-label="Ayuda rápida etapa 4" style="margin-top:10px;">
-        <button type="button" class="cyber-btn btn-lost"><span class="loader is-inline" aria-hidden="true"></span>¿Y ahora qué?</button>
-        <div class="cyber-tooltip">
-          <strong>Comunicar es impactar</strong>
-          <div>En pocas frases: problema, solución y valor. Sean claros y directos; su pitch suma tokens de comunicación.</div>
-        </div>
+  <main class="pitch-stage" data-save-url="{{ save_url }}" data-final-url="{% url 'etapaFinal:negociacion' %}" data-timeup-url="{{ timeup_url }}">
+    <section class="pitch-hero" aria-labelledby="pitch-title">
+      <div class="pitch-hero__copy">
+        <p class="pitch-kicker">{{ mission.kicker }} · {{ mission.skill }}</p>
+        <h1 id="pitch-title">Pitch de victoria</h1>
       </div>
     </section>
 
-    <section class="pitch-card-shell">
-      <article class="pitch-hover-card">
-        <div class="front">
-          <h2>Estructura Pitch</h2>
+    <section class="pitch-base{% if pitch.guion %} has-final{% endif %}" aria-label="Documento base del pitch">
+      <div class="pitch-paper{% if not pitch.guion %} is-empty{% endif %}" data-pitch-paper>
+        <span class="scanner-corner scanner-corner--tl" aria-hidden="true"></span>
+        <span class="scanner-corner scanner-corner--tr" aria-hidden="true"></span>
+        <span class="scanner-corner scanner-corner--bl" aria-hidden="true"></span>
+        <span class="scanner-corner scanner-corner--br" aria-hidden="true"></span>
+        <span class="pitch-scanline" aria-hidden="true"></span>
+        <div class="pitch-paper__header" data-paper-header {% if not pitch.guion %}hidden{% endif %}>
+          <div>
+            <p>Documento Pitch</p>
+            <strong>{{ team.nombre|default:"Escuadrón emprendedor" }}</strong>
+          </div>
         </div>
-        <div class="back">
-          <h3>Plantilla sugerida</h3>
-          <ul>
-            <li><strong>Apertura:</strong> Presenta la oportunidad y conecta con el usuario que definiste.</li>
-            <li><strong>Solución:</strong> Explica cómo resuelves el punto de dolor clave usando tus hallazgos.</li>
-            <li><strong>Llamado a la acción:</strong> Termina con un cierre claro que invite a apoyar tu propuesta.</li>
-          </ul>
+
+        <div class="pitch-empty-state" data-empty-state {% if pitch.guion %}hidden{% endif %}>
+          <button type="button" class="pitch-start-btn" data-open-editor aria-label="Redactar pitch">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 20 H8 L19 9 L15 5 L4 16 V20 Z"></path>
+              <path d="M13.5 6.5 L17.5 10.5"></path>
+            </svg>
+          </button>
+          <p>Redactar pitch</p>
         </div>
-      </article>
+
+        <div class="pitch-paper__content" data-pitch-content {% if not pitch.guion %}hidden{% endif %}>
+          <div class="pitch-paper__body">
+            {% for field in pitch_fields %}
+              <article
+                class="pitch-paper-section pitch-paper-section--{{ field.key }}{% if field.value %} is-complete{% endif %}"
+                data-paper-card="{{ field.key }}"
+                role="button"
+                tabindex="0"
+                aria-label="Editar {{ field.label }}"
+              >
+                <div class="pitch-card-copy">
+                  <span>{{ field.label }}</span>
+                  <p data-paper-field="{{ field.key }}">{{ field.value|default:"Pendiente de redacción." }}</p>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <aside class="pitch-final-card" data-final-card {% if not pitch.guion %}hidden{% endif %}>
+        <a class="btn btn-primary" href="{% url 'etapaFinal:negociacion' %}">Iniciar Negociación</a>
+      </aside>
     </section>
-
-    {% with pts=pitch_tips.splitlines %}
-    <div class="mac-cards-container">
-
-        <!-- Card 1 -->
-        <div class="mac-card">
-            <div class="mac-tools">
-                <div class="mac-circle"><span class="mac-box mac-red"></span></div>
-                <div class="mac-circle"><span class="mac-box mac-yellow"></span></div>
-                <div class="mac-circle"><span class="mac-box mac-green"></span></div>
-            </div>
-            <div class="mac-card-content">
-                <span class="typewriter" data-text="{{ pts.0 }}"></span>
-            </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="mac-card">
-            <div class="mac-tools">
-                <div class="mac-circle"><span class="mac-box mac-red"></span></div>
-                <div class="mac-circle"><span class="mac-box mac-yellow"></span></div>
-                <div class="mac-circle"><span class="mac-box mac-green"></span></div>
-            </div>
-            <div class="mac-card-content">
-                <span class="typewriter" data-text="{{ pts.1 }}"></span>
-            </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="mac-card">
-            <div class="mac-tools">
-                <div class="mac-circle"><span class="mac-box mac-red"></span></div>
-                <div class="mac-circle"><span class="mac-box mac-yellow"></span></div>
-                <div class="mac-circle"><span class="mac-box mac-green"></span></div>
-            </div>
-            <div class="mac-card-content">
-                <span class="typewriter" data-text="{{ pts.2 }}"></span>
-            </div>
-        </div>
-
-    </div>
-    {% endwith %}
-
-    <!-- Editor del pitch (mismo ancho/estética que la tarjeta) -->
-    <section class="pitch-editor-shell">
-      <article class="pitch-editor-card">
-        <label for="pitchText" class="pitch-editor-title">Escribe tu Pitch</label>
-        <textarea id="pitchText" name="pitch_text" class="pitch-textarea" placeholder="Escribe aquí tu discurso del pitch…" maxlength="2000">{{ pitch_text|default_if_none:"" }}</textarea>
-        <div class="pitch-actions">
-          <button
-            id="btnGuardarPitch"
-            class="btn btn-primary"
-            type="button"
-            data-save-url="{% url 'etapa4_guardar_pitch' %}"
-            data-redirect-url="{% url 'etapaFinal:home' %}"
-          >
-          Guardar Pitch
-        </button>
-          <p id="pitchFeedback" class="bubble-feedback" role="status" aria-live="polite"></p>
-        </div>
-      </article>
-    </section>
-  </div>
+  </main>
 
   <a href="{% url 'etapa3' %}" class="btn-arrow btn-arrow-left" title="Volver">
     <span class="arrow-icon">➜</span>
   </a>
+
+  <section class="pitch-editor-overlay" data-editor-overlay aria-hidden="true">
+    <div class="pitch-editor-panel" role="dialog" aria-modal="true" aria-labelledby="pitch-editor-title">
+      <div class="pitch-editor-head">
+        <div>
+          <p class="pitch-kicker">Redacción guiada</p>
+          <h2 id="pitch-editor-title">Construyan el pitch paso a paso</h2>
+        </div>
+        <button type="button" class="pitch-icon-btn" data-close-editor aria-label="Cerrar editor">×</button>
+      </div>
+
+      <nav class="pitch-tabs" aria-label="Secciones del pitch">
+        {% for field in pitch_fields %}
+          <button
+            type="button"
+            class="pitch-tab{% if forloop.first %} is-active{% endif %}"
+            data-tab="{{ field.key }}"
+            aria-controls="pitch-panel-{{ field.key }}"
+          >
+            {{ forloop.counter }}. {{ field.label }}
+          </button>
+        {% endfor %}
+      </nav>
+
+      <form class="pitch-form" data-pitch-form>
+        {% for field in pitch_fields %}
+          <article
+            id="pitch-panel-{{ field.key }}"
+            class="pitch-step{% if forloop.first %} is-active{% endif %}"
+            data-step="{{ field.key }}"
+          >
+            <label for="pitch-{{ field.key }}">{{ field.label }}</label>
+            <p>{{ field.description }}</p>
+            <textarea
+              id="pitch-{{ field.key }}"
+              name="{{ field.key }}"
+              class="pitch-field"
+              data-key="{{ field.key }}"
+              data-label="{{ field.label }}"
+              data-max="{{ field.max_length }}"
+              placeholder="{{ field.placeholder }}"
+              rows="{{ field.rows }}"
+              maxlength="{{ field.max_length }}"
+            >{{ field.value }}</textarea>
+            <div class="pitch-step-footer">
+              <span class="pitch-char-count" id="count-{{ field.key }}">0 / {{ field.max_length }}</span>
+            </div>
+          </article>
+        {% endfor %}
+
+        <div class="pitch-save-row">
+          <span>Campos completados: <strong id="pitch-token-count">0</strong> / 4</span>
+          <button id="btnGuardarPitch" class="btn btn-primary" type="submit">Guardar Pitch</button>
+        </div>
+        <p id="pitchFeedback" class="pitch-feedback" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
 
   <script src="{% static 'etapasJuego/js/token-counter.js' %}"></script>
   <script>
@@ -144,14 +149,15 @@
       }
     });
   </script>
-  <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
   <script src="{% static 'etapasJuego/js/timeup-overlay.js' %}"></script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-stage4" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
   <script src="{% static 'etapasJuego/js/etapa4.js' %}"></script>
 
   <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
     <div class="howto-card">
-      <h2>¿Cómo se juega?</h2>
-      <p>Este paso refuerza comunicación. El juego completo incluye 4 etapas más coevaluación y ranking; cada una suma tokens si la completan bien y a tiempo.</p>
+      <h2>Protocolo 2060</h2>
+      <p>Redacten un pitch breve en cuatro partes: producto, problema, solución y cierre. Al guardar, el documento queda listo para iniciar la negociación.</p>
       <div class="howto-grid">
         <div>
           <strong>Ruta</strong>
@@ -160,35 +166,29 @@
             <li>Paso 2: Tema/desafío + mapa de empatía.</li>
             <li>Paso 3: Prototipo LEGO + resumen.</li>
             <li>Paso 4: Pitch breve.</li>
-            <li>Coevaluación y Ranking final.</li>
+            <li>Negociación, coevaluación y ranking final.</li>
           </ul>
         </div>
         <div>
           <strong>Tokens</strong>
           <ul>
-            <li>Pitch claro y conciso aporta tokens de creatividad/comunicación.</li>
-            <li>Usen hallazgos del mapa y foto LEGO para darle fuerza.</li>
-            <li>La coevaluación sumará; practiquen claridad y respeto.</li>
+            <li>Completar los cuatro campos fortalece comunicación de valor.</li>
+            <li>Usen hallazgos del mapa y el prototipo para ser concretos.</li>
+            <li>La negociación final depende de claridad, apoyo y respeto.</li>
           </ul>
         </div>
       </div>
-      <p style="margin-top:10px;">Recuerden: lo clave es aprender a comunicar valor y apoyarse como equipo.</p>
-      <button type="button" class="howto-close" onclick="document.getElementById('howto-overlay').classList.remove('is-open')">Cerrar</button>
+      <button type="button" class="howto-close" data-close-howto>Cerrar</button>
     </div>
   </div>
-  <script>
-    (function(){
-      const overlay = document.getElementById('howto-overlay');
-      overlay?.addEventListener('click',(e)=>{ if(e.target===overlay){ overlay.classList.remove('is-open'); }});
-    })();
-  </script>
+
   <div id="timeup-overlay" class="timeup-overlay" aria-hidden="true">
     <div class="timeup-card" role="dialog" aria-modal="true">
       <div class="timeup-glow"></div>
       <p class="timeup-chip">Tiempo agotado</p>
       <h2>Uff, lo siento. Es hora de avanzar</h2>
-      <p class="timeup-text">Lleven su pitch a la coevaluación y ranking final. Sigan con la misma energía.</p>
-      <a class="btn btn-primary" href="{% url 'etapaFinal:home' %}">Ir a coevaluación</a>
+      <p class="timeup-text">Lleven su pitch a la coevaluación: otros escuadrones distribuirán energía de apoyo.</p>
+      <a class="btn btn-primary" href="{% url 'etapaFinal:negociacion' %}">Ir a coevaluación</a>
     </div>
   </div>
 </body>

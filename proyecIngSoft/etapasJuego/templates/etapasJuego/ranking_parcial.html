@@ -1,0 +1,92 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ranking Etapa {{ etapa_num }}</title>
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/theme_login_port.css' %}">
+  <style>
+    .rp-container { max-width: 760px; margin: 88px auto 120px; padding: 0 1.5rem; }
+    .rp-header { text-align: center; margin-bottom: 2rem; }
+    .rp-title {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 900;
+      color: var(--accent-yellow, #C3A37A);
+      -webkit-text-stroke: 2px #0a0a0a;
+    }
+    .rp-subtitle { color: var(--muted, #A7C3D6); font-size: 1rem; margin-top: 0.5rem; }
+    .rp-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+    .rp-card {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--card-bg, #3E4A55);
+      border-radius: 12px; padding: 1rem 1.25rem;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .rp-card.is-mine { border-color: var(--accent-yellow, #C3A37A); }
+    .rp-pos {
+      font-size: 1.5rem; font-weight: 900;
+      color: var(--accent-yellow, #C3A37A); min-width: 2.5rem;
+    }
+    .rp-name { font-weight: 700; flex: 1; }
+    .rp-tokens { font-size: 0.9rem; color: var(--muted, #A7C3D6); }
+    .rp-tokens strong { color: var(--accent-yellow, #C3A37A); font-size: 1.1rem; }
+    .rp-actions { text-align: center; }
+    .rp-countdown { color: var(--muted, #A7C3D6); font-size: 0.9rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body class="theme-login mission-ui">
+  {% include "etapasJuego/_logo.html" with size="compact" extra_class="me-logo--fixed" %}
+  <main class="rp-container">
+    <div class="rp-header">
+      <h1 class="rp-title">
+        {% if etapa_num == 2 %}Ranking — Mapa de Empatía
+        {% elif etapa_num == 3 %}Ranking — Creación con Lego
+        {% elif etapa_num == 4 %}Ranking — Pitch
+        {% else %}Ranking Etapa {{ etapa_num }}{% endif %}
+      </h1>
+      <p class="rp-subtitle">Resultados finales de la etapa.</p>
+    </div>
+
+    <div class="rp-list">
+      {% for equipo in equipos %}
+        <article class="rp-card {% if equipo.id == team.id %}is-mine{% endif %}">
+          <span class="rp-pos">{{ forloop.counter }}</span>
+          <span class="rp-name">{{ equipo.nombre }}{% if equipo.id == team.id %} ★{% endif %}</span>
+          <span class="rp-tokens">
+            {% if etapa_num == 2 %}
+              Empatía: <strong>{{ equipo.tokens_empatia }}</strong>
+            {% elif etapa_num == 3 or etapa_num == 4 %}
+              Creatividad: <strong>{{ equipo.tokens_creatividad }}</strong>
+            {% else %}
+              <strong>{{ equipo.tokens_totales }}</strong> tokens
+            {% endif %}
+          </span>
+        </article>
+      {% empty %}
+        <p class="hint">No hay equipos registrados.</p>
+      {% endfor %}
+    </div>
+
+    <div class="rp-actions">
+      <p class="rp-countdown">Avanzando en <strong id="rp-count">{{ auto_advance_seconds }}</strong> s…</p>
+      <a class="btn btn-primary" href="{{ next_url }}" id="rp-btn">Continuar</a>
+    </div>
+  </main>
+
+  <script>
+    const NEXT = "{{ next_url }}";
+    let remaining = {{ auto_advance_seconds|default:12 }};
+    const counter = document.getElementById("rp-count");
+    const interval = setInterval(() => {
+      remaining--;
+      if (counter) counter.textContent = remaining;
+      if (remaining <= 0) { clearInterval(interval); window.location.href = NEXT; }
+    }, 1000);
+    const btn = document.getElementById("rp-btn");
+    if (btn) btn.addEventListener("click", () => clearInterval(interval));
+  </script>
+</body>
+</html>

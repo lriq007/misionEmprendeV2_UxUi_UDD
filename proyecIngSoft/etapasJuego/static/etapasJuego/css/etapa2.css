@@ -20,9 +20,7 @@ body {
     line-height: 1;
     font-weight: 800;
     letter-spacing: .5px;
-    color: #FFD24A;
-    -webkit-text-stroke: 1px #000;
-    text-shadow: 0 1px 0 #000, 0 -1px 0 #000, 1px 0 0 #000, -1px 0 0 #000;
+    color: #E6E7E8;
     text-align: center;
 }
 
@@ -39,9 +37,9 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    background: rgba(255,255,255,0.98);
+    background: #3E4A55;
     padding: 0.5rem 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     z-index: 40;
 }
 
@@ -57,13 +55,13 @@ body {
 #progress-bar span {
     font-weight: 700;
     letter-spacing: 0.5px;
-    color: #23325a;
+    color: #E6E7E8;
 }
 
 #progress-bar > div > div:last-child {
     flex: 1;
     height: 10px;
-    background: rgb(35, 50, 90);
+    background: #1D232A;
     border-radius: 6px;
     overflow: hidden;
 }
@@ -71,7 +69,7 @@ body {
 #progress-bar > div > div > div {
     width: 50%;
     height: 100%;
-    background: linear-gradient(90deg, #FFD24A, #FF5FA2);
+    background: #C3A37A;
     transition: width 0.4s;
 }
 
@@ -96,25 +94,22 @@ body {
 }
 
 .et2-quote p {
-    margin: 0; 
-    font-weight: 800; 
+    margin: 0;
+    font-weight: 800;
     line-height: 1.2;
-    font-size: clamp(18px, 2.2vw, 28px); 
+    font-size: clamp(18px, 2.2vw, 28px);
     letter-spacing: .3px;
-    background: linear-gradient(90deg, #FFD24A, #FFFFFF);
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 8px rgba(0,0,0,.25);
+    color: #E6E7E8;
 }
 
-.qmark { 
-    position: absolute; 
-    top: -24px; 
-    font-size: clamp(38px, 5vw, 60px); 
+.qmark {
+    position: absolute;
+    top: -24px;
+    font-size: clamp(38px, 5vw, 60px);
     line-height: 1;
-    color: #FFD24A; 
-    filter: drop-shadow(0 3px 2px rgba(0,0,0,.25)); 
-    pointer-events: none; 
+    color: #C3A37A;
+    filter: drop-shadow(0 3px 2px rgba(0,0,0,.25));
+    pointer-events: none;
 }
 
 .qmark.left { left: -6px; }
@@ -146,7 +141,7 @@ body {
 .challenge-card {
     width: 247px;
     height: 330px;
-    background: linear-gradient(180deg,#333333 0%,#3C3C3C 50%,#474747 100%);
+    background: #3E4A55;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -154,12 +149,12 @@ body {
     justify-content: flex-end;
     text-align: center;
     overflow: visible;
-    border-radius: 18px;
-    border: 2px solid rgba(126, 105, 105, 0.08);
-    box-shadow: 0 14px 32px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(167, 195, 214, 0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     cursor: pointer;
     transition: transform .25s ease, box-shadow .25s ease;
-    color: #f5f5f5;
+    color: #E6E7E8;
     padding: 18px 14px 20px;
     gap: 10px;
     z-index: 1;
@@ -191,16 +186,15 @@ body {
     content: "";
     position: absolute;
     inset: 6px;
-    border-radius: 16px;
-    background: linear-gradient(180deg,#393939 0%,#444444 50%,#404040 100%);
-    box-shadow: inset 0 6px 12px rgba(255,255,255,0.12);
+    border-radius: 6px;
+    background: rgba(29, 35, 42, 0.5);
     z-index: 0;
 }
 
 .challenge-card:hover {
-    transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 18px 40px rgba(255,210,74,0.16), 0 12px 30px rgba(0,0,0,0.28);
-    border-color: rgba(255,210,74,0.25);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+    border-color: rgba(195, 163, 122, 0.35);
 }
 
 .challenge-card:hover::before {
@@ -219,9 +213,9 @@ body {
 
 /* Recuadros estilos tipo “box” solo para la selección de tema (Etapa 2.0) */
 .topic-list .topic-card {
-    --c1: #2f7cf6;
-    --c2: #6c2bd9;
-    --accent: #ffbe2e;
+    --c1: #3E4A55;
+    --c2: #6D7B88;
+    --accent: #C3A37A;
     position: relative;
     overflow: visible;
     width: 270px;  /* ~12% más ancho para que el recuadro se sienta más largo */
@@ -333,21 +327,21 @@ body {
 }
 
 .topic-list .topic-card[data-tema="SALUD"] {
-    --c1: #22c55e;
-    --c2: #0ea5e9;
-    --accent: #22d3ee;
+    --c1: #3E4A55;
+    --c2: #6D7B88;
+    --accent: #A7C3D6;
 }
 
 .topic-list .topic-card[data-tema="SUST"] {
-    --c1: #16a34a;
-    --c2: #65a30d;
-    --accent: #facc15;
+    --c1: #3E4A55;
+    --c2: #6D7B88;
+    --accent: #C3A37A;
 }
 
 .topic-list .topic-card[data-tema="EDU"] {
-    --c1: #2f7cf6;
-    --c2: #6c2bd9;
-    --accent: #ffbe2e;
+    --c1: #3E4A55;
+    --c2: #6D7B88;
+    --accent: #E6E7E8;
 }
 
 @media (max-width: 500px) {
@@ -366,27 +360,27 @@ body {
 .modal-backdrop.is-open { display: block; }
 
 .modal-card {
-    position: absolute; 
-    left: 50%; 
+    position: absolute;
+    left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     width: min(1100px, 94vw);
-    background: rgba(255,255,255,0.95);
-    border-radius: 18px;
-    box-shadow: 0 24px 56px rgba(0,0,0,.32);
-    backdrop-filter: blur(10px);
+    background: #3E4A55;
+    border-radius: 8px;
+    box-shadow: 0 24px 56px rgba(0,0,0,.5);
+    border: 1px solid rgba(167, 195, 214, 0.2);
     overflow: hidden;
 }
 
 .modal-header {
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 16px 20px; 
-    background: linear-gradient(180deg,#333333 0%,#3C3C3C 60%,#474747 100%); 
-    color: #fff; 
+    padding: 16px 20px;
+    background: #1D232A;
+    color: #E6E7E8;
     font-weight: 800;
-    border-bottom: 1px solid rgba(255,255,255,0.18);
+    border-bottom: 1px solid rgba(167, 195, 214, 0.2);
 }
 
 .modal-title { 
@@ -414,10 +408,10 @@ body {
 }
 
 .modal-desc {
-    margin: 0; 
-    font-size: clamp(17px, 2vw, 25px); /* ~15% menor que el título del modal */
-    line-height: 1.55; 
-    color: #0f172a;
+    margin: 0;
+    font-size: clamp(17px, 2vw, 25px);
+    line-height: 1.55;
+    color: #E6E7E8;
     text-align: center;
     letter-spacing: 0.02em;
     white-space: pre-line;
@@ -448,15 +442,15 @@ body {
     align-items: center;
     gap: 10px;
     padding: 12px 24px;
-    border-radius: 18px;
-    background: linear-gradient(180deg,#333333 0%,#3C3C3C 50%,#474747 100%);
-    color: #fefefe;
+    border-radius: 8px;
+    background: #C3A37A;
+    color: #1D232A;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    border: 2px solid rgba(255,255,255,0.1);
-    box-shadow: 0 12px 24px rgba(255,255,255,0.12);
-    transition: transform .2s ease,box-shadow .2s ease;
+    border: 1px solid rgba(195, 163, 122, 0.4);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .modal-footer .btn-primary:disabled {
@@ -476,11 +470,11 @@ body {
 }
 
 .video-frame {
-    background: linear-gradient(180deg,#FFD24A 0%,#FFE68F 70%,#FFF5C7 100%);
-    border: 3px solid #FFD24A;
-    border-radius: 18px;
-    padding: 10px;
-    box-shadow: 0 10px 26px rgba(255,212,74,.28);
+    background: #1D232A;
+    border: 1px solid rgba(167, 195, 214, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     max-width: 440px;
     width: 100%;
     margin: 0 auto;
@@ -498,19 +492,20 @@ body {
     .modal-copy { max-height: 40vh; }
 }
 
-.btn-arrow { 
-    --base-transform: none; 
-    position: fixed; 
-    bottom: 30px; 
-    width: 76px; 
+.btn-arrow {
+    --base-transform: none;
+    position: fixed;
+    bottom: 30px;
+    width: 76px;
     height: 76px;
-    border-radius: 18px; 
-    background: #FF5FA2; 
-    display: flex; 
-    align-items: center; 
+    border-radius: 8px;
+    background: #3E4A55;
+    border: 1px solid rgba(167, 195, 214, 0.2);
+    display: flex;
+    align-items: center;
     justify-content: center;
-    text-decoration: none; 
-    z-index: 100; 
+    text-decoration: none;
+    z-index: 100;
     transform: var(--base-transform);
     transition: transform .2s, box-shadow .2s;
 }
@@ -520,10 +515,9 @@ body {
     box-shadow: 0 8px 18px rgba(0,0,0,.3); 
 }
 
-.arrow-icon { 
-    font-size: 3rem; 
-    color: #fff; 
-    -webkit-text-stroke: 2px #23325A; 
+.arrow-icon {
+    font-size: 3rem;
+    color: #E6E7E8;
 }
 
 .btn-arrow-right { right: 40px; }
@@ -542,29 +536,28 @@ body.modal-open { overflow: hidden; }
     .btn-arrow-left{ left: 28px; }
 }
 
-/* ===== Cronómetro (estilo épico) ===== */
+/* ===== Cronómetro ===== */
 .ws-timer {
     position: absolute;
     top: 12px;
-    right: -120px;         /* ajusta si tapa el título */
+    right: -120px;
     padding: 18px 22px;
-    border-radius: 16px;
+    border-radius: 8px;
     font-weight: 900;
     font-size: 1.6rem;
-    background: linear-gradient(135deg, #0f2c6e 0%, #0ea5e9 100%);
-    color: #ffffff;
-    border: 2px solid rgba(255,255,255,0.28);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.1);
+    background: #3E4A55;
+    color: #C3A37A;
+    border: 1px solid rgba(167, 195, 214, 0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     letter-spacing: 0.5px;
     user-select: none;
     z-index: 45;
     text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .ws-timer:hover {
-    transform: scale(1.05);
-    box-shadow: 0 14px 32px rgba(0,0,0,0.32);
-    border-color: rgba(255,255,255,0.5);
+    transform: scale(1.03);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.4);
 }
 @media (max-width: 1024px) {
     .ws-timer {

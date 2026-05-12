@@ -11,6 +11,7 @@ from .models import Estudiante, SeccionEstudiantes
 from etapasJuego.models import GameSession, Team, Tablet
 import random
 
+
 def estudiante_ingresado(request, estudiante_id):
     estudiante = get_object_or_404(Estudiante, id=estudiante_id)
     team = estudiante.team
@@ -38,15 +39,15 @@ def estudiante_ingresado(request, estudiante_id):
     }
     return render(request, 'login/estudiante_ingresado.html', context)
 
+
 def home_estudiante(request):
     return render(request, 'login/home_estudiante.html')
 
-def mission_launch(request):
-    return render(request, 'login/mission_launch.html')
 
 def logout_view(request):
     logout(request)
     return redirect('login:login')
+
 
 def login_view(request):
     ensure_default_groups()
@@ -87,7 +88,7 @@ def login_view(request):
             nombre_apellido = request.POST.get('nombre_apellido')
             carrera = request.POST.get('carrera')
             seccion_id = request.POST.get('seccion_id')
-            
+
             if nombre_apellido and carrera and seccion_id:
                 seccion = SeccionEstudiantes.objects.filter(id=seccion_id).first()
                 if not seccion:
@@ -169,7 +170,7 @@ def login_view(request):
                     return redirect('login:estudiante_ingresado', estudiante_id=estudiante.id)
             else:
                 messages.error(request, "Por favor completa todos los campos para estudiante, incluida la sección")
-            
+
         elif user_type == 'tableta':
             pin = request.POST.get('pin')
 

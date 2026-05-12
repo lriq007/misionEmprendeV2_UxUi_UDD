@@ -30,185 +30,63 @@ def _secciones_de_profesor(user):
 
 
 # ===============================
-#   Panel ADMIN
+#   Panel ADMIN — páginas estáticas
 # ===============================
-@admin_required
+
 def admin_dashboard(request):
-    User = get_user_model()
-    profesor_count = User.objects.filter(groups__name=PROFESOR_GROUP).distinct().count()
-    admin_count = User.objects.filter(groups__name=ADMIN_GROUP).distinct().count()
-    equipos_count = Team.objects.count()
-    estudiantes_count = Estudiante.objects.count()
-    carrera_qs = (
-        Estudiante.objects.values("carrera")
-        .annotate(total=Count("id"))
-        .order_by("-total")
-    )
-    carrera_total = sum(item["total"] for item in carrera_qs) or 1
-    colors = ["#fbbf24", "#22d3ee", "#a855f7", "#fb7185", "#2dd4bf", "#f97316"]
-    carrera_segments = []
-    cursor = 0.0
-    for idx, item in enumerate(carrera_qs):
-        pct = (item["total"] / carrera_total) * 100.0
-        start = cursor
-        end = start + pct
-        carrera_segments.append(
-            {
-                "label": item["carrera"] or "Sin carrera",
-                "count": item["total"],
-                "pct": pct,
-                "color": colors[idx % len(colors)],
-                "start": start,
-                "end": end,
-            }
-        )
-        cursor = end
-    carrera_gradient = ", ".join(
-        f"{seg['color']} {seg['start']:.2f}% {seg['end']:.2f}%"
-        for seg in carrera_segments
-    ) or "#fbbf24 0% 100%"
-    top_equipos = (
-        Team.objects.select_related("sesion", "sesion__profesor")
-        .order_by("-tokens_totales", "-id")[:5]
-    )
-    context = {
-        "seccion_count": SeccionEstudiantes.objects.count(),
-        "sesion_count": GameSession.objects.count(),
-        "topic_count": Topic.objects.count(),
-        "challenge_count": Challenge.objects.count(),
-        "tablet_count": Tablet.objects.count(),
-        "evaluation_count": Evaluation.objects.count(),
-        "profesor_count": profesor_count,
-        "equipos_count": equipos_count,
-        "estudiantes_count": estudiantes_count,
-        "admin_count": admin_count,
-        "carrera_segments": carrera_segments,
-        "carrera_gradient": carrera_gradient,
-        "top_equipos": top_equipos,
-        "sesiones_recientes": GameSession.objects.select_related("seccion", "profesor").order_by("-id")[
-            :5
-        ],
-    }
-    return render(request, "login/admin/dashboard.html", context)
+    return render(request, "login/admin/dashboard.html", {
+        "seccion_count": 0, "sesion_count": 0, "topic_count": 0,
+        "challenge_count": 0, "tablet_count": 0, "evaluation_count": 0,
+        "profesor_count": 0, "equipos_count": 0, "estudiantes_count": 0,
+        "admin_count": 0, "carrera_segments": [], "carrera_gradient": "#fbbf24 0% 100%",
+        "top_equipos": [], "sesiones_recientes": [],
+    })
 
 
-@admin_required
 def admin_secciones(request):
-    q = request.GET.get("q", "").strip()
-    secciones = SeccionEstudiantes.objects.all()
-    if q:
-        secciones = secciones.filter(
-            Q(nombre__icontains=q)
-            | Q(carrera__icontains=q)
-            | Q(carrera_fk__nombre__icontains=q)
-        )
-    secciones = secciones.order_by("-fecha_creacion")
     if request.method == "POST":
-        form = SeccionEstudiantesForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Sección creada/actualizada correctamente.")
-            return redirect("adminpanel:secciones")
-    else:
-        form = SeccionEstudiantesForm()
-
-    return render(
-        request,
-        "login/admin/secciones.html",
-        {
-            "form": form,
-            "secciones": secciones,
-            "q": q,
-        },
-    )
+        return redirect("adminpanel:secciones")
+    return render(request, "login/admin/secciones.html", {"secciones": [], "q": ""})
 
 
-@admin_required
 def admin_seccion_editar(request, pk):
-    seccion = get_object_or_404(SeccionEstudiantes, pk=pk)
-    form = SeccionEstudiantesForm(request.POST or None, instance=seccion)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Sección actualizada.")
+    if request.method == "POST":
         return redirect("adminpanel:secciones")
-    return render(
-        request,
-        "login/admin/form.html",
-        {"form": form, "title": "Editar sección", "back_url": "adminpanel:secciones"},
-    )
+    return render(request, "login/admin/form.html", {
+        "title": "Editar sección", "back_url": "adminpanel:secciones",
+    })
 
 
-@admin_required
 def admin_seccion_eliminar(request, pk):
-    seccion = get_object_or_404(SeccionEstudiantes, pk=pk)
     if request.method == "POST":
-        seccion.delete()
-        messages.success(request, "Sección eliminada.")
         return redirect("adminpanel:secciones")
-    return render(
-        request,
-        "login/admin/confirm_delete.html",
-        {"object": seccion, "back_url": "adminpanel:secciones", "title": "Eliminar sección"},
-    )
+    return render(request, "login/admin/confirm_delete.html", {
+        "back_url": "adminpanel:secciones", "title": "Eliminar sección",
+    })
 
 
-@admin_required
 def admin_sesiones(request):
-    q = request.GET.get("q", "").strip()
-    sesiones = GameSession.objects.select_related("profesor", "seccion")
-    if q:
-        sesiones = sesiones.filter(
-            Q(nombre__icontains=q)
-            | Q(codigo__icontains=q)
-            | Q(profesor__username__icontains=q)
-            | Q(profesor__first_name__icontains=q)
-            | Q(profesor__last_name__icontains=q)
-            | Q(seccion__nombre__icontains=q)
-        )
-    sesiones = sesiones.order_by("-fecha", "-id")
-    form = GameSessionForm(request.POST or None, request=request)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Sesión guardada.")
-        return redirect("adminpanel:sesiones")
-
-    return render(
-        request,
-        "login/admin/sesiones.html",
-        {"sesiones": sesiones, "form": form, "q": q},
-    )
-
-
-@admin_required
-def admin_sesion_editar(request, pk):
-    sesion = get_object_or_404(GameSession, pk=pk)
-    form = GameSessionForm(request.POST or None, instance=sesion, request=request)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Sesión actualizada.")
-        return redirect("adminpanel:sesiones")
-    return render(
-        request,
-        "login/admin/form.html",
-        {"form": form, "title": "Editar sesión", "back_url": "adminpanel:sesiones"},
-    )
-
-
-@admin_required
-def admin_sesion_eliminar(request, pk):
-    sesion = get_object_or_404(GameSession, pk=pk)
     if request.method == "POST":
-        sesion.delete()
-        messages.success(request, "Sesión eliminada.")
         return redirect("adminpanel:sesiones")
-    return render(
-        request,
-        "login/admin/confirm_delete.html",
-        {"object": sesion, "back_url": "adminpanel:sesiones", "title": "Eliminar sesión"},
-    )
+    return render(request, "login/admin/sesiones.html", {"sesiones": [], "q": ""})
 
 
-@admin_required
+def admin_sesion_editar(request, pk):
+    if request.method == "POST":
+        return redirect("adminpanel:sesiones")
+    return render(request, "login/admin/form.html", {
+        "title": "Editar sesión", "back_url": "adminpanel:sesiones",
+    })
+
+
+def admin_sesion_eliminar(request, pk):
+    if request.method == "POST":
+        return redirect("adminpanel:sesiones")
+    return render(request, "login/admin/confirm_delete.html", {
+        "back_url": "adminpanel:sesiones", "title": "Eliminar sesión",
+    })
+
+
 def admin_topics(request):
     q = request.GET.get("q", "").strip()
     topics = Topic.objects.all()
@@ -229,200 +107,91 @@ def admin_topics(request):
 
         messages.success(request, "Tema guardado.")
         return redirect("adminpanel:topics")
-    return render(
-        request,
-        "login/admin/topics.html",
-        {"topics": topics, "form": form, "q": q},
-    )
+    return render(request, "login/admin/topics.html", {"topics": [], "q": ""})
 
 
-@admin_required
 def admin_topic_editar(request, pk):
-    topic = get_object_or_404(Topic, pk=pk)
-    form = TopicForm(request.POST or None, request=request, instance=topic, files=request.FILES or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Tema actualizado.")
+    if request.method == "POST":
         return redirect("adminpanel:topics")
-    return render(
-        request,
-        "login/admin/form.html",
-        {"form": form, "title": "Editar tema", "back_url": "adminpanel:topics"},
-    )
+    return render(request, "login/admin/form.html", {
+        "title": "Editar tema", "back_url": "adminpanel:topics",
+    })
 
 
-@admin_required
 def admin_topic_eliminar(request, pk):
-    topic = get_object_or_404(Topic, pk=pk)
     if request.method == "POST":
-        topic.delete()
-        messages.success(request, "Tema eliminado.")
         return redirect("adminpanel:topics")
-    return render(
-        request,
-        "login/admin/confirm_delete.html",
-        {"object": topic, "back_url": "adminpanel:topics", "title": "Eliminar tema"},
-    )
+    return render(request, "login/admin/confirm_delete.html", {
+        "back_url": "adminpanel:topics", "title": "Eliminar tema",
+    })
 
 
-@admin_required
 def admin_challenges(request):
-    q = request.GET.get("q", "").strip()
-    challenges = Challenge.objects.select_related("topic").all()
-    if q:
-        challenges = challenges.filter(
-            Q(titulo__icontains=q) | Q(topic__nombre__icontains=q)
-        )
-    challenges = challenges.order_by("topic__nombre", "orden")
-    form = ChallengeForm(request.POST or None, request=request, files=request.FILES or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Desafío guardado.")
+    if request.method == "POST":
         return redirect("adminpanel:challenges")
-    return render(
-        request,
-        "login/admin/challenges.html",
-        {"challenges": challenges, "form": form, "q": q},
-    )
+    return render(request, "login/admin/challenges.html", {"challenges": [], "q": ""})
 
 
-@admin_required
 def admin_challenge_editar(request, pk):
-    challenge = get_object_or_404(Challenge, pk=pk)
-    form = ChallengeForm(request.POST or None, request=request, instance=challenge, files=request.FILES or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Desafío actualizado.")
+    if request.method == "POST":
         return redirect("adminpanel:challenges")
-    return render(
-        request,
-        "login/admin/form.html",
-        {"form": form, "title": "Editar desafío", "back_url": "adminpanel:challenges"},
-    )
+    return render(request, "login/admin/form.html", {
+        "title": "Editar desafío", "back_url": "adminpanel:challenges",
+    })
 
 
-@admin_required
 def admin_challenge_eliminar(request, pk):
-    challenge = get_object_or_404(Challenge, pk=pk)
     if request.method == "POST":
-        challenge.delete()
-        messages.success(request, "Desafío eliminado.")
         return redirect("adminpanel:challenges")
-    return render(
-        request,
-        "login/admin/confirm_delete.html",
-        {"object": challenge, "back_url": "adminpanel:challenges", "title": "Eliminar desafío"},
-    )
+    return render(request, "login/admin/confirm_delete.html", {
+        "back_url": "adminpanel:challenges", "title": "Eliminar desafío",
+    })
 
 
-@admin_required
 def admin_tablets(request):
-    q = request.GET.get("q", "").strip()
-    tablets = Tablet.objects.select_related("sesion", "team").all()
-    if q:
-        tablets = tablets.filter(
-            Q(codigo__icontains=q)
-            | Q(codigo_acceso__icontains=q)
-            | Q(sesion__nombre__icontains=q)
-        )
-    tablets = tablets.order_by("sesion__nombre", "codigo")
-    form = TabletForm(request.POST or None, request=request)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Tablet guardada.")
+    if request.method == "POST":
         return redirect("adminpanel:tablets")
-    return render(
-        request,
-        "login/admin/tablets.html",
-        {"tablets": tablets, "form": form, "q": q},
-    )
+    return render(request, "login/admin/tablets.html", {"tablets": [], "q": ""})
 
 
-@admin_required
 def admin_tablet_editar(request, pk):
-    tablet = get_object_or_404(Tablet, pk=pk)
-    form = TabletForm(request.POST or None, request=request, instance=tablet)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Tablet actualizada.")
+    if request.method == "POST":
         return redirect("adminpanel:tablets")
-    return render(
-        request,
-        "login/admin/form.html",
-        {"form": form, "title": "Editar tablet", "back_url": "adminpanel:tablets"},
-    )
+    return render(request, "login/admin/form.html", {
+        "title": "Editar tablet", "back_url": "adminpanel:tablets",
+    })
 
 
-@admin_required
 def admin_tablet_eliminar(request, pk):
-    tablet = get_object_or_404(Tablet, pk=pk)
     if request.method == "POST":
-        tablet.delete()
-        messages.success(request, "Tablet eliminada.")
         return redirect("adminpanel:tablets")
-    return render(
-        request,
-        "login/admin/confirm_delete.html",
-        {"object": tablet, "back_url": "adminpanel:tablets", "title": "Eliminar tablet"},
-    )
+    return render(request, "login/admin/confirm_delete.html", {
+        "back_url": "adminpanel:tablets", "title": "Eliminar tablet",
+    })
 
 
-@admin_required
 def admin_evaluaciones(request):
-    q = request.GET.get("q", "").strip()
-    evaluaciones = Evaluation.objects.select_related("sesion", "evaluador", "evaluado").all()
-    if q:
-        evaluaciones = evaluaciones.filter(
-            Q(sesion__nombre__icontains=q)
-            | Q(sesion__codigo__icontains=q)
-            | Q(evaluador__nombre__icontains=q)
-            | Q(evaluador__codigo_grupo__icontains=q)
-            | Q(evaluado__nombre__icontains=q)
-            | Q(evaluado__codigo_grupo__icontains=q)
-        )
-    evaluaciones = evaluaciones.order_by("-sesion__fecha", "evaluador__codigo_grupo")
-    form = EvaluationForm(request.POST or None, request=request)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Evaluación guardada.")
-        return redirect("adminpanel:evaluaciones")
-    return render(
-        request,
-        "login/admin/evaluaciones.html",
-        {"evaluaciones": evaluaciones, "form": form, "q": q},
-    )
-
-
-@admin_required
-def admin_evaluacion_editar(request, pk):
-    evaluacion = get_object_or_404(Evaluation, pk=pk)
-    form = EvaluationForm(request.POST or None, request=request, instance=evaluacion)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Evaluación actualizada.")
-        return redirect("adminpanel:evaluaciones")
-    return render(
-        request,
-        "login/admin/form.html",
-        {"form": form, "title": "Editar evaluación", "back_url": "adminpanel:evaluaciones"},
-    )
-
-
-@admin_required
-def admin_evaluacion_eliminar(request, pk):
-    evaluacion = get_object_or_404(Evaluation, pk=pk)
     if request.method == "POST":
-        evaluacion.delete()
-        messages.success(request, "Evaluación eliminada.")
         return redirect("adminpanel:evaluaciones")
-    return render(
-        request,
-        "login/admin/confirm_delete.html",
-        {"object": evaluacion, "back_url": "adminpanel:evaluaciones", "title": "Eliminar evaluación"},
-    )
+    return render(request, "login/admin/evaluaciones.html", {"evaluaciones": [], "q": ""})
 
 
-@admin_required
+def admin_evaluacion_editar(request, pk):
+    if request.method == "POST":
+        return redirect("adminpanel:evaluaciones")
+    return render(request, "login/admin/form.html", {
+        "title": "Editar evaluación", "back_url": "adminpanel:evaluaciones",
+    })
+
+
+def admin_evaluacion_eliminar(request, pk):
+    if request.method == "POST":
+        return redirect("adminpanel:evaluaciones")
+    return render(request, "login/admin/confirm_delete.html", {
+        "back_url": "adminpanel:evaluaciones", "title": "Eliminar evaluación",
+    })
+
+
 def admin_usuarios(request):
     User = get_user_model()
     usuarios_admin = User.objects.filter(groups__name=ADMIN_GROUP).distinct()
@@ -660,14 +429,80 @@ def profesor_sesion_editar(request, pk):
 def profesor_sesion_eliminar(request, pk):
     sesion = get_object_or_404(GameSession, pk=pk, profesor=request.user)
     if request.method == "POST":
-        sesion.delete()
-        messages.success(request, "Sesión eliminada.")
+        return redirect("adminpanel:usuarios")
+    return render(request, "login/admin/usuarios.html", {
+        "usuarios_admin": [], "usuarios_prof": [],
+    })
+
+
+def admin_usuario_editar(request, pk):
+    if request.method == "POST":
+        return redirect("adminpanel:usuarios")
+    return render(request, "login/admin/form.html", {
+        "title": "Editar profesor", "back_url": "adminpanel:usuarios",
+    })
+
+
+def admin_equipos(request):
+    if request.method == "POST":
+        return redirect("adminpanel:equipos")
+    return render(request, "login/admin/equipos.html", {"equipos": [], "q": ""})
+
+
+def admin_equipo_editar(request, pk):
+    if request.method == "POST":
+        return redirect("adminpanel:equipos")
+    return render(request, "login/admin/form.html", {
+        "title": "Editar equipo", "back_url": "adminpanel:equipos",
+    })
+
+
+def admin_estudiantes(request):
+    if request.method == "POST":
+        return redirect("adminpanel:estudiantes")
+    return render(request, "login/admin/estudiantes.html", {"estudiantes": []})
+
+
+def admin_estudiante_editar(request, pk):
+    if request.method == "POST":
+        return redirect("adminpanel:estudiantes")
+    return render(request, "login/admin/form.html", {
+        "title": "Editar estudiante", "back_url": "adminpanel:estudiantes",
+    })
+
+
+# ===============================
+#   Panel PROFESOR — páginas estáticas
+# ===============================
+
+def profesor_dashboard(request):
+    return render(request, "login/profesor/dashboard.html", {
+        "sesiones": [], "secciones": [], "sesion_count": 0,
+        "seccion_count": 0, "equipos_count": 0, "estudiantes_count": 0,
+        "top_equipos": [], "ranking": [], "q": "",
+    })
+
+
+def profesor_sesiones(request):
+    if request.method == "POST":
         return redirect("profesorpanel:sesiones")
-    return render(
-        request,
-        "login/admin/confirm_delete.html",
-        {"object": sesion, "back_url": "profesorpanel:sesiones", "title": "Eliminar sesión"},
-    )
+    return render(request, "login/profesor/sesiones.html", {"sesiones": []})
+
+
+def profesor_sesion_editar(request, pk):
+    if request.method == "POST":
+        return redirect("profesorpanel:sesiones")
+    return render(request, "login/admin/form.html", {
+        "title": "Editar sesión", "back_url": "profesorpanel:sesiones",
+    })
+
+
+def profesor_sesion_eliminar(request, pk):
+    if request.method == "POST":
+        return redirect("profesorpanel:sesiones")
+    return render(request, "login/admin/confirm_delete.html", {
+        "back_url": "profesorpanel:sesiones", "title": "Eliminar sesión",
+    })
 
 
 
@@ -838,13 +673,7 @@ def profesor_equipos(request):
 #Validar si el profesor deberia poder crear secciones o si solo el admin las crea 9/5
 @profesor_required
 def profesor_secciones(request):
-    sesiones = GameSession.objects.filter(profesor=request.user)
-    secciones = SeccionEstudiantes.objects.filter(sesiones__in=sesiones).distinct().order_by("-fecha_creacion")
-
-    form = SeccionEstudiantesForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Sección creada/actualizada correctamente.")
+    if request.method == "POST":
         return redirect("profesorpanel:secciones")
 
     return render(

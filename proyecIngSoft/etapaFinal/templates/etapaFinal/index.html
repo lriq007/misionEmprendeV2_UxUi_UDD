@@ -1,4 +1,4 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -6,13 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Etapa Final — Coevaluación</title>
 
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
   <link rel="stylesheet" href="{% static 'etapaFinal/css/etapaFinal.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/mission_progress.css' %}">
 </head>
-<body class="theme-login">
+<body class="theme-login has-mission-topbar">
+  {% mission_story "coevaluation" as mission %}
   <div class="app-noise"></div>
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
 
-
+  {% include "etapasJuego/_mission_progress_topbar.html" with active_stage=5 show_timer=False %}
 
   <div class="ws-container">
     <header class="ef-hero">
@@ -23,7 +26,15 @@
         <span class="ef-chip">Tokens de apoyo</span>
       </div>
       <h1 class="ef-hero-title">Etapa Final — Coevaluación</h1>
-      <p class="ef-hero-subtitle">Evalúen a otros equipos con mirada justa y emprendedora. Sus puntajes suman tokens de apoyo.</p>
+      <p class="ef-hero-subtitle">{{ mission.summary }}</p>
+      <section class="story-hud" aria-label="Estado narrativo de coevaluacion">
+        <div class="story-hud__main">
+          <p class="story-hud__phase">{{ mission.kicker }}</p>
+          <h2 class="story-hud__title">{{ mission.headline }}</h2>
+          <p class="story-hud__prompt">{{ mission.mission_prompt }}</p>
+        </div>
+        <div class="story-hud__skill">{{ mission.skill }}</div>
+      </section>
       <div class="ef-meta-grid">
         <div class="ef-meta-card">
           <p class="ef-meta-label">Criterio</p>
@@ -33,7 +44,7 @@
         <div class="ef-meta-card">
           <p class="ef-meta-label">Enfoque</p>
           <p class="ef-meta-value">Equipo · Empatía · Creatividad · Comunicación</p>
-          <small>Puntúen con claridad y respeto.</small>
+          <small>Puntúen con claridad, respeto y criterio de misión.</small>
         </div>
         {% if team_actual %}
         <div class="ef-token-counter ef-meta-token" aria-live="polite">
@@ -86,22 +97,50 @@
                   <div class="ef-eval-code">[{{ equipo.codigo_grupo }}]</div>
                 </header>
 
+                <p style="font-size:0.78rem; color:var(--muted,#A7C3D6); margin:0.25rem 0 0.75rem;">
+                  Escala: <strong>1 = Mínimo</strong> · 3 = Cumple · <strong>5 = Máximo</strong>
+                </p>
+
                 <div class="ef-eval-body">
                   <div class="ef-score-row">
-                    <label class="ef-label">Equipo</label>
-                    <input type="number" min="1" max="5" class="ef-score" data-field="puntaje_equipo" placeholder="1-5" required>
+                    <div>
+                      <label class="ef-label">Equipo</label>
+                      <p class="ef-criterion-desc">Coordinación y participación equilibrada del equipo</p>
+                    </div>
+                    <div class="ef-score-wrap">
+                      <input type="number" min="1" max="5" class="ef-score ef-score-range" data-field="puntaje_equipo" placeholder="1–5" required>
+                      <span class="ef-score-badge"></span>
+                    </div>
                   </div>
                   <div class="ef-score-row">
-                    <label class="ef-label">Empatía</label>
-                    <input type="number" min="1" max="5" class="ef-score" data-field="puntaje_empatia" placeholder="1-5" required>
+                    <div>
+                      <label class="ef-label">Empatía</label>
+                      <p class="ef-criterion-desc">Conexión con el dolor identificado en el mapa de empatía</p>
+                    </div>
+                    <div class="ef-score-wrap">
+                      <input type="number" min="1" max="5" class="ef-score ef-score-range" data-field="puntaje_empatia" placeholder="1–5" required>
+                      <span class="ef-score-badge"></span>
+                    </div>
                   </div>
                   <div class="ef-score-row">
-                    <label class="ef-label">Creatividad</label>
-                    <input type="number" min="1" max="5" class="ef-score" data-field="puntaje_creatividad" placeholder="1-5" required>
+                    <div>
+                      <label class="ef-label">Creatividad</label>
+                      <p class="ef-criterion-desc">Solución innovadora, tecnológica y original</p>
+                    </div>
+                    <div class="ef-score-wrap">
+                      <input type="number" min="1" max="5" class="ef-score ef-score-range" data-field="puntaje_creatividad" placeholder="1–5" required>
+                      <span class="ef-score-badge"></span>
+                    </div>
                   </div>
                   <div class="ef-score-row">
-                    <label class="ef-label">Comunicación</label>
-                    <input type="number" min="1" max="5" class="ef-score" data-field="puntaje_comunicacion" placeholder="1-5" required>
+                    <div>
+                      <label class="ef-label">Comunicación</label>
+                      <p class="ef-criterion-desc">Claridad, entusiasmo y capacidad persuasiva</p>
+                    </div>
+                    <div class="ef-score-wrap">
+                      <input type="number" min="1" max="5" class="ef-score ef-score-range" data-field="puntaje_comunicacion" placeholder="1–5" required>
+                      <span class="ef-score-badge"></span>
+                    </div>
                   </div>
                 </div>
 
@@ -156,7 +195,7 @@
   <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
     <div class="howto-card">
       <h2>¿Cómo se juega?</h2>
-      <p>Están en la coevaluación (Paso 5 de 6). El juego combinó 4 etapas previas con esta evaluación y el ranking final para practicar equipo, empatía, creatividad, comunicación y apoyo.</p>
+      <p>Están en la coevaluación (Paso 5 de 6). Sus puntajes distribuyen energía de apoyo entre escuadrones y fortalecen la cultura emprendedora.</p>
       <div class="howto-grid">
         <div>
           <strong>Qué hacer aquí</strong>
@@ -170,7 +209,7 @@
           <strong>Sentido de los tokens</strong>
           <ul>
             <li>El ranking final mezcla desempeño de etapas y esta coevaluación justa.</li>
-            <li>Apoyar con criterios claros fomenta la cultura emprendedora UDD.</li>
+            <li>Apoyar con criterios claros combate el miedo a crear y decidir.</li>
             <li>Lo central: aprendizaje y reflexión sobre sus propias habilidades.</li>
           </ul>
         </div>
@@ -180,11 +219,43 @@
   </div>
 
   <script src="{% static 'etapaFinal/js/etapaFinal.js' %}"></script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-coevaluation" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
   <script>
     (function(){
       const overlay = document.getElementById('howto-overlay');
       overlay?.addEventListener('click',(e)=>{ if(e.target===overlay){ overlay.classList.remove('is-open'); }});
     })();
+  </script>
+  <!-- Score range color indicator: red(1-2), yellow(3), green(4-5) -->
+  <style>
+    .ef-criterion-desc { font-size:0.78rem; color:var(--muted,#A7C3D6); margin:0 0 0.4rem; }
+    .ef-score-wrap { display:flex; align-items:center; gap:0.5rem; }
+    .ef-score-badge { width:12px; height:12px; border-radius:50%; background:#555; transition:background 0.2s; }
+    .ef-score-wrap input.score-low  { border-color: #f87171; }
+    .ef-score-wrap input.score-mid  { border-color: #fbbf24; }
+    .ef-score-wrap input.score-high { border-color: #4ade80; }
+    .ef-score-badge.score-low  { background: #f87171; }
+    .ef-score-badge.score-mid  { background: #fbbf24; }
+    .ef-score-badge.score-high { background: #4ade80; }
+  </style>
+  <script>
+  (function() {
+    function getScoreClass(val) {
+      if (!val || val < 1) return "";
+      if (val <= 2) return "score-low";
+      if (val <= 3) return "score-mid";
+      return "score-high";
+    }
+    document.querySelectorAll(".ef-score-range").forEach(input => {
+      const badge = input.nextElementSibling;
+      input.addEventListener("input", () => {
+        const cls = getScoreClass(parseInt(input.value, 10));
+        input.className = "ef-score ef-score-range" + (cls ? " " + cls : "");
+        if (badge) badge.className = "ef-score-badge" + (cls ? " " + cls : "");
+      });
+    });
+  })();
   </script>
 </body>
 </html>

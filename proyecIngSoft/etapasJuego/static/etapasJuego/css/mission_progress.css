@@ -1,0 +1,491 @@
+:root {
+  --mission-progress-height: 96px;
+  --mission-progress-blue: #31CFFF;
+  --mission-progress-blue-2: #4EA1FF;
+  --mission-progress-gold: #F2B84B;
+  --mission-progress-gold-2: #FFD36A;
+  --mission-progress-white: #F5F7FA;
+  --mission-progress-muted: #C8D1DE;
+}
+
+body.has-mission-topbar {
+  padding-top: var(--mission-progress-height);
+}
+
+body.has-mission-topbar .ws-container {
+  margin-top: 32px;
+}
+
+.mission-progress-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 240;
+  box-sizing: border-box;
+  width: auto;
+  height: var(--mission-progress-height);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(280px, 22vw);
+  align-items: center;
+  gap: 20px;
+  padding: 8px 24px;
+  background: rgba(5, 14, 30, 0.92);
+  border-bottom: 1px solid rgba(78, 161, 255, 0.22);
+  box-shadow: 0 2px 20px rgba(0, 120, 255, 0.10);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  color: var(--mission-progress-white);
+}
+
+.mission-progress-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+  gap: 1px;
+  min-width: 136px;
+  padding-right: 16px;
+  border-right: 1px solid rgba(78, 161, 255, 0.2);
+}
+
+.mpb__mision {
+  font-family: "League Spartan", "Segoe UI", sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.05rem, 1.45vw, 1.28rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #F3F5F7;
+  text-shadow: 0 0 8px rgba(218,234,248,0.2);
+}
+
+.mpb__emprende {
+  font-family: "League Spartan", "Segoe UI", sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.3rem, 1.85vw, 1.68rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #F2C86B;
+  text-shadow: 0 0 8px rgba(242,200,107,0.3);
+}
+
+.mission-progress-track {
+  min-width: 0;
+}
+
+.mission-progress-topbar--no-timer {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.mission-progress-topbar--no-timer .mission-progress-track {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.mission-progress-list {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(86px, 1fr));
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mission-progress-step {
+  position: relative;
+  z-index: 0;
+  --mission-line-offset: -22px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  min-width: 0;
+  color: rgba(245, 247, 250, 0.54);
+  transition: transform 200ms ease, color 200ms ease;
+}
+
+.mission-progress-step::before,
+.mission-progress-step::after {
+  content: "";
+  position: absolute;
+  top: 22px;
+  right: 50%;
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mission-progress-step::before {
+  background: rgba(180, 190, 210, 0.16);
+  transform: translateX(var(--mission-line-offset));
+}
+
+.mission-progress-step::after {
+  background: linear-gradient(90deg, var(--mission-progress-blue), var(--mission-progress-gold));
+  box-shadow: 0 0 14px rgba(49, 207, 255, 0.22);
+  opacity: 0;
+  transform: translateX(var(--mission-line-offset)) scaleX(0);
+  transform-origin: left center;
+}
+
+.mission-progress-step:first-child::before,
+.mission-progress-step:first-child::after {
+  display: none;
+}
+
+.mission-progress-step.is-complete::after {
+  opacity: 1;
+  transform: translateX(var(--mission-line-offset)) scaleX(1);
+}
+
+.mission-progress-step.is-active::after {
+  opacity: 1;
+  animation: missionProgressAdvance 760ms ease-out both;
+}
+
+.mission-progress-node {
+  position: relative;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(180, 190, 210, 0.12);
+  border: 1px solid rgba(245, 247, 250, 0.14);
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+}
+
+.mission-progress-node svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.58;
+  transition: opacity 200ms ease;
+}
+
+.mission-progress-step.is-active {
+  color: var(--mission-progress-white);
+}
+
+.mission-progress-step.is-active .mission-progress-node {
+  background: radial-gradient(circle, rgba(49, 207, 255, 0.34), rgba(78, 161, 255, 0.12));
+  border-color: rgba(49, 207, 255, 0.86);
+  box-shadow: 0 0 18px rgba(49, 207, 255, 0.65);
+}
+
+.mission-progress-step.is-active .mission-progress-node svg {
+  opacity: 1;
+  stroke: var(--mission-progress-white);
+}
+
+.mission-progress-step.is-complete {
+  color: rgba(255, 211, 106, 0.92);
+}
+
+.mission-progress-step.is-complete .mission-progress-node {
+  background: radial-gradient(circle, rgba(255, 211, 106, 0.24), rgba(242, 184, 75, 0.10));
+  border-color: rgba(242, 184, 75, 0.72);
+  box-shadow: 0 0 14px rgba(242, 184, 75, 0.28);
+}
+
+.mission-progress-step.is-complete .mission-progress-node svg {
+  opacity: 0.94;
+  stroke: var(--mission-progress-gold-2);
+}
+
+.mission-progress-step:hover {
+  transform: translateY(-1px);
+}
+
+.mission-progress-step:hover .mission-progress-node {
+  box-shadow: 0 0 14px rgba(78, 161, 255, 0.34);
+}
+
+.mission-progress-label {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  overflow: hidden;
+  color: currentColor;
+  display: -webkit-box;
+  min-height: 2.2em;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+}
+
+.mission-progress-timer {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  color: var(--mission-progress-white);
+}
+
+.mission-progress-timer__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--mission-progress-gold);
+}
+
+.mission-progress-timer__icon svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mission-progress-timer__copy {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  min-width: 0;
+}
+
+.mission-progress-timer__label {
+  color: var(--mission-progress-gold);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.mission-progress-topbar .ws-timer,
+.mission-progress-topbar .timer-panel__value {
+  position: static;
+  top: auto;
+  right: auto;
+  z-index: auto;
+  display: block;
+  /* reset height/width set by base.css (.ws-timer { height:132px; width:132px }) */
+  width: auto;
+  height: auto;
+  /* reset transform set by etapa3.css (.ws-timer { transform: translate(190px,-114px) }) */
+  transform: none;
+  min-width: 150px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--mission-progress-white);
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  user-select: none;
+  transition: color 200ms ease, text-shadow 200ms ease;
+}
+
+.mission-progress-timer.is-critical .mission-progress-timer__icon,
+.mission-progress-timer.is-critical .mission-progress-timer__label,
+.mission-progress-timer.is-critical .ws-timer,
+.mission-progress-timer.is-critical .timer-panel__value {
+  animation: missionTimerCritical 820ms ease-in-out infinite;
+}
+
+.mission-progress-topbar .ws-timer:hover,
+.mission-progress-topbar .timer-panel__value:hover {
+  transform: none;
+  box-shadow: none;
+  text-shadow: 0 0 12px rgba(242, 184, 75, 0.28);
+}
+
+body.has-mission-topbar .howto-btn {
+  top: 112px;
+}
+
+@media (max-width: 1180px) {
+  :root {
+    --mission-progress-height: 88px;
+  }
+
+  .mission-progress-topbar {
+    grid-template-columns: auto minmax(0, 1fr) minmax(232px, 24vw);
+    gap: 14px;
+    padding-inline: 14px;
+  }
+
+  .mission-progress-brand {
+    min-width: 118px;
+    padding-right: 12px;
+  }
+
+  .mpb__mision {
+    font-size: 0.9rem;
+    letter-spacing: 0.18em;
+  }
+
+  .mpb__emprende {
+    font-size: 1.12rem;
+  }
+
+  .mission-progress-list {
+    grid-template-columns: repeat(6, minmax(58px, 1fr));
+  }
+
+  .mission-progress-node {
+    width: 38px;
+    height: 38px;
+  }
+
+  .mission-progress-node svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .mission-progress-step {
+    --mission-line-offset: -19px;
+  }
+
+  .mission-progress-step::before,
+  .mission-progress-step::after {
+    top: 19px;
+    height: 4px;
+  }
+
+  .mission-progress-label {
+    font-size: 11px;
+    line-height: 1.05;
+  }
+
+  .mission-progress-topbar .ws-timer,
+  .mission-progress-topbar .timer-panel__value {
+    min-width: 124px;
+    font-size: 46px;
+  }
+
+  .mission-progress-timer {
+    width: 100%;
+  }
+}
+
+@media (max-width: 860px) {
+  :root {
+    --mission-progress-height: 86px;
+  }
+
+  .mission-progress-topbar {
+    grid-template-columns: auto minmax(0, 1fr) minmax(154px, 21vw);
+    gap: 10px;
+    padding-inline: 8px;
+  }
+
+  .mission-progress-brand {
+    min-width: 98px;
+    padding-right: 8px;
+  }
+
+  .mpb__mision {
+    font-size: 0.76rem;
+    letter-spacing: 0.16em;
+  }
+
+  .mpb__emprende {
+    font-size: 0.96rem;
+  }
+
+  .mission-progress-list {
+    grid-template-columns: repeat(6, minmax(42px, 1fr));
+  }
+
+  .mission-progress-node {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mission-progress-node svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mission-progress-step {
+    --mission-line-offset: -18px;
+  }
+
+  .mission-progress-step::before,
+  .mission-progress-step::after {
+    top: 18px;
+    height: 4px;
+  }
+
+  .mission-progress-label {
+    font-size: 10px;
+    line-height: 1.04;
+  }
+
+  .mission-progress-timer {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .mission-progress-timer__icon {
+    display: none;
+  }
+
+  .mission-progress-timer__label {
+    font-size: 9px;
+  }
+
+  .mission-progress-topbar .ws-timer,
+  .mission-progress-topbar .timer-panel__value {
+    min-width: 104px;
+    font-size: 38px;
+  }
+
+  body.has-mission-topbar .howto-btn {
+    top: 100px;
+  }
+}
+
+@keyframes missionProgressAdvance {
+  from {
+    opacity: 0.35;
+    transform: translateX(var(--mission-line-offset)) scaleX(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(var(--mission-line-offset)) scaleX(1);
+  }
+}
+
+@keyframes missionTimerCritical {
+  0%,
+  100% {
+    color: var(--mission-progress-white);
+    text-shadow: 0 0 10px rgba(242, 184, 75, 0.18);
+  }
+
+  50% {
+    color: #FF3B3B;
+    text-shadow: 0 0 16px rgba(255, 59, 59, 0.72);
+  }
+}

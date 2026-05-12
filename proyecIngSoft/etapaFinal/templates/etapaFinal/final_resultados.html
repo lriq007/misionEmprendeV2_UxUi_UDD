@@ -1,13 +1,18 @@
-{% load static %}
+{% load static story_tags %}
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cierre — Resultados finales</title>
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'etapasJuego/css/story.css' %}">
   <link rel="stylesheet" href="{% static 'etapaFinal/css/etapaFinal.css' %}">
 </head>
 <body class="theme-login">
+  {% mission_story "final" as mission %}
+  {% include "etapasJuego/_logo.html" with size="medium" extra_class="me-logo--fixed" %}
   <div class="app-noise"></div>
   <canvas id="graphCanvas" class="graph-canvas" aria-hidden="true"></canvas>
   <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
@@ -23,14 +28,23 @@
         </div>
       </div>
       <h1 class="final-title">Cierre — Resultados finales</h1>
-      <p class="final-subtitle">El ranking combina desempeño de las 4 etapas + coevaluación. Fin de misión: reconozcan al ganador, celebren y elijan qué habilidad quieren seguir fortaleciendo.</p>
+      <p class="final-subtitle">{{ mission.summary }}</p>
+      <section class="story-briefing-hero final-story-hero" aria-label="Cierre narrativo">
+        <p class="story-briefing-hero__eyebrow">{{ mission.kicker }}</p>
+        <h2 class="story-briefing-hero__title">{{ mission.headline }}</h2>
+        <p class="story-briefing-hero__copy">{{ mission.mission_prompt }}</p>
+        <div class="story-gem-signal">
+          <p class="story-gem-signal__label">Dato real</p>
+          <p class="story-gem-signal__text">{{ mission.gem_fact }}</p>
+        </div>
+      </section>
       {% if ranking %}
         {% with ganador=ranking.0 %}
           <div class="final-hero-meta">
             <div class="meta-card">
-              <p class="meta-label">Equipo campeón</p>
+              <p class="meta-label">Campeón del emprendimiento</p>
               <p class="meta-value">{{ ganador.nombre }}</p>
-              <small>Se lleva la copa y el reconocimiento de la sesión.</small>
+              <small>Simboliza la energía capaz de inmunizar al mundo contra el miedo.</small>
             </div>
             <div class="meta-card">
               <p class="meta-label">Tokens del ganador</p>
@@ -39,8 +53,8 @@
             </div>
             <div class="meta-card">
               <p class="meta-label">Qué hacer ahora</p>
-              <p class="meta-value">Aplaudir · Tomar foto · Compartir</p>
-              <small>Cierren con feedback breve y celebren el trabajo.</small>
+              <p class="meta-value">Celebrar · Aprender · Conectar</p>
+              <small>Cierren con feedback breve y proyecten la siguiente habilidad.</small>
             </div>
           </div>
         {% endwith %}
@@ -125,13 +139,13 @@
         <div>
           <p class="ef-tag">Mensaje final</p>
           <h2>Cerrando la misión</h2>
-          <p class="ef-tagline">El juego fortaleció Trabajo en equipo, Empatía, Creatividad, Comunicación y Apoyo.</p>
+          <p class="ef-tagline">El juego fortaleció Trabajo en equipo, Empatía, Creatividad, Comunicación y Apoyo contra la Epidemia del Miedo.</p>
         </div>
         <div class="final-badge final-badge-soft">UDD · Emprendimiento</div>
       </div>
       <div class="final-journey">
         <div class="journey-note">
-          <p class="final-paragraph">El emprendimiento es un pilar en la UDD porque impulsa innovación y soluciones reales con impacto. Llévense este aprendizaje a próximos cursos y proyectos: lo central es la red que construyen y cómo la activan.</p>
+          <p class="final-paragraph">El emprendimiento es un pilar en la UDD porque impulsa innovación y soluciones reales con impacto. La misión termina aquí, pero la energía emprendedora se mantiene cuando usan la red que construyeron para actuar pese al miedo.</p>
           <div class="journey-steps">
             <div class="journey-step">
               <span class="journey-dot">1</span>
@@ -245,14 +259,14 @@
     </section>
   </div>
 
-  <a href="{% url 'etapaFinal:home' %}" class="btn-arrow btn-arrow-left" title="Volver a coevaluación">
+  <a href="{% url 'etapaFinal:negociacion' %}" class="btn-arrow btn-arrow-left" title="Volver a negociación">
     <span class="arrow-icon">➜</span>
   </a>
 
   <div id="howto-overlay" class="howto-overlay" aria-hidden="true">
     <div class="howto-card">
       <h2>¿Cómo se juega?</h2>
-      <p>Este es el cierre (Paso 6 de 6). El ranking refleja sus tokens por las 4 etapas y la coevaluación. Más allá de ganar, importa lo que aprendieron.</p>
+      <p>Este es el cierre (Paso 6 de 6). El ranking refleja tokens por etapas y coevaluación. Hay un campeón, pero todos entrenaron habilidades para enfrentar la epidemia.</p>
       <div class="howto-grid">
         <div>
           <strong>Qué mirar ahora</strong>
@@ -284,6 +298,8 @@
     });
   </script>
   <script src="{% static 'etapasJuego/js/graph-background.js' %}"></script>
+  {% include "etapasJuego/_story_drawer.html" with story_id="story-final" %}
+  <script src="{% static 'etapasJuego/js/story.js' %}"></script>
   <script>
     (function(){
       const overlay = document.getElementById('howto-overlay');

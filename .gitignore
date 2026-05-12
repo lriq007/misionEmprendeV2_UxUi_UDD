@@ -29,6 +29,9 @@ proyecIngSoft/staticfiles/
 
 # User-uploaded group photos
 proyecIngSoft/media/fotos_grupales/
+# User-uploaded media files
+# media/
+# proyecIngSoft/media/
 
 # Logs
 *.log

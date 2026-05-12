@@ -1,0 +1,15 @@
+{% comment %}
+  Uso: {% include "etapasJuego/_logo.html" with size="large|medium|compact" %}
+  Variante fixed (pantallas sin topbar): agregar extra_class="me-logo--fixed"
+{% endcomment %}
+<div class="me-logo me-logo--{{ size|default:'medium' }}{% if extra_class %} {{ extra_class }}{% endif %}" aria-label="Misión Emprende">
+  <span class="me-logo__line1">
+    <span class="me-logo__rule" aria-hidden="true"></span>
+    <span class="me-logo__mision">MISIÓN</span>
+    <span class="me-logo__rule" aria-hidden="true"></span>
+  </span>
+  <strong class="me-logo__emprende">EMPRENDE</strong>
+  <span class="me-logo__underline" aria-hidden="true">
+    <span class="me-logo__dot"></span>
+  </span>
+</div>

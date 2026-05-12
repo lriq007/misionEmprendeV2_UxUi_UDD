@@ -8,6 +8,17 @@ from django.conf import settings
 
 
 class TeamGameSession(models.Model):
+    STATUS_PENDING = "PENDING"
+    STATUS_PLAYING = "PLAYING"
+    STATUS_FINISHED = "FINISHED"
+    STATUS_TIME_UP = "TIME_UP"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pendiente"),
+        (STATUS_PLAYING, "Jugando"),
+        (STATUS_FINISHED, "Terminado"),
+        (STATUS_TIME_UP, "No completo"),
+    ]
+
     id = models.BigAutoField(primary_key=True)
     team_id = models.CharField(max_length=64, db_index=True)
     board_size = models.PositiveIntegerField(default=10)
@@ -22,7 +33,14 @@ class TeamGameSession(models.Model):
 
     progress_pct = models.FloatField(default=0.0)
     started_at = models.DateTimeField(default=timezone.now)
+    ready_at = models.DateTimeField(null=True, blank=True)
     ended_at = models.DateTimeField(null=True, blank=True)
+    elapsed_seconds = models.PositiveIntegerField(null=True, blank=True)
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+    )
     equipo = models.ForeignKey(
         "Team",
         on_delete=models.SET_NULL,
@@ -36,6 +54,12 @@ class TeamGameSession(models.Model):
         return f"TeamGameSession(team={self.team_id}, progress={self.progress_pct:.1f}%)"
 
     # Útil para la lógica de la sopa de letras
+    def mark_started(self):
+        if self.ready_at is None:
+            self.ready_at = timezone.now()
+        if self.status == self.STATUS_PENDING:
+            self.status = self.STATUS_PLAYING
+
     def mark_found(self, word: str):
         words = list(self.words or [])
         found = set(self.found_words or [])
@@ -46,6 +70,22 @@ class TeamGameSession(models.Model):
         self.progress_pct = (len(found) / total) * 100.0 if total else 0.0
         if total and len(found) >= total and not self.ended_at:
             self.ended_at = timezone.now()
+            self.status = self.STATUS_FINISHED
+            if self.ready_at is not None:
+                self.elapsed_seconds = max(
+                    int((self.ended_at - self.ready_at).total_seconds()),
+                    0,
+                )
+
+    def mark_time_up(self):
+        if self.ended_at is None:
+            self.ended_at = timezone.now()
+        if self.elapsed_seconds is None and self.ready_at is not None:
+            self.elapsed_seconds = max(
+                int((self.ended_at - self.ready_at).total_seconds()),
+                0,
+            )
+        self.status = self.STATUS_TIME_UP
 
 
 class Desafio(models.Model):
@@ -140,6 +180,17 @@ class GameSession(models.Model):
     qr_encuesta_url = models.URLField(blank=True, null=True)
     qr_instagram_url = models.URLField(blank=True, null=True)
     qr_linkedin_url = models.URLField(blank=True, null=True)
+    palabras_sopa = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Lista de 8–12 palabras para la sopa de letras (vacío = lista por defecto).",
+    )
+
+    # Estado de la etapa de coevaluación negociación (pitches secuenciales)
+    negociacion_orden = models.JSONField(default=list, blank=True)
+    negociacion_presentador_idx = models.PositiveIntegerField(default=0)
+    negociacion_fase = models.CharField(max_length=20, default="ORDEN")
+    negociacion_fase_inicio = models.DateTimeField(null=True, blank=True)
 
     # Nota: esta restricción asume que no existen múltiples GameSession para la misma sección.
     # Si hubiera duplicados previos, la migración fallará y se deberán resolver manualmente.
@@ -329,11 +380,43 @@ class Team(models.Model):
 
     def update_tokens(self):
         """
-        Recalcula y guarda los tokens del equipo en base al estado actual
-        de las distintas etapas (EmpathyMap, Project, Pitch, Evaluation, TeamGameSession).
+        Idempotent token recalculation from persisted DB data.
+        Safe to call multiple times — result is identical for the same data state.
+
+        Distribution:
+          tokens_empatia    = bubble map
+          tokens_creatividad = lego + pitch
+          tokens_evaluacion  = sopa (word search) + negociación (coevaluation)
         """
-        from etapasJuego.services.scoring import recompute_and_save_team_tokens
-        recompute_and_save_team_tokens(self)
+        from .services.scoring import (
+            compute_bubble_tokens,
+            compute_lego_tokens,
+            compute_negociacion_tokens,
+            compute_pitch_tokens,
+            compute_sopa_tokens,
+        )
+
+        proyecto = getattr(self, "proyecto", None)
+        mapa     = getattr(proyecto, "mapa_empatia", None) if proyecto else None
+        pitch    = getattr(proyecto, "pitch", None) if proyecto else None
+
+        empatia    = compute_bubble_tokens(mapa) if mapa else 0
+        creatividad = (
+            (compute_lego_tokens(proyecto) if proyecto else 0)
+            + (compute_pitch_tokens(pitch) if pitch else 0)
+        )
+        evaluacion = compute_sopa_tokens(self) + compute_negociacion_tokens(self)
+
+        self.tokens_empatia    = empatia
+        self.tokens_creatividad = creatividad
+        self.tokens_evaluacion  = evaluacion
+        self.tokens_totales     = empatia + creatividad + evaluacion
+        self.save(update_fields=[
+            "tokens_empatia",
+            "tokens_creatividad",
+            "tokens_evaluacion",
+            "tokens_totales",
+        ])
 
 
 class Topic(models.Model):
@@ -422,6 +505,12 @@ class EmpathyMap(models.Model):
 
 class Pitch(models.Model):
     proyecto = models.OneToOneField(Project, on_delete=models.CASCADE, related_name="pitch")
+    # Campos estructurados (4 secciones del pitch, 1 token cada uno al estar llenos)
+    nombre_producto   = models.CharField(max_length=40, blank=True)
+    desafio_empatia   = models.TextField(blank=True)
+    campo_creatividad = models.TextField(blank=True)
+    cierre            = models.TextField(blank=True)
+    # guion se auto-genera como concatenación de los 4 campos (retrocompatibilidad)
     guion = models.TextField(blank=True)
     sugerencias_ia = models.TextField(blank=True)
     score_ai = models.PositiveSmallIntegerField(
@@ -452,3 +541,77 @@ class Evaluation(models.Model):
 
     def __str__(self):
         return f"Eval {self.evaluador} \u2192 {self.evaluado} ({self.sesion.codigo})"
+
+
+class TabletSessionAssignment(models.Model):
+    tablet = models.ForeignKey(
+        Tablet,
+        on_delete=models.CASCADE,
+        related_name="assignments",
+    )
+    game_session = models.ForeignKey(
+        GameSession,
+        on_delete=models.CASCADE,
+        related_name="tablet_assignments",
+    )
+    team = models.OneToOneField(
+        Team,
+        on_delete=models.CASCADE,
+        related_name="tablet_assignment",
+    )
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tablet", "game_session"],
+                name="unique_tablet_per_gamesession_assignment",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.tablet} -> {self.team} ({self.game_session})"
+
+
+class TeamStageProgress(models.Model):
+    STAGE_ROMPEHIELO = "ROMPEHIELO"
+    STAGE_ETAPA1 = "ETAPA1"
+    STAGE_HISTORIA = "HISTORIA"
+    STAGE_ETAPA2 = "ETAPA2"
+    STAGE_ETAPA2_MAPA = "ETAPA2_MAPA"
+    STAGE_ETAPA3 = "ETAPA3"
+    STAGE_ETAPA4 = "ETAPA4"
+    STAGE_COEVALUACION = "COEVALUACION"
+    STAGE_RESULTADOS = "RESULTADOS"
+
+    STAGE_CHOICES = [
+        (STAGE_ROMPEHIELO, "Rompehielo"),
+        (STAGE_ETAPA1, "Etapa 1"),
+        (STAGE_HISTORIA, "Historia"),
+        (STAGE_ETAPA2, "Etapa 2"),
+        (STAGE_ETAPA2_MAPA, "Mapa de empatía"),
+        (STAGE_ETAPA3, "Etapa 3"),
+        (STAGE_ETAPA4, "Etapa 4"),
+        (STAGE_COEVALUACION, "Coevaluación"),
+        (STAGE_RESULTADOS, "Resultados"),
+    ]
+
+    team = models.OneToOneField(Team, on_delete=models.CASCADE, related_name="progress")
+    game_session = models.ForeignKey(GameSession, on_delete=models.CASCADE, related_name="team_progress")
+    current_stage = models.CharField(max_length=30, choices=STAGE_CHOICES, default=STAGE_ROMPEHIELO)
+    current_route = models.CharField(max_length=120, default="rompehielo")
+    selected_topic = models.ForeignKey(Topic, null=True, blank=True, on_delete=models.SET_NULL)
+    selected_challenge = models.ForeignKey(Challenge, null=True, blank=True, on_delete=models.SET_NULL)
+    selected_desafio = models.ForeignKey(Desafio, null=True, blank=True, on_delete=models.SET_NULL)
+    project = models.OneToOneField(Project, null=True, blank=True, on_delete=models.SET_NULL, related_name="stage_progress")
+    etapa1_completed = models.BooleanField(default=False)
+    etapa2_completed = models.BooleanField(default=False)
+    etapa3_completed = models.BooleanField(default=False)
+    etapa4_completed = models.BooleanField(default=False)
+    coevaluacion_completed = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.team} en {self.current_stage}"

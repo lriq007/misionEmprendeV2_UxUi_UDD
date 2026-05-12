@@ -1,0 +1,44 @@
+<button
+  class="story-file-tab"
+  type="button"
+  data-story-open="#{{ story_id }}"
+  aria-label="Abrir Protocolo 2060"
+>
+  <span class="story-file-tab__dot" aria-hidden="true"></span>
+  <span class="story-file-tab__text">
+    <small>Protocolo</small>
+    <strong>2060</strong>
+  </span>
+</button>
+
+<aside id="{{ story_id }}" class="story-drawer" data-story-drawer aria-hidden="true">
+  <section class="story-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="{{ story_id }}-title">
+    <header class="story-drawer__head">
+      <div>
+        <p class="story-drawer__eyebrow">Protocolo 2060 · {{ mission.kicker }}</p>
+        <h2 id="{{ story_id }}-title" class="story-drawer__title">{{ mission.title }}</h2>
+      </div>
+      <button class="story-drawer__close" type="button" data-story-close aria-label="Cerrar Protocolo 2060">x</button>
+    </header>
+    <div class="story-drawer__body">
+      <section class="story-protocol-card story-protocol-card--intent">
+        <p class="story-protocol-card__label">Intencion de esta etapa</p>
+        <p class="story-protocol-card__text">{{ mission.objective|default:mission.mission_prompt }}</p>
+      </section>
+      <div class="story-gem-signal">
+        <p class="story-gem-signal__label">Dato real</p>
+        <p class="story-gem-signal__text">{{ mission.gem_fact }}</p>
+      </div>
+      <section class="story-protocol-card">
+        <p class="story-protocol-card__label">Contexto de mision</p>
+        <p class="story-protocol-card__text">{{ mission.summary }}</p>
+      </section>
+      <p>{{ mission.drawer_detail }}</p>
+      <div class="story-skill-unlock">
+        <strong>{{ mission.completion_message }}</strong>
+        <span>{{ mission.skill }}</span>
+      </div>
+    </div>
+    <footer class="story-drawer__footer">Usen este protocolo para entender por que esta etapa importa antes de continuar.</footer>
+  </section>
+</aside>

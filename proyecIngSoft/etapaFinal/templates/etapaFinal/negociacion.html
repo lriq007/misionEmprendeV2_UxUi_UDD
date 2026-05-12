@@ -1,0 +1,648 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Negociación — {{ team.nombre }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;900&display=swap">
+  <link rel="stylesheet" href="{% static 'etapaFinal/css/negociacion.css' %}">
+</head>
+<body>
+
+<div class="neg-root">
+
+  <!-- Topbar -->
+  <header class="neg-topbar">
+    <div class="neg-topbar-left">
+      <span class="neg-topbar-kicker">Misión Emprende</span>
+      <span class="neg-topbar-title">La Gran Negociación</span>
+    </div>
+    <span class="neg-topbar-team" id="topbar-team">{{ team.nombre }}</span>
+  </header>
+
+  <!-- Stage container (all screens are absolute inside here) -->
+  <div class="neg-stage">
+
+    <!-- ░░ SCREEN: ORDEN ░░ -->
+    <section class="neg-screen active" id="screen-orden">
+
+      <!-- Left: presentation order -->
+      <div class="neg-orden-left">
+        <div class="neg-fase-header">
+          <p class="neg-fase-kicker">Negociación · Fase 1</p>
+          <h2 class="neg-fase-title">Orden de presentación</h2>
+          <p class="neg-fase-quote">El escenario es tuyo. El mundo espera tu propuesta.</p>
+        </div>
+        <ol class="neg-orden-list" id="orden-list">
+          <!-- Filled by JS -->
+        </ol>
+      </div>
+
+      <!-- Right: pitch preview + start button (presenter only) -->
+      <div class="neg-orden-right" id="pitch-ready-panel" hidden>
+        <div class="neg-fase-header">
+          <p class="neg-fase-kicker">Tu momento</p>
+          <h2 class="neg-fase-title">Tu Pitch</h2>
+          <p class="neg-fase-quote">Revisa tu propuesta antes de salir al escenario.</p>
+        </div>
+        <div class="neg-pitch-preview">
+          <div class="neg-pitch-grid" id="pitch-preview-grid">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+        <button class="neg-start-btn" id="start-pitch-btn" type="button">
+          ▶ Iniciar Pitch
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ░░ SCREEN: PITCH (countdown running) ░░ -->
+    <section class="neg-screen" id="screen-pitch">
+
+      <!-- Left: countdown + presenter info -->
+      <div class="neg-pitch-left">
+        <div class="neg-pitch-fase-header neg-fase-header">
+          <p class="neg-fase-kicker">Negociación · En vivo</p>
+          <h2 class="neg-fase-title">Pitch</h2>
+        </div>
+        <div class="neg-countdown-wrap">
+          <div class="neg-countdown" id="pitch-countdown">--:--</div>
+          <p class="neg-countdown-label">Tiempo restante</p>
+        </div>
+        <div class="neg-progress-bar">
+          <div class="neg-progress-fill" id="pitch-progress"></div>
+        </div>
+        <div class="neg-presenter-info" id="pitch-presenter-info"></div>
+      </div>
+
+      <!-- Right: pitch detail (presenter) OR listening msg (others) -->
+      <div class="neg-pitch-right">
+        <div class="neg-pitch-grid" id="pitch-running-grid">
+          <!-- Filled by JS for presenter -->
+        </div>
+        <div class="neg-listening-msg" id="pitch-listening" hidden>
+          <p class="neg-fase-kicker">Escucha activa</p>
+          <h2 class="neg-fase-title" style="font-size:clamp(1.2rem,2.2vw,1.8rem)">Escuchando el pitch</h2>
+          <p class="neg-fase-quote">Evalúa con criterio. Cada punto cuenta.</p>
+          <div class="neg-listening-icon">🎤</div>
+          <p class="neg-listening-text" id="pitch-listening-text"></p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ░░ SCREEN: EVALUANDO — evaluador ░░ -->
+    <section class="neg-screen" id="screen-evaluando">
+
+      <!-- Left: timer prominente → equipo → fotos -->
+      <div class="neg-eval-left">
+
+        <!-- Timer PRIMERO -->
+        <div class="neg-eval-timer-display">
+          <p class="neg-fase-kicker">Tiempo para evaluar</p>
+          <div class="neg-eval-timer-val" id="eval-timer">--:--</div>
+          <div class="neg-progress-bar" style="margin-top:0.4rem; width:100%">
+            <div class="neg-progress-fill" id="eval-progress"></div>
+          </div>
+        </div>
+
+        <!-- Equipo evaluado -->
+        <div class="neg-eval-header">
+          <p class="neg-fase-kicker">Evaluando</p>
+          <div class="neg-eval-team-name" id="eval-team-name">—</div>
+          <div class="neg-eval-product-name" id="eval-product-name"></div>
+        </div>
+
+        <!-- Fotos del equipo -->
+        <div class="neg-eval-fotos">
+          <div class="neg-eval-foto-wrap">
+            <img id="eval-foto-grupal" class="neg-eval-foto" src="" alt="Foto equipo" hidden>
+            <div id="eval-foto-grupal-placeholder" class="neg-eval-foto-placeholder">👥</div>
+            <span class="neg-eval-foto-label">Equipo</span>
+          </div>
+          <div class="neg-eval-foto-wrap">
+            <img id="eval-foto-lego" class="neg-eval-foto" src="" alt="Prototipo Lego" hidden>
+            <div id="eval-foto-lego-placeholder" class="neg-eval-foto-placeholder">🧱</div>
+            <span class="neg-eval-foto-label">Prototipo</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: form OR "sent" message -->
+      <div class="neg-eval-right">
+
+        <div class="neg-eval-form-header neg-fase-header">
+          <p class="neg-fase-kicker">Coevaluación</p>
+          <p class="neg-fase-quote">¿Qué tan bien comunicaron su idea? Sé justo.</p>
+        </div>
+
+        <!-- Evaluation form -->
+        <form class="neg-form" id="eval-form" autocomplete="off">
+          <div class="neg-criterion" data-key="puntaje_equipo">
+            <div class="neg-criterion-label">
+              Equipo <small>Coordinación y participación equilibrada</small>
+            </div>
+            <div class="neg-stars" data-key="puntaje_equipo"></div>
+          </div>
+          <div class="neg-criterion" data-key="puntaje_empatia">
+            <div class="neg-criterion-label">
+              Empatía <small>Conexión con el dolor identificado</small>
+            </div>
+            <div class="neg-stars" data-key="puntaje_empatia"></div>
+          </div>
+          <div class="neg-criterion" data-key="puntaje_creatividad">
+            <div class="neg-criterion-label">
+              Creatividad <small>Solución innovadora y original</small>
+            </div>
+            <div class="neg-stars" data-key="puntaje_creatividad"></div>
+          </div>
+          <div class="neg-criterion" data-key="puntaje_comunicacion">
+            <div class="neg-criterion-label">
+              Comunicación <small>Claridad, entusiasmo y persuasión</small>
+            </div>
+            <div class="neg-stars" data-key="puntaje_comunicacion"></div>
+          </div>
+          <textarea class="neg-comentario" id="eval-comentario" rows="2"
+            placeholder="Comentario opcional…"></textarea>
+          <button class="neg-submit-btn" id="eval-submit-btn" type="submit">
+            Enviar evaluación
+          </button>
+        </form>
+
+        <!-- Sent confirmation -->
+        <div class="neg-eval-sent-msg" id="eval-sent-msg" hidden>
+          <div style="font-size:2.8rem">✓</div>
+          <div>Evaluación enviada</div>
+          <div class="neg-sent-sub">Esperando a los otros equipos…</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ░░ SCREEN: EVALUANDO — presentador esperando ░░ -->
+    <section class="neg-screen" id="screen-espera">
+      <div class="neg-espera-content">
+        <p class="neg-fase-kicker">Negociación · En curso</p>
+        <div class="neg-espera-icon">🎤</div>
+        <h2 class="neg-fase-title" id="espera-team-name" style="margin:0"></h2>
+        <p class="neg-espera-sub">Tu emprendimiento está siendo evaluado por el mercado</p>
+        <p class="neg-fase-quote" style="text-align:center">El juicio está en manos del mercado.<br>Confía en tu pitch.</p>
+        <div class="neg-spinner"></div>
+      </div>
+    </section>
+
+    <!-- ░░ SCREEN: RANKING FINAL — ÉPICO ░░ -->
+    <section class="neg-screen" id="screen-ranking">
+
+      <!-- Columna izquierda: título + rayo 3D + card ganador -->
+      <div class="neg-ranking-left">
+        <div class="neg-ranking-header">
+          <p class="neg-fase-kicker">Resultados Finales</p>
+          <h2 class="neg-fase-title neg-ranking-title">El Mercado<br>Ha Hablado</h2>
+        </div>
+
+        <div class="ranking-bolt-wrap" aria-hidden="true">
+          <div class="ranking-bolt">
+            <div class="ranking-bolt__face ranking-bolt__face--front"><span></span></div>
+            <div class="ranking-bolt__face ranking-bolt__face--back"><span></span></div>
+          </div>
+        </div>
+
+        <div class="neg-rank-winner-card" id="ranking-winner-card" hidden>
+          <img class="neg-rank-winner-photo" id="ranking-winner-photo" src="" alt="Foto equipo">
+          <div class="neg-rank-winner-badge">🏆 1er Lugar</div>
+          <div class="neg-rank-winner-name" id="ranking-winner-name"></div>
+          <div class="neg-rank-winner-product" id="ranking-winner-product"></div>
+          <div class="neg-rank-winner-score" id="ranking-winner-score"></div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: lista posiciones 2-N + countdown -->
+      <div class="neg-ranking-right">
+        <div class="neg-ranking-list" id="ranking-list"></div>
+
+        <div class="neg-ranking-timer-row">
+          <div class="neg-progress-bar" style="flex:1">
+            <div class="neg-progress-fill" id="ranking-progress"></div>
+          </div>
+          <span class="neg-ranking-countdown-val" id="ranking-countdown">5:00</span>
+          <span class="neg-ranking-label">restantes</span>
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /neg-stage -->
+</div><!-- /neg-root -->
+
+<script>
+(function () {
+  const MY_TEAM_ID    = {{ team.id }};
+  const ESTADO_URL    = "{{ estado_url }}";
+  const INICIAR_URL   = "{{ iniciar_pitch_url }}";
+  const TIMEUP_P_URL  = "{{ timeup_pitch_url }}";
+  const GUARDAR_URL   = "{{ guardar_eval_url }}";
+  const TIMEUP_E_URL  = "{{ timeup_eval_url }}";
+
+  let currentFase = null;
+  let rankingRendered = false;
+  let pitchTimerInterval = null;
+  let evalTimerInterval  = null;
+  let rankingInterval    = null;
+  let evalScores = { puntaje_equipo: 0, puntaje_empatia: 0, puntaje_creatividad: 0, puntaje_comunicacion: 0 };
+  let evalSubmitted = false;
+  let timeupPitchSent = false;
+  let timeupEvalSent  = false;
+
+  // ── Helpers ──────────────────────────────────────────────
+  function getCsrf() {
+    return (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "";
+  }
+
+  async function post(url, body) {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": getCsrf() },
+      body: JSON.stringify(body || {}),
+    });
+    return r.json();
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll(".neg-screen").forEach(s => {
+      s.classList.toggle("active", s.id === id);
+    });
+  }
+
+  function fmtTime(secs) {
+    const s = Math.max(0, Math.floor(secs));
+    return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  }
+
+  function clearIntervals() {
+    clearInterval(pitchTimerInterval);
+    clearInterval(evalTimerInterval);
+    clearInterval(rankingInterval);
+    pitchTimerInterval = evalTimerInterval = rankingInterval = null;
+  }
+
+  // ── Star rating ──────────────────────────────────────────
+  function initStars() {
+    document.querySelectorAll(".neg-stars").forEach(container => {
+      const key = container.dataset.key;
+      container.innerHTML = "";
+      for (let i = 1; i <= 5; i++) {
+        const span = document.createElement("span");
+        span.className = "neg-star";
+        span.textContent = "★";
+        span.dataset.val = i;
+        span.addEventListener("click", () => {
+          evalScores[key] = i;
+          refreshStars(container, i);
+        });
+        container.appendChild(span);
+      }
+    });
+  }
+
+  function refreshStars(container, val) {
+    container.querySelectorAll(".neg-star").forEach(s => {
+      s.classList.toggle("selected", Number(s.dataset.val) <= val);
+    });
+  }
+
+  function resetStars() {
+    evalScores = { puntaje_equipo: 0, puntaje_empatia: 0, puntaje_creatividad: 0, puntaje_comunicacion: 0 };
+    document.querySelectorAll(".neg-stars").forEach(c => refreshStars(c, 0));
+    document.getElementById("eval-comentario").value = "";
+  }
+
+  // ── Screens ──────────────────────────────────────────────
+  function renderOrden(data) {
+    clearIntervals();
+    const list = document.getElementById("orden-list");
+    list.innerHTML = "";
+    (data.orden || []).forEach((eq, i) => {
+      const li = document.createElement("li");
+      li.className = "neg-orden-item";
+      const isPresenter = (i === data.presentador_idx);
+      const isMe = (eq.id === MY_TEAM_ID);
+      if (isPresenter) li.classList.add("is-current-presenter");
+      if (isMe) li.classList.add("is-me");
+
+      let badges = "";
+      if (isPresenter) badges += `<span class="neg-orden-badge neg-badge-presenter">Presenta</span>`;
+      if (isMe) badges += `<span class="neg-orden-badge neg-badge-tu">Tú</span>`;
+
+      li.innerHTML = `
+        <span class="neg-orden-num">${i + 1}</span>
+        <span class="neg-orden-name">${eq.nombre}</span>
+        ${badges}
+      `;
+      list.appendChild(li);
+    });
+
+    // Pitch-ready panel (presenter only)
+    const panel = document.getElementById("pitch-ready-panel");
+    if (data.soy_presentador) {
+      panel.hidden = false;
+      renderPitchGrid("pitch-preview-grid", data.presentador.pitch || {});
+    } else {
+      panel.hidden = true;
+    }
+
+    showScreen("screen-orden");
+  }
+
+  function renderPitchGrid(gridId, pitch) {
+    const grid = document.getElementById(gridId);
+    const fields = [
+      { key: "nombre_producto",   label: "Producto" },
+      { key: "desafio_empatia",   label: "Desafío & Empatía" },
+      { key: "campo_creatividad", label: "Creatividad" },
+      { key: "cierre",            label: "Cierre" },
+    ];
+    grid.innerHTML = fields.map(f => `
+      <div class="neg-pitch-field">
+        <span class="neg-pitch-field-label">${f.label}</span>
+        <span class="neg-pitch-field-value">${pitch[f.key] || "—"}</span>
+      </div>
+    `).join("");
+  }
+
+  function renderPitch(data) {
+    const pres = data.presentador || {};
+    // Presenter info
+    document.getElementById("pitch-presenter-info").innerHTML = `
+      <div class="neg-presenter-name">${pres.nombre || "—"}</div>
+      <div class="neg-presenter-product">${pres.nombre_emprendimiento || ""}</div>
+    `;
+
+    // Right panel
+    const grid   = document.getElementById("pitch-running-grid");
+    const listen = document.getElementById("pitch-listening");
+
+    if (data.soy_presentador) {
+      renderPitchGrid("pitch-running-grid", pres.pitch || {});
+      grid.hidden   = false;
+      listen.hidden = true;
+    } else {
+      grid.hidden   = true;
+      listen.hidden = false;
+      document.getElementById("pitch-listening-text").textContent =
+        `${pres.nombre || "—"} — ${pres.nombre_emprendimiento || ""}`;
+    }
+
+    // Countdown
+    clearIntervals();
+    timeupPitchSent = false;
+    const duracion = pres.pitch_duracion_seg || data.evaluacion_duracion_seg || 90;
+    const inicio   = data.fase_inicio_ts || (Date.now() / 1000);
+    const cdEl     = document.getElementById("pitch-countdown");
+    const progEl   = document.getElementById("pitch-progress");
+
+    function tick() {
+      const remaining = duracion - (Date.now() / 1000 - inicio);
+      cdEl.textContent = fmtTime(remaining);
+      cdEl.classList.toggle("urgent", remaining < 15);
+      const pct = Math.max(0, Math.min(100, (remaining / duracion) * 100));
+      progEl.style.width = pct + "%";
+      progEl.classList.toggle("urgent", remaining < 15);
+
+      if (remaining <= 0 && !timeupPitchSent) {
+        timeupPitchSent = true;
+        post(TIMEUP_P_URL);
+      }
+    }
+    tick();
+    pitchTimerInterval = setInterval(tick, 500);
+    showScreen("screen-pitch");
+  }
+
+  function renderEvaluando(data) {
+    const pres = data.presentador || {};
+
+    // Photos
+    const imgGrupal = document.getElementById("eval-foto-grupal");
+    const phGrupal  = document.getElementById("eval-foto-grupal-placeholder");
+    if (pres.foto_grupal_url) {
+      imgGrupal.src = pres.foto_grupal_url;
+      imgGrupal.hidden = false;
+      phGrupal.hidden  = true;
+    } else {
+      imgGrupal.hidden = true;
+      phGrupal.hidden  = false;
+    }
+
+    const imgLego = document.getElementById("eval-foto-lego");
+    const phLego  = document.getElementById("eval-foto-lego-placeholder");
+    if (pres.foto_prototipo_url) {
+      imgLego.src = pres.foto_prototipo_url;
+      imgLego.hidden = false;
+      phLego.hidden  = true;
+    } else {
+      imgLego.hidden = true;
+      phLego.hidden  = false;
+    }
+
+    document.getElementById("eval-team-name").textContent    = pres.nombre || "—";
+    document.getElementById("eval-product-name").textContent = pres.nombre_emprendimiento || "";
+
+    // Eval timer
+    clearIntervals();
+    timeupEvalSent = false;
+    const duracion = data.evaluacion_duracion_seg || 90;
+    const inicio   = data.fase_inicio_ts || (Date.now() / 1000);
+    const timerEl  = document.getElementById("eval-timer");
+    const progEl   = document.getElementById("eval-progress");
+
+    function tick() {
+      const remaining = duracion - (Date.now() / 1000 - inicio);
+      timerEl.textContent = fmtTime(remaining);
+      timerEl.classList.toggle("urgent", remaining < 15);
+      const pct = Math.max(0, Math.min(100, (remaining / duracion) * 100));
+      progEl.style.width = pct + "%";
+      progEl.classList.toggle("urgent", remaining < 15);
+
+      if (remaining <= 0 && !timeupEvalSent) {
+        timeupEvalSent = true;
+        post(TIMEUP_E_URL);
+      }
+    }
+    tick();
+    evalTimerInterval = setInterval(tick, 500);
+
+    // Show/hide form vs sent msg
+    const form    = document.getElementById("eval-form");
+    const sentMsg = document.getElementById("eval-sent-msg");
+    if (data.yo_ya_evalue) {
+      form.hidden    = true;
+      sentMsg.hidden = false;
+    } else {
+      form.hidden    = false;
+      sentMsg.hidden = true;
+    }
+
+    showScreen("screen-evaluando");
+  }
+
+  function renderEspera(data) {
+    clearIntervals();
+    const pres = data.presentador || {};
+    document.getElementById("espera-team-name").textContent = pres.nombre || "—";
+    showScreen("screen-espera");
+  }
+
+  function renderRanking(data) {
+    clearIntervals();
+    const rankingData = data.ranking || [];
+    const duracion    = data.ranking_duracion_seg || 300;
+    const inicio      = data.fase_inicio_ts || (Date.now() / 1000);
+
+    // Card del ganador (1er lugar)
+    const winner     = rankingData[0] || null;
+    const winnerCard = document.getElementById("ranking-winner-card");
+    if (winner) {
+      const photo = document.getElementById("ranking-winner-photo");
+      if (winner.foto_grupal_url) {
+        photo.src    = winner.foto_grupal_url;
+        photo.hidden = false;
+      } else {
+        photo.hidden = true;
+      }
+      document.getElementById("ranking-winner-name").textContent    = winner.nombre;
+      document.getElementById("ranking-winner-product").textContent = winner.nombre_emprendimiento || "";
+      document.getElementById("ranking-winner-score").textContent   = winner.tokens + " pts";
+      winnerCard.hidden = false;
+      winnerCard.classList.add("reveal");
+    }
+
+    // Lista posiciones 2-N con stagger reveal
+    const list = document.getElementById("ranking-list");
+    list.innerHTML = rankingData.slice(1).map((eq, i) => `
+      <div class="neg-ranking-item" data-delay="${(i + 1) * 180}">
+        <span class="neg-ranking-pos">${i + 2}</span>
+        <div class="neg-ranking-info">
+          <div class="neg-ranking-name">${eq.nombre}</div>
+          ${eq.nombre_emprendimiento
+            ? `<div class="neg-ranking-product">${eq.nombre_emprendimiento}</div>`
+            : ""}
+        </div>
+        <span class="neg-ranking-tokens">${eq.tokens} pts</span>
+      </div>
+    `).join("");
+
+    list.querySelectorAll(".neg-ranking-item").forEach(el => {
+      setTimeout(() => el.classList.add("revealed"), parseInt(el.dataset.delay, 10) || 0);
+    });
+
+    // Countdown mm:ss + barra de progreso
+    const cdEl   = document.getElementById("ranking-countdown");
+    const progEl = document.getElementById("ranking-progress");
+    function tick() {
+      const remaining = Math.max(0, duracion - (Date.now() / 1000 - inicio));
+      cdEl.textContent = fmtTime(remaining);
+      progEl.style.width = Math.max(0, (remaining / duracion) * 100) + "%";
+    }
+    tick();
+    rankingInterval = setInterval(tick, 500);
+    showScreen("screen-ranking");
+  }
+
+  // ── Start pitch button ───────────────────────────────────
+  document.getElementById("start-pitch-btn").addEventListener("click", async () => {
+    const btn = document.getElementById("start-pitch-btn");
+    btn.disabled = true;
+    await post(INICIAR_URL);
+    btn.disabled = false;
+  });
+
+  // ── Eval form submit ─────────────────────────────────────
+  document.getElementById("eval-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (evalSubmitted) return;
+
+    const allSet = Object.values(evalScores).every(v => v >= 1 && v <= 5);
+    if (!allSet) {
+      alert("Debes asignar una puntuación (1–5) a todos los criterios.");
+      return;
+    }
+
+    const btn = document.getElementById("eval-submit-btn");
+    btn.disabled = true;
+    evalSubmitted = true;
+
+    await post(GUARDAR_URL, {
+      ...evalScores,
+      comentario: document.getElementById("eval-comentario").value,
+    });
+
+    document.getElementById("eval-form").hidden    = true;
+    document.getElementById("eval-sent-msg").hidden = false;
+  });
+
+  // ── Polling ──────────────────────────────────────────────
+  async function poll() {
+    let data;
+    try {
+      const r = await fetch(ESTADO_URL + "?" + Date.now());
+      data = await r.json();
+    } catch (err) {
+      setTimeout(poll, 3000);
+      return;
+    }
+
+    if (data.all_done) {
+      clearIntervals();
+      window.location.href = data.redirect_url;
+      return;
+    }
+
+    // Reset per-round state when fase/presentador changes
+    if (data.fase !== currentFase) {
+      if (data.fase === "ORDEN" || data.fase === "PITCH") {
+        evalSubmitted = false;
+        resetStars();
+      }
+      rankingRendered = false;
+      currentFase = data.fase;
+    }
+
+    switch (data.fase) {
+      case "ORDEN":
+        renderOrden(data);
+        break;
+      case "PITCH":
+        renderPitch(data);
+        break;
+      case "EVALUANDO":
+        if (data.soy_presentador) {
+          renderEspera(data);
+        } else {
+          renderEvaluando(data);
+        }
+        break;
+      case "RANKING":
+        if (!rankingRendered) {
+          renderRanking(data);
+          rankingRendered = true;
+        }
+        break;
+    }
+
+    setTimeout(poll, 3000);
+  }
+
+  // ── Init ─────────────────────────────────────────────────
+  initStars();
+  poll();
+})();
+</script>
+
+</body>
+</html>

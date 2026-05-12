@@ -1,167 +1,190 @@
 """
-Funciones de apoyo para calcular los tokens de un equipo por etapa.
+Token-computation functions adapted from logicaJuegosCopy.
+All functions are pure and idempotent: called multiple times they return the same result.
 """
-
-from django.db.models import Avg
-
-from etapasJuego.models import (
-    EmpathyMap,
-    Evaluation,
-    Pitch,
-    Project,
-    Team,
-    TeamGameSession,
-)
+from __future__ import annotations
 
 
-def _tokens_etapa1(team: Team) -> int:
+# ---------------------------------------------------------------------------
+# ETAPA 1 — Sopa de letras  →  tokens_evaluacion
+# Adapted from reglaPuntajeSopaLetras.py
+# ---------------------------------------------------------------------------
+
+def compute_sopa_tokens(team) -> int:
     """
-    Calcula tokens de la etapa 1 (sopa de letras) según el progreso de la última sesión.
+    Position-based scoring for word search.
+    Reads TeamGameSession data for the team and compares against all sessions
+    in the same GameSession to compute relative position.
+
+    5 tokens for 1st place (100%), 4 for 2nd, 3 for 3rd+
+    2 tokens for ≥80%, 1 for ≥40%, 0 otherwise.
     """
-    session = (
-        TeamGameSession.objects.filter(equipo=team)
-        .order_by("-id")
-        .first()
-    )
-    if session is None or session.progress_pct is None:
+    from etapasJuego.models import TeamGameSession
+
+    my_session = team.wordsearch_sessions.order_by("-id").first()
+    if not my_session or my_session.status == "PENDING":
         return 0
 
-    progress = float(session.progress_pct)
-    if progress == 100:
-        return 3
-    if 80 <= progress < 100:
+    pct = my_session.progress_pct
+    elapsed = my_session.elapsed_seconds
+
+    if pct >= 100 and elapsed is not None:
+        faster_count = TeamGameSession.objects.filter(
+            equipo__sesion=team.sesion,
+            status="FINISHED",
+            elapsed_seconds__lt=elapsed,
+        ).count()
+        position = faster_count + 1
+        return 5 if position == 1 else (4 if position == 2 else 3)
+
+    if pct >= 80:
         return 2
-    if 40 <= progress < 80:
+    if pct >= 40:
         return 1
     return 0
 
 
-def _tokens_etapa2_empatia(team: Team) -> int:
+# ---------------------------------------------------------------------------
+# ETAPA 2 — Mapa de empatía  →  tokens_empatia
+# Adapted from reglaPuntajeMapaEmpatia.evaluarMapaEmpatia()
+# ---------------------------------------------------------------------------
+
+def compute_bubble_tokens(mapa) -> int:
     """
-    Calcula tokens de empatía según los campos completados del mapa de empatía.
+    Quality-based scoring for the empathy map.
+    Reads datos_extra (JSON with lists of apéndices per field).
+    Falls back to splitting the single-text fields if datos_extra is missing.
+
+    Criteria (faithful to logicaJuegosCopy):
+    - completas:   ≥1 valid apéndice (8-100 chars) per question
+    - ideales:     all responded apéndices in 40-60 chars range
+    - desarrolladas: ≥2 valid apéndices per question
+    - superficiales: exactly 1 valid apéndice per question
+    - basura:      apéndices of 1-7 chars
+    - excesivas:   apéndices >100 chars
+
+    Bonuses/penalties then applied; +1 for finalizing (always True when saved).
+    bonusExcelenciaVelocidad is OMITTED (requires cross-team batch calculation).
     """
-    emp_map = (
-        EmpathyMap.objects.filter(proyecto__equipo=team)
-        .order_by("-id")
-        .first()
+    if not mapa:
+        return 0
+
+    apendices_data = mapa.datos_extra or {}
+    campos = ["gustos", "problemas", "miedos", "contexto", "hobbies"]
+
+    # If datos_extra is missing or empty, fall back to splitting text fields
+    if not any(apendices_data.get(c) for c in campos):
+        apendices_data = _build_apendices_from_fields(mapa, campos)
+
+    completas = desarrolladas = superficiales = ideales = basura = excesivas = 0
+
+    for campo in campos:
+        aps = apendices_data.get(campo, [])
+        validos = []
+        for ap in aps:
+            length = len((ap or "").strip())
+            if length == 0:
+                continue
+            if 1 <= length <= 7:
+                basura += 1
+            elif 8 <= length <= 100:
+                validos.append(length)
+                if 40 <= length <= 60:
+                    ideales += 1
+            else:  # > 100
+                excesivas += 1
+                validos.append(length)
+
+        if validos:
+            completas += 1
+            if len(validos) == 1:
+                superficiales += 1
+            if len(validos) >= 2:
+                desarrolladas += 1
+
+    bonus_ideal   = 1 if ideales >= 4 else 0
+    bonus_solidez = 1 if desarrolladas >= 3 else 0
+    pen_superf    = 1 if superficiales >= 3 else 0
+    pen_basura    = 1 if basura >= 3 else 0
+    pen_exceso    = 1 if excesivas >= 3 else 0
+
+    puntaje = max(
+        0,
+        completas + bonus_ideal + bonus_solidez
+        - pen_superf - pen_basura - pen_exceso,
     )
-    if emp_map is None:
-        return 0
-
-    fields = [
-        getattr(emp_map, "gustos", "") or "",
-        getattr(emp_map, "problemas", "") or "",
-        getattr(emp_map, "miedos", "") or "",
-        getattr(emp_map, "contexto", "") or "",
-        getattr(emp_map, "hobbies", "") or "",
-    ]
-
-    tokens = sum(1 for value in fields if value.strip())
-    all_filled = tokens == len(fields) and tokens > 0
-    if all_filled:
-        tokens += 1
-
-    return min(tokens, 5)
+    # +1 for having finalized (the act of saving counts as finalization)
+    return max(0, puntaje + 1)
 
 
-def _tokens_etapa3_creatividad(team: Team) -> int:
-    """
-    Calcula tokens de creatividad por el prototipo y resumen del proyecto.
-    """
-    project = (
-        Project.objects.filter(equipo=team)
-        .order_by("-id")
-        .first()
-    )
-    if project is None or not project.foto_prototipo:
-        return 0
-
-    resumen = (project.resumen_idea or "").strip()
-    length = len(resumen)
-
-    if length < 50:
-        return 1
-    if 50 <= length < 200:
-        return 2
-    return 4
-
-
-def _tokens_etapa4_creatividad(team: Team) -> int:
-    """
-    Calcula tokens de creatividad a partir del puntaje automático del pitch (score_ai).
-    """
-    pitch = (
-        Pitch.objects.filter(proyecto__equipo=team)
-        .order_by("-id")
-        .first()
-    )
-    if pitch is None or pitch.score_ai is None:
-        return 0
-
-    score = pitch.score_ai
-    if score in (1, 2):
-        return 0
-    if score == 3:
-        return 1
-    if score == 4:
-        return 2
-    if score == 5:
-        return 3
-    return 0
-
-
-def _tokens_etapa_final_eval(team: Team) -> int:
-    """
-    Calcula tokens finales a partir del promedio de puntaje_equipo en coevaluaciones.
-    """
-    avg_data = Evaluation.objects.filter(evaluado=team).aggregate(
-        avg_equipo=Avg("puntaje_equipo")
-    )
-    avg_equipo = avg_data.get("avg_equipo")
-    if avg_equipo is None:
-        return 0
-
-    avg_value = float(avg_equipo)
-    if avg_value < 2.5:
-        return 0
-    if 2.5 <= avg_value < 3.5:
-        return 2
-    if 3.5 <= avg_value < 4.5:
-        return 4
-    return 6
-
-
-def compute_tokens_for_team(team: Team) -> dict:
-    """
-    Devuelve el desglose de tokens para un equipo, agrupado por categoría.
-    """
-    empatia = _tokens_etapa2_empatia(team)
-    creatividad = _tokens_etapa3_creatividad(team) + _tokens_etapa4_creatividad(team)
-    evaluacion = _tokens_etapa1(team) + _tokens_etapa_final_eval(team)
-    total = empatia + creatividad + evaluacion
-
+def _build_apendices_from_fields(mapa, campos: list[str]) -> dict:
+    """Fallback: split single text fields by newline into apéndice lists."""
+    field_values = {
+        "gustos":    mapa.gustos or "",
+        "problemas": mapa.problemas or "",
+        "miedos":    mapa.miedos or "",
+        "contexto":  mapa.contexto or "",
+        "hobbies":   mapa.hobbies or "",
+    }
     return {
-        "empatia": empatia,
-        "creatividad": creatividad,
-        "evaluacion": evaluacion,
-        "total": total,
+        campo: [line.strip() for line in field_values[campo].split("\n") if line.strip()]
+        for campo in campos
     }
 
 
-def recompute_and_save_team_tokens(team: Team) -> None:
+# ---------------------------------------------------------------------------
+# ETAPA 3 — Lego  →  tokens_creatividad
+# Adapted from reglaPuntajeLego.calcularTokensLego()
+# ---------------------------------------------------------------------------
+
+def compute_lego_tokens(proyecto) -> int:
+    """3 tokens if prototype image was uploaded, 0 otherwise. Faithful to logicaJuegosCopy."""
+    if not proyecto:
+        return 0
+    return 3 if proyecto.foto_prototipo else 0
+
+
+# ---------------------------------------------------------------------------
+# ETAPA 4 — Pitch  →  tokens_creatividad
+# Adapted from reglaPuntajePitch.calcularTokensCreacionPitch()
+# ---------------------------------------------------------------------------
+
+def compute_pitch_tokens(pitch) -> int:
+    """1 token per filled field, max 4. Faithful to logicaJuegosCopy."""
+    if not pitch:
+        return 0
+    fields = [
+        pitch.nombre_producto,
+        pitch.desafio_empatia,
+        pitch.campo_creatividad,
+        pitch.cierre,
+    ]
+    return sum(1 for f in fields if (f or "").strip())
+
+
+# ---------------------------------------------------------------------------
+# ETAPA 5 — Negociación  →  tokens_evaluacion
+# Adapted from reglaPuntajeNegociacion.calcularTokensPorPromedio()
+# Scale relaxed: 0/5/10/15 instead of 0/2/4/6
+# ---------------------------------------------------------------------------
+
+def compute_negociacion_tokens(team) -> int:
     """
-    Recalcula y persiste los tokens de un equipo en sus campos canónicos.
+    Converts average puntaje_equipo received (excluding self-evaluation) to tokens.
+    Scale (relaxed vs logicaJuegosCopy): <2.5→0, 2.5→5, 3.5→10, ≥4.5→15
     """
-    tokens = compute_tokens_for_team(team)
-    team.tokens_empatia = tokens["empatia"]
-    team.tokens_creatividad = tokens["creatividad"]
-    team.tokens_evaluacion = tokens["evaluacion"]
-    team.tokens_totales = tokens["total"]
-    team.save(
-        update_fields=[
-            "tokens_empatia",
-            "tokens_creatividad",
-            "tokens_evaluacion",
-            "tokens_totales",
-        ]
+    puntajes = list(
+        team.evaluaciones_recibidas
+        .exclude(evaluador=team)
+        .values_list("puntaje_equipo", flat=True)
     )
+    if not puntajes:
+        return 0
+    promedio = sum(puntajes) / len(puntajes)
+    if promedio < 2.5:
+        return 0
+    if promedio < 3.5:
+        return 5
+    if promedio < 4.5:
+        return 10
+    return 15
