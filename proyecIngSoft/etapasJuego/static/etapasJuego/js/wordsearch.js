@@ -17,6 +17,8 @@
   let BOARD = [];
   let WORDS = [];
   let FOUND = new Set();
+  /*nuevo 12/5 */
+  let FOUND_CELLS = new Set();
   let PROGRESS = 0;
   let ACTIVE = {};
   let LOCKED = new Set();
@@ -62,20 +64,46 @@
     return Math.max(totalSeconds - elapsed, 0);
   }
 
+  /* Nuevo 12/5 */
   function paintBoard() {
-    elBoard.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, var(--ws-cell-size, 42px))`;
+
+    elBoard.style.gridTemplateColumns =
+      `repeat(${BOARD_SIZE}, var(--ws-cell-size, 42px))`;
+
     elBoard.innerHTML = "";
+
     for (let i = 0; i < BOARD_SIZE; i += 1) {
+
       for (let j = 0; j < BOARD_SIZE; j += 1) {
+
         const cell = document.createElement("div");
+
         cell.className = "ws-cell";
+
         cell.dataset.i = i;
+
         cell.dataset.j = j;
-        cell.textContent = (BOARD[i][j] || "").toString().toUpperCase();
+
+        cell.textContent =
+          (BOARD[i][j] || "")
+          .toString()
+          .toUpperCase();
+
+        // Mantener destacadas las celdas encontradas
+        if (FOUND_CELLS.has(key(i, j))) {
+
+          cell.classList.add("found");
+
+        }
+
         elBoard.appendChild(cell);
+
       }
+
     }
+
   }
+  /* Fin nuevo 12/5 */
 
   function updateProgress() {
     if (!elProgress) return;
@@ -114,10 +142,21 @@
       });
     });
   }
+  /* Nuevo 12/5 */
+  function markFound(word, path = []) {
 
-  function markFound(word) {
     FOUND.add(word);
+
+    path.forEach(([i, j]) => {
+
+      FOUND_CELLS.add(
+        key(i, j)
+      );
+
+    });
+
   }
+  /* FIn 12/5 */
 
   function showComplete() {
     isComplete = true;
@@ -244,36 +283,111 @@
       return;
     }
 
+    /* Nuevo */
     if (response.result === "found" && response.word) {
-      markFound(response.word);
+
+      const foundPath = [];
+
+      qsa(".ws-cell").forEach((cell) => {
+
+        if (
+          cell.style.outline &&
+          cell.style.outline.includes(info.color)
+        ) {
+
+          foundPath.push([
+            +cell.dataset.i,
+            +cell.dataset.j
+          ]);
+
+        }
+
+      });
+
+      markFound(
+        response.word,
+        foundPath
+      );
+
       if (window.TokenCounter) {
-        window.TokenCounter.addOnce(`ws-word-${response.word}`, 2);
+
+        window.TokenCounter.addOnce(
+          `ws-word-${response.word}`,
+          2
+        );
+
       }
+
       paintWords();
+
       qsa(".ws-cell").forEach((cell) => {
-        if (cell.style.outline && cell.style.outline.includes(info.color)) {
+
+        if (
+          cell.style.outline &&
+          cell.style.outline.includes(info.color)
+        ) {
+
           cell.classList.add("found");
+
           cell.style.outline = "";
+
         }
+
       });
+
     } else if (response.result === "already_found") {
+
       qsa(".ws-cell").forEach((cell) => {
-        if (cell.style.outline && cell.style.outline.includes(info.color)) {
-          cell.animate([{ background: "#fde68a" }, { background: "#f3f4f6" }], { duration: 600 });
-          cell.style.outline = "";
-        }
-      });
-    } else {
-      qsa(".ws-cell").forEach((cell) => {
-        if (cell.style.outline && cell.style.outline.includes(info.color)) {
+
+        if (
+          cell.style.outline &&
+          cell.style.outline.includes(info.color)
+        ) {
+
           cell.animate(
-            [{ transform: "translateX(0px)" }, { transform: "translateX(6px)" }, { transform: "translateX(0px)" }],
-            { duration: 150 }
+            [
+              { background: "#fde68a" },
+              { background: "#f3f4f6" }
+            ],
+            {
+              duration: 600
+            }
           );
+
           cell.style.outline = "";
+
         }
+
       });
+
+    } else {
+
+      qsa(".ws-cell").forEach((cell) => {
+
+        if (
+          cell.style.outline &&
+          cell.style.outline.includes(info.color)
+        ) {
+
+          cell.animate(
+            [
+              { transform: "translateX(0px)" },
+              { transform: "translateX(6px)" },
+              { transform: "translateX(0px)" }
+            ],
+            {
+              duration: 150
+            }
+          );
+
+          cell.style.outline = "";
+
+        }
+
+      });
+
     }
+/*fin nuevo */
 
     ACTIVE = {};
     LOCKED = new Set();
