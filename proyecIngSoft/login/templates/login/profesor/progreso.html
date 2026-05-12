@@ -1,5 +1,3 @@
-<!-- Dashboard progreso en vivo -->
-
 {% extends "login/panel_base.html" %}
 
 {% block title %}
@@ -15,10 +13,18 @@ Progreso del juego
 <!-- HEADER -->
 <div
     class="panel-card"
-    style="margin-bottom:24px;"
+    style="margin-bottom:20px;"
 >
 
-    <div class="card-header">
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:16px;
+            flex-wrap:wrap;
+        "
+    >
 
         <div>
 
@@ -33,21 +39,86 @@ Progreso del juego
             <p class="muted">
 
                 Visualiza el avance de cada equipo,
-                progreso por etapa y puntajes en vivo.
+                etapas activas y puntajes en vivo.
 
             </p>
 
         </div>
 
         <div
-            class="team-chip"
             style="
-                font-size:22px;
-                font-weight:800;
+                text-align:right;
             "
         >
 
-            {{ equipos.count }} equipos
+            <div
+                class="team-chip"
+                style="
+                    font-size:24px;
+                    font-weight:800;
+                "
+            >
+
+                {{ equipos.count }} equipos
+
+            </div>
+
+            <div
+                style="
+                    margin-top:8px;
+                    font-size:14px;
+                    color:#cfcfcf;
+                "
+            >
+
+                Tablets conectadas en sesión
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- KPI -->
+<div
+    class="panel-card"
+    style="
+        margin-bottom:24px;
+        background:#eff6ff;
+        border:1px solid #bfdbfe;
+    "
+>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:16px;
+            flex-wrap:wrap;
+            color:#2563eb;
+        "
+    >
+
+        <div>
+
+            <strong>
+                Progreso general de la actividad
+            </strong>
+
+        </div>
+
+        <div
+            style="
+                font-size:18px;
+                font-weight:800;
+                color:#2563eb;
+            "
+        >
+
+            {{ equipos.count }} equipos activos
 
         </div>
 
@@ -91,12 +162,12 @@ Progreso del juego
                         font-size:40px;
                         color:#2563eb;
                         font-weight:700;
-                        margin-top:6px;
+                        margin-top:8px;
+                        line-height:1;
                     "
                 >
 
-                    PIN:
-                    {{ equipo.tablet.codigo_acceso }}
+                   PIN: {{ equipo.tablet.codigo_acceso }}
 
                 </p>
 
@@ -117,7 +188,7 @@ Progreso del juego
 
         </div>
 
-        <!-- PROGRESO -->
+        <!-- CONTENIDO -->
         {% if equipo.progreso %}
 
         <div
@@ -130,7 +201,7 @@ Progreso del juego
             "
         >
 
-            <!-- TITULO -->
+            <!-- LABEL -->
             <p
                 style="
                     font-size:13px;
@@ -142,7 +213,7 @@ Progreso del juego
                 "
             >
 
-                Estado actual
+                Etapa actual
 
             </p>
 
@@ -151,12 +222,36 @@ Progreso del juego
                 style="
                     font-size:30px;
                     font-weight:800;
-                    color:#2563eb;
-                    margin-bottom:14px;
+                    margin-bottom:12px;
+                    line-height:1.2;
                 "
             >
 
-                {{ equipo.progreso.current_stage|default:"Sin iniciar" }}
+                {% if equipo.progreso.current_stage == "ETAPA1" %}
+
+                    🔎 Sopa de letras
+
+                {% elif equipo.progreso.current_stage == "ETAPA2" %}
+
+                    🧠 Mapa de empatía
+
+                {% elif equipo.progreso.current_stage == "ETAPA3" %}
+
+                    🧱 Prototipo
+
+                {% elif equipo.progreso.current_stage == "ETAPA4" %}
+
+                    🎤 Pitch
+
+                {% elif equipo.progreso.current_stage == "FINAL" %}
+
+                    🏆 Evaluación final
+
+                {% else %}
+
+                    ⌛ Sin iniciar
+
+                {% endif %}
 
             </div>
 
@@ -182,6 +277,35 @@ Progreso del juego
 
             </p>
 
+            <!-- ESTADO -->
+            <div
+                style="
+                    margin-top:16px;
+                    font-size:15px;
+                    font-weight:700;
+                    color:#475569;
+                "
+            >
+
+                {% if equipo.progress_percent >= 100 %}
+
+                    ⏳ Esperando al resto de equipos
+
+                {% elif equipo.progress_percent > 0 %}
+
+                    🧠 Resolviendo actividad
+
+                {% else %}
+
+                    ⌛ Iniciando etapa
+
+                {% endif %}
+
+            </div>
+
+            <!-- SOLO ETAPA 1 -->
+            {% if equipo.progreso.current_stage == "ETAPA1" %}
+
             <!-- BARRA -->
             <div
                 style="
@@ -203,12 +327,12 @@ Progreso del juego
             <!-- FOOTER -->
             <div
                 style="
-                    margin-top:16px;
+                    margin-top:14px;
                     display:flex;
                     justify-content:space-between;
                     align-items:center;
-                    gap:12px;
                     flex-wrap:wrap;
+                    gap:12px;
                 "
             >
 
@@ -226,15 +350,15 @@ Progreso del juego
 
                 </div>
 
-                <!-- ESTADO -->
+                <!-- BADGE -->
                 <div>
 
                     {% if equipo.progress_percent >= 100 %}
 
                         <span
                             style="
-                                background:#dcfce7;
-                                color:#166534;
+                                background:#fef3c7;
+                                color:#92400e;
                                 padding:8px 14px;
                                 border-radius:999px;
                                 font-size:13px;
@@ -242,7 +366,7 @@ Progreso del juego
                             "
                         >
 
-                            ✓ Etapa completada
+                            ⏳ Esperando equipos
 
                         </span>
 
@@ -259,7 +383,7 @@ Progreso del juego
                             "
                         >
 
-                            ⏳ Trabajando
+                            🧠 Trabajando
 
                         </span>
 
@@ -276,7 +400,7 @@ Progreso del juego
                             "
                         >
 
-                            Esperando
+                            ⌛ Iniciando
 
                         </span>
 
@@ -285,6 +409,8 @@ Progreso del juego
                 </div>
 
             </div>
+
+            {% endif %}
 
         </div>
 
@@ -353,7 +479,7 @@ setTimeout(() => {
 
     location.reload();
 
-}, 5000);
+}, 3000);
 
 </script>
 
