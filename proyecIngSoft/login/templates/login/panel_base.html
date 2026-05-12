@@ -88,6 +88,13 @@
                    Sesiones
                 </a>
                 <!-- Fin cambio orden 11/5-->
+                <!--Nuevo boton "Evaluación" 11/5-->
+                <a
+                    class="{% if request.resolver_match.url_name == 'profesor_evaluacion' %}active{% endif %}"
+                    href="{% url 'profesorpanel:profesor_evaluacion' %}"
+                >
+                    Evaluación
+                </a>
 
                 <!--Nuevo boton "Mi perfil" 11/5-->
                 <a class="{% if request.resolver_match.url_name == 'mi_perfil' %}active{% endif %}"

@@ -1,0 +1,204 @@
+<!-- Nuevo archivo evaluacion 12/5-->
+ {% extends "login/panel_base.html" %}
+
+{% block title %}
+Evaluación
+{% endblock %}
+
+{% block header_title %}
+Evaluación y retroalimentación
+{% endblock %}
+
+{% block content %}
+
+<div class="panel-card" style="margin-bottom:20px;">
+
+    <div class="card-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Resultados pedagógicos
+            </p>
+
+            <h2>
+                Evaluación del juego
+            </h2>
+
+        </div>
+
+    </div>
+
+    <form method="GET" class="panel-form">
+
+        <div class="form-group">
+
+            <label>
+                Sesión
+            </label>
+
+            <select
+                name="sesion"
+                class="form-field"
+                onchange="this.form.submit()"
+            >
+
+                <option value="">
+                    Seleccionar sesión
+                </option>
+
+                {% for s in sesiones %}
+
+                    <option
+                        value="{{ s.id }}"
+                        {% if sesion_id == s.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+
+                        {{ s.nombre }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- EQUIPOS -->
+<div class="panel-grid two-col">
+
+    <div class="panel-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    Ranking
+                </p>
+
+                <h3>
+                    Equipos
+                </h3>
+
+            </div>
+
+        </div>
+
+        <ul class="panel-list solid">
+
+            {% for e in equipos %}
+
+                <li>
+
+                    <div>
+
+                        <strong>
+                            {{ e.nombre }}
+                        </strong>
+
+                        <p class="muted">
+
+                            Empatía:
+                            {{ e.tokens_empatia }}
+
+                            ·
+
+                            Creatividad:
+                            {{ e.tokens_creatividad }}
+
+                        </p>
+
+                    </div>
+
+                    <span class="pill">
+
+                        {{ e.tokens_totales }}
+                        pts
+
+                    </span>
+
+                </li>
+
+            {% empty %}
+
+                <li>
+                    No hay equipos.
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+    <!-- PITCHES -->
+    <div class="panel-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    IA
+                </p>
+
+                <h3>
+                    Pitchs
+                </h3>
+
+            </div>
+
+        </div>
+
+        <ul class="panel-list solid">
+
+            {% for p in pitches %}
+
+                <li>
+
+                    <div>
+
+                        <strong>
+
+                            {{ p.proyecto.equipo.nombre }}
+
+                        </strong>
+
+                        <p class="muted">
+
+                            {{ p.nombre_producto }}
+
+                        </p>
+
+                    </div>
+
+                    <span class="pill">
+
+                        ⭐ {{ p.score_ai|default:"-" }}
+
+                    </span>
+
+                </li>
+
+            {% empty %}
+
+                <li>
+                    No hay pitchs.
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+</div>
+
+{% endblock %}

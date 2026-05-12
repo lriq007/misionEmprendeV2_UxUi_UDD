@@ -84,6 +84,13 @@ urlpatterns = [
         views.progreso_juego,
         name="progreso_juego",
     ),
+
+    #Nuevo evaluacion 12/5
+    path(
+        "evaluacion/",
+        views.profesor_evaluacion,
+        name="profesor_evaluacion",
+    ),
     #Fin nuevo url ver progreso 11/5
 ]
 

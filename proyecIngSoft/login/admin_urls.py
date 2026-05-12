@@ -36,4 +36,10 @@ urlpatterns = [
         views.admin_mi_perfil,
         name="admin_mi_perfil",
     ),
+    #Nuevo retroalimentacion 11/5
+    path(
+        "retroalimentacion/",
+        views.admin_retroalimentacion,
+        name="retroalimentacion",
+    ),
 ]

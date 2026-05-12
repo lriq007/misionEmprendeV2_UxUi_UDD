@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect, render
 
-from etapasJuego.models import Challenge, Evaluation, GameSession, Tablet, Team, Topic
+from etapasJuego.models import Challenge, Evaluation, GameSession, Tablet, Team, Topic, Pitch, TeamStageProgress, TeamGameSession
 from .forms import (
     AdminUserForm,
     AdminUserEditForm,
@@ -28,20 +28,170 @@ from .forms import ProfesorPerfilForm
 def _secciones_de_profesor(user):
     return SeccionEstudiantes.objects.filter(sesiones__profesor=user).distinct()
 
-
+from django.contrib.auth import get_user_model
+from django.db.models import Count
+User = get_user_model()
 # ===============================
 #   Panel ADMIN — páginas estáticas
 # ===============================
 
+#Nueva funcion 12/5
+@admin_required
 def admin_dashboard(request):
-    return render(request, "login/admin/dashboard.html", {
-        "seccion_count": 0, "sesion_count": 0, "topic_count": 0,
-        "challenge_count": 0, "tablet_count": 0, "evaluation_count": 0,
-        "profesor_count": 0, "equipos_count": 0, "estudiantes_count": 0,
-        "admin_count": 0, "carrera_segments": [], "carrera_gradient": "#fbbf24 0% 100%",
-        "top_equipos": [], "sesiones_recientes": [],
-    })
 
+    from login.models import (
+        Estudiante,
+        SeccionEstudiantes,
+    )
+
+    sesiones = GameSession.objects.all()
+
+    equipos = Team.objects.all()
+
+    estudiantes = Estudiante.objects.all()
+
+    tablets = Tablet.objects.all()
+
+    # KPIs
+    sesion_count = sesiones.count()
+
+    seccion_count = SeccionEstudiantes.objects.count()
+
+    profesor_count = User.objects.filter(
+        groups__name="PROFESOR"
+    ).distinct().count()
+
+    estudiantes_count = estudiantes.count()
+
+    equipos_count = equipos.count()
+
+    tablet_count = tablets.count()
+
+    # Profesor más activo
+    top_profesor = User.objects.annotate(
+        total_sesiones=Count(
+            "sesiones_juego"
+        )
+    ).order_by(
+        "-total_sesiones"
+    ).first()
+
+    # Top equipos
+    top_equipos = Team.objects.order_by(
+        "-tokens_totales"
+    )[:5]
+
+    # Sesiones recientes
+    sesiones_recientes = sesiones.order_by(
+        "-id"
+    )[:5]
+
+    # Carreras
+    carreras = estudiantes.values(
+        "carrera"
+    ).annotate(
+        total=Count("id")
+    ).order_by(
+        "-total"
+    )
+
+    colors = [
+        "#2563eb",
+        "#7c3aed",
+        "#0f766e",
+        "#ea580c",
+        "#dc2626",
+        "#0891b2",
+    ]
+
+    carrera_segments = []
+
+    total_estudiantes = max(
+        estudiantes_count,
+        1
+    )
+
+    start = 0
+
+    for idx, carrera in enumerate(carreras):
+
+        pct = (
+            carrera["total"]
+            / total_estudiantes
+        ) * 100
+
+        end = start + pct
+
+        carrera_segments.append({
+            "label": carrera["carrera"] or "Sin carrera",
+            "count": carrera["total"],
+            "pct": pct,
+            "color": colors[idx % len(colors)],
+            "start": start,
+            "end": end,
+        })
+
+        start = end
+
+    carrera_gradient = ", ".join([
+        f"{seg['color']} {seg['start']}% {seg['end']}%"
+        for seg in carrera_segments
+    ])
+
+    if not carrera_gradient:
+
+        carrera_gradient = "#2563eb 0% 100%"
+
+    return render(
+        request,
+        "login/admin/dashboard.html",
+        {
+            "sesion_count": sesion_count,
+            "seccion_count": seccion_count,
+            "profesor_count": profesor_count,
+            "equipos_count": equipos_count,
+            "estudiantes_count": estudiantes_count,
+            "tablet_count": tablet_count,
+
+            "top_profesor": top_profesor,
+
+            "top_equipos": top_equipos,
+
+            "sesiones_recientes": sesiones_recientes,
+
+            "carrera_segments": carrera_segments,
+            "carrera_gradient": carrera_gradient,
+        },
+    )
+
+
+#Nueva funcion retroalimentacion 12/5
+@admin_required
+def admin_retroalimentacion(request):
+
+    mejores_pitches = Pitch.objects.exclude(
+        score_ai__isnull=True
+    ).order_by(
+        "-score_ai"
+    )[:10]
+
+    mejores_equipos = Team.objects.order_by(
+        "-tokens_totales"
+    )[:10]
+
+    evaluaciones = Evaluation.objects.all().order_by(
+        "-id"
+    )[:20]
+
+    return render(
+        request,
+        "login/admin/retroalimentacion.html",
+        {
+            "mejores_pitches": mejores_pitches,
+            "mejores_equipos": mejores_equipos,
+            "evaluaciones": evaluaciones,
+        },
+    )
 
 def admin_secciones(request):
     if request.method == "POST":
@@ -460,28 +610,108 @@ def admin_mi_perfil(request):
 # ===============================
 #   Panel PROFESOR
 # ===============================
+#Cambio funcion 12/5
 @profesor_required
 def profesor_dashboard(request):
-    q = request.GET.get("q", "").strip()
-    sesiones = GameSession.objects.select_related("seccion").filter(profesor=request.user).order_by("-id")
-    secciones = _secciones_de_profesor(request.user)
-    equipos = Team.objects.select_related("sesion").filter(sesion__profesor=request.user)
-    estudiantes_count = Estudiante.objects.filter(team__sesion__profesor=request.user).count()
+
+    q = request.GET.get(
+        "q",
+        ""
+    ).strip()
+
+    sesiones = GameSession.objects.select_related(
+        "seccion"
+    ).filter(
+        profesor=request.user
+    ).order_by(
+        "-id"
+    )
+
+    secciones = _secciones_de_profesor(
+        request.user
+    )
+
+    equipos = Team.objects.select_related(
+        "sesion"
+    ).filter(
+        sesion__profesor=request.user
+    )
+
+    pitches = Pitch.objects.filter(
+        proyecto__equipo__sesion__profesor=request.user
+    )
+
+    evaluaciones = Evaluation.objects.filter(
+        sesion__profesor=request.user
+    )
+
+    estudiantes = Estudiante.objects.filter(
+        team__sesion__profesor=request.user
+    ).distinct()
+
     if q:
-        equipos = equipos.filter(Q(nombre__icontains=q) | Q(sesion__nombre__icontains=q))
-    top_equipos = equipos.order_by("-tokens_totales", "-id")[:5]
+
+        equipos = equipos.filter(
+            Q(nombre__icontains=q)
+            | Q(sesion__nombre__icontains=q)
+        )
+
+    top_equipos = equipos.order_by(
+        "-tokens_totales",
+        "-id"
+    )[:5]
+
+    mejor_equipo = equipos.order_by(
+        "-tokens_totales"
+    ).first()
+
+    mejor_pitch = pitches.exclude(
+        score_ai__isnull=True
+    ).order_by(
+        "-score_ai"
+    ).first()
+
+    sesiones_recientes = sesiones[:5]
+
     context = {
+
         "sesiones": sesiones,
+
         "secciones": secciones,
+
         "sesion_count": sesiones.count(),
+
         "seccion_count": secciones.count(),
+
         "equipos_count": equipos.count(),
-        "estudiantes_count": estudiantes_count,
+
+        "estudiantes_count": estudiantes.count(),
+
+        "pitch_count": pitches.count(),
+
+        "evaluacion_count": evaluaciones.count(),
+
         "top_equipos": top_equipos,
-        "ranking": equipos.order_by("-tokens_totales", "nombre")[:10],
+
+        "ranking": equipos.order_by(
+            "-tokens_totales",
+            "nombre"
+        )[:10],
+
+        "mejor_equipo": mejor_equipo,
+
+        "mejor_pitch": mejor_pitch,
+
+        "sesiones_recientes": sesiones_recientes,
+
         "q": q,
     }
-    return render(request, "login/profesor/dashboard.html", context)
+
+    return render(
+        request,
+        "login/profesor/dashboard.html",
+        context
+    )
 
 
 @profesor_required
@@ -1475,7 +1705,7 @@ def profesor_mi_perfil(request):
     )
 #Fin nuevo modificar cantidad equipos 10/5
 
-#Nuevo progreso juego 11/5
+#Nuevo progreso juego 12/5
 @profesor_required
 def progreso_juego(request):
 
@@ -1503,6 +1733,26 @@ def progreso_juego(request):
         "-tokens_totales"
     )
 
+    progreso = TeamStageProgress.objects.select_related(
+        "team",
+        "selected_topic",
+        "selected_challenge",
+    ).filter(
+        game_session=sesion
+    )
+
+    for equipo in equipos:
+
+        equipo.progreso = progreso.filter(
+            team=equipo
+        ).first()
+
+        equipo.game_session = TeamGameSession.objects.filter(
+            equipo=equipo
+        ).order_by(
+            "-id"
+        ).first()
+
     return render(
         request,
         "login/profesor/progreso.html",
@@ -1511,4 +1761,54 @@ def progreso_juego(request):
             "equipos": equipos,
         },
     )
-#Fin progreso juego 11/5
+#Fin progreso juego 12/5
+#Nuevo evaluacion 12/5
+@profesor_required
+def profesor_evaluacion(request):
+
+    sesiones = GameSession.objects.filter(
+        profesor=request.user
+    ).order_by(
+        "-id"
+    )
+
+    sesion_id = request.GET.get(
+        "sesion"
+    )
+
+    equipos = Team.objects.none()
+
+    pitches = Pitch.objects.none()
+
+    evaluaciones = Evaluation.objects.none()
+
+    if sesion_id:
+
+        equipos = Team.objects.filter(
+            sesion_id=sesion_id
+        ).order_by(
+            "-tokens_totales"
+        )
+
+        pitches = Pitch.objects.filter(
+            proyecto__equipo__sesion_id=sesion_id
+        ).select_related(
+            "proyecto",
+            "proyecto__equipo",
+        )
+
+        evaluaciones = Evaluation.objects.filter(
+            sesion_id=sesion_id
+        )
+
+    return render(
+        request,
+        "login/profesor/evaluacion.html",
+        {
+            "sesiones": sesiones,
+            "equipos": equipos,
+            "pitches": pitches,
+            "evaluaciones": evaluaciones,
+            "sesion_id": sesion_id,
+        },
+    )

@@ -1,16 +1,56 @@
-<!--Nuevo archivo "Ver progreso" 11/5-->
+<!-- Nuevo archivo "Ver progreso" mejorado -->
+
 {% extends "login/panel_base.html" %}
 
-{% block title %}Progreso{% endblock %}
-{% block header_title %}Progreso del juego{% endblock %}
+{% block title %}
+Progreso
+{% endblock %}
+
+{% block header_title %}
+Progreso del juego
+{% endblock %}
 
 {% block content %}
 
-<div class="panel-card">
+<div
+    class="panel-card"
+    style="margin-bottom:20px;"
+>
 
-    <h2>
-        Ranking de equipos
-    </h2>
+    <div class="card-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Monitoreo en tiempo real
+            </p>
+
+            <h2>
+                Ranking y progreso de equipos
+            </h2>
+
+            <p class="muted">
+
+                Observa el avance de los equipos,
+                puntajes y etapas actuales del juego.
+
+            </p>
+
+        </div>
+
+        <div
+            class="team-chip"
+            style="
+                font-size:20px;
+                font-weight:800;
+            "
+        >
+
+            {{ equipos.count }} equipos
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -20,16 +60,22 @@
 
     <div class="team-card">
 
+        <!-- HEADER -->
         <div class="team-card-header">
 
             <div>
 
                 <h3>
-                    {{ forloop.counter }}. {{ equipo.nombre }}
+
+                    {{ forloop.counter }}.
+                    {{ equipo.nombre }}
+
                 </h3>
 
                 <p class="tablet-label">
+
                     {{ equipo.tablet.codigo }}
+
                 </p>
 
                 <!-- PIN -->
@@ -47,9 +93,9 @@
 
                 </p>
 
-
             </div>
 
+            <!-- TOKENS -->
             <div
                 class="team-chip"
                 style="
@@ -57,11 +103,141 @@
                     font-weight:800;
                 "
             >
-                {{ equipo.tokens_totales }} tokens
+
+                {{ equipo.tokens_totales }}
+                tokens
+
             </div>
 
         </div>
 
+        <!-- PROGRESO -->
+        {% if equipo.progreso %}
+
+        <div
+            style="
+                margin-top:18px;
+                margin-bottom:18px;
+                padding:16px;
+                border-radius:16px;
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+            "
+        >
+
+            <p
+                style="
+                    font-size:13px;
+                    font-weight:700;
+                    color:#64748b;
+                    margin-bottom:10px;
+                    text-transform:uppercase;
+                    letter-spacing:0.5px;
+                "
+            >
+
+                Progreso en vivo
+
+            </p>
+
+            <!-- ETAPA -->
+            <div
+                style="
+                    font-size:22px;
+                    font-weight:800;
+                    color:#2563eb;
+                    margin-bottom:12px;
+                "
+            >
+
+                {{ equipo.progreso.current_stage|default:"Sin iniciar" }}
+
+            </div>
+
+            <!-- TEMA -->
+            <p class="muted">
+
+                <strong>
+                    Tema:
+                </strong>
+
+                {{ equipo.progreso.selected_topic.nombre|default:"-" }}
+
+            </p>
+
+            <!-- DESAFIO -->
+            <p class="muted">
+
+                <strong>
+                    Desafío:
+                </strong>
+
+                {{ equipo.progreso.selected_challenge.titulo|default:"-" }}
+
+            </p>
+
+            <!-- BARRA -->
+            <div
+                style="
+                    margin-top:14px;
+                    height:10px;
+                    border-radius:999px;
+                    background:#dbeafe;
+                    overflow:hidden;
+                "
+            >
+
+                <div
+                    style="
+                        width:{{ equipo.game_session.progress_pct|default:0 }}%;
+                        height:100%;
+                        background:#2563eb;
+                        transition:width 0.5s ease;
+                    "
+                ></div>
+
+            </div>
+
+            <!-- PORCENTAJE -->
+            <p
+                class="muted"
+                style="
+                    margin-top:8px;
+                    font-size:13px;
+                "
+            >
+
+                {{ equipo.game_session.progress_pct|floatformat:0|default:"0" }}%
+                completado
+
+            </p>
+
+        </div>
+
+        {% else %}
+
+        <div
+            style="
+                margin-top:18px;
+                margin-bottom:18px;
+                padding:16px;
+                border-radius:16px;
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+            "
+        >
+
+            <p class="muted">
+
+                El equipo aún no inicia el juego.
+
+            </p>
+
+        </div>
+
+        {% endif %}
+
+        <!-- INTEGRANTES -->
         <div class="team-members">
 
             {% for estudiante in equipo.estudiantes.all %}
@@ -78,29 +254,27 @@
 
     </div>
 
+    {% empty %}
+
+    <div class="panel-card">
+
+        No hay equipos activos.
+
+    </div>
+
     {% endfor %}
 
 </div>
 
-<!--Placeholder progreso 11/5
-<div class="progress-bar">
+<!-- AUTO REFRESH -->
+<script>
 
-    <div
-        class="progress-fill"
-        style="width:60%;"
-    ></div>
+setTimeout(() => {
 
-</div>
+    location.reload();
 
-<p>
-    Etapa:
-    Ideación
-</p>
+}, 5000);
 
-<p>
-    Ronda:
-    2 / 5
-</p>
--->
+</script>
 
 {% endblock %}
