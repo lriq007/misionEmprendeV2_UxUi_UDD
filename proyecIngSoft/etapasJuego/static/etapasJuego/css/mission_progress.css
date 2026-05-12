@@ -319,7 +319,8 @@ body.has-mission-topbar .ws-container {
 }
 
 body.has-mission-topbar .howto-btn {
-  top: 112px;
+  bottom: 110px;
+  left: 24px;
 }
 
 @media (max-width: 1180px) {
@@ -461,7 +462,8 @@ body.has-mission-topbar .howto-btn {
   }
 
   body.has-mission-topbar .howto-btn {
-    top: 100px;
+    bottom: 110px;
+    left: 24px;
   }
 }
 

@@ -16,18 +16,11 @@
 
 <body class="theme-login mission-ui has-mission-topbar">
   {% mission_story "stage4" as mission %}
-  <button type="button" class="howto-btn" data-open-howto>Protocolo 2060</button>
+  <button type="button" class="howto-btn" data-open-howto>¿Cómo se juega?</button>
 
   {% include "etapasJuego/_mission_progress_topbar.html" with active_stage=4 show_timer=True timer_id="e4-timer" timer_duration=stage_duration_seconds|default:600 timer_initial="10:00" %}
 
   <main class="pitch-stage" data-save-url="{{ save_url }}" data-final-url="{% url 'etapaFinal:negociacion' %}" data-timeup-url="{{ timeup_url }}">
-    <section class="pitch-hero" aria-labelledby="pitch-title">
-      <div class="pitch-hero__copy">
-        <p class="pitch-kicker">{{ mission.kicker }} · {{ mission.skill }}</p>
-        <h1 id="pitch-title">Pitch de victoria</h1>
-      </div>
-    </section>
-
     <section class="pitch-base{% if pitch.guion %} has-final{% endif %}" aria-label="Documento base del pitch">
       <div class="pitch-paper{% if not pitch.guion %} is-empty{% endif %}" data-pitch-paper>
         <span class="scanner-corner scanner-corner--tl" aria-hidden="true"></span>
@@ -72,10 +65,20 @@
         </div>
       </div>
 
+    </section>
+
+    <div class="pitch-right">
+      <section class="pitch-hero" aria-labelledby="pitch-title">
+        <div class="pitch-hero__copy">
+          <p class="pitch-kicker">{{ mission.kicker }} · {{ mission.skill }}</p>
+          <h1 id="pitch-title">Pitch de victoria</h1>
+        </div>
+      </section>
+
       <aside class="pitch-final-card" data-final-card {% if not pitch.guion %}hidden{% endif %}>
         <a class="btn btn-primary" href="{% url 'etapaFinal:negociacion' %}">Iniciar Negociación</a>
       </aside>
-    </section>
+    </div>
   </main>
 
   <a href="{% url 'etapa3' %}" class="btn-arrow btn-arrow-left" title="Volver">

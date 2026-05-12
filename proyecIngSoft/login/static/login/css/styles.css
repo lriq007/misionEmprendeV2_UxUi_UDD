@@ -7,10 +7,11 @@
 html {
     min-height: 100%;
     background-color: var(--carbon);
-    background-image: url("/media/imgHistoria/portada.png");
-    background-position: left top;
+    background-image: url("/media/imgHistoria/fondoStart.png");
+    background-position: center center;
     background-repeat: no-repeat;
-    background-size: calc(100vw - clamp(340px, 36vw, 430px)) 100%;
+    background-size: cover;
+    background-attachment: fixed;
 }
 
 :root {
@@ -36,9 +37,9 @@ body {
     background:
         linear-gradient(rgba(230, 231, 232, 0.035) 1px, transparent 1px),
         linear-gradient(90deg, rgba(230, 231, 232, 0.028) 1px, transparent 1px),
-        radial-gradient(circle at 18% 24%, rgba(63, 167, 214, 0.18), transparent 26%),
-        radial-gradient(circle at 82% 78%, rgba(195, 163, 122, 0.14), transparent 32%),
-        linear-gradient(135deg, var(--carbon) 0%, var(--steel) 38%, var(--dark-blue-gray) 76%, var(--mid-blue-gray) 100%);
+        radial-gradient(circle at 18% 24%, rgba(63, 167, 214, 0.12), transparent 26%),
+        radial-gradient(circle at 82% 78%, rgba(195, 163, 122, 0.08), transparent 32%),
+        rgba(29, 35, 42, 0.42);
     background-size: 32px 32px, 32px 32px, auto, auto, auto;
     min-height: 100svh;
     min-height: 100vh;
@@ -55,8 +56,8 @@ body {
 
 .howto-btn{
     position: fixed;
-    top: 16px;
-    right: 16px;
+    bottom: 110px;
+    left: 24px;
     z-index: 120;
     padding: 10px 14px;
     border-radius: 12px;
@@ -234,10 +235,10 @@ body {
 .login-container {
     position: fixed;
     top: 50%;
-    right: clamp(22px, 4vw, 56px);
-    width: min(360px, calc(100vw - 520px));
-    max-width: 360px;
-    transform: translateY(-50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(400px, 90%);
+    max-width: 400px;
     padding-right: 0;
 }
 

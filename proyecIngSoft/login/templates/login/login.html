@@ -12,20 +12,6 @@
     {% mission_story "login" as mission %}
     <button type="button" class="howto-btn" onclick="document.getElementById('howto-overlay').classList.add('is-open')">¿Cómo se juega?</button>
     <main class="login-page-shell">
-        <section class="story-intro" aria-label="Inicio de la historia">
-            <figure class="story-visual">
-                <img src="/media/imgHistoria/portada.png" alt="Agente de misión observando una metrópolis futurista bajo lluvia">
-                <figcaption class="story-copy story-briefing-hero">
-                    <p class="story-briefing-hero__eyebrow">{{ mission.kicker }}</p>
-                    <h1 class="story-briefing-hero__title">{{ mission.headline }}</h1>
-                    <p class="story-briefing-hero__copy">{{ mission.summary }}</p>
-                    <div class="story-gem-signal login-gem-capsule">
-                        <p class="story-gem-signal__label">Sustento real</p>
-                        <p class="story-gem-signal__text">{{ mission.gem_fact }}</p>
-                    </div>
-                </figcaption>
-            </figure>
-        </section>
 
         <section class="login-container" aria-label="Ingreso al sistema">
             <div class="login-card">
@@ -132,6 +118,12 @@
         </div>
     </div>
 
+    <div id="page-exit-cover" aria-hidden="true" style="
+        position:fixed;inset:0;background:#0B111A;
+        z-index:9999;opacity:0;pointer-events:none;
+        transition:opacity 0.45s ease;
+    "></div>
+
     {% include "etapasJuego/_story_drawer.html" with story_id="story-login" %}
     <script src="{% static 'etapasJuego/js/story.js' %}"></script>
 
@@ -182,12 +174,17 @@
         
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const userType = document.getElementById('user_type').value;
-            
             if (!userType) {
                 e.preventDefault();
                 alert('Por favor selecciona un tipo de usuario');
                 return false;
             }
+            e.preventDefault();
+            const cover = document.getElementById('page-exit-cover');
+            cover.style.opacity = '1';
+            cover.style.pointerEvents = 'auto';
+            const form = this;
+            setTimeout(() => form.submit(), 450);
         });
 
         document.addEventListener('DOMContentLoaded', toggleFormFields);

@@ -31,7 +31,7 @@ html, body {
 
 .neg-root {
   display: grid;
-  grid-template-rows: 82px 1fr;
+  grid-template-rows: 90px 1fr;
   height: 100dvh;
   overflow: hidden;
 }
@@ -140,9 +140,9 @@ html, body {
 }
 
 .neg-fase-kicker {
-  font-size: clamp(0.55rem, 0.9vw, 0.72rem);
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
   font-weight: 900;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--neg-accent);
   margin: 0;
@@ -159,7 +159,7 @@ html, body {
 }
 
 .neg-fase-quote {
-  font-size: clamp(0.72rem, 1.1vw, 0.9rem);
+  font-size: clamp(0.88rem, 1.2vw, 1rem);
   font-weight: 500;
   color: var(--neg-muted);
   font-style: italic;
@@ -201,11 +201,11 @@ html, body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.65rem 1rem;
+  padding: 0.78rem 1.1rem;
   background: rgba(167, 195, 214, 0.06);
   border-radius: 8px;
   border: 1px solid var(--neg-border);
-  font-size: 0.88rem;
+  font-size: 1rem;
   transition: background 0.2s;
 }
 
@@ -219,7 +219,7 @@ html, body {
 }
 
 .neg-orden-num {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--neg-muted);
   min-width: 1.5rem;
@@ -232,11 +232,11 @@ html, body {
 }
 
 .neg-orden-badge {
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 99px;
 }
 
@@ -277,21 +277,23 @@ html, body {
 .neg-pitch-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 0.6rem;
-  overflow: hidden;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, auto);
+  gap: 0.81rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--neg-border) transparent;
 }
 
 .neg-pitch-field {
   background: rgba(10, 18, 28, 0.58);
   border: 1px solid var(--neg-border);
-  border-radius: 10px;
-  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  padding: 0.88rem 1.15rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.34rem;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   transition: border-color 0.2s;
@@ -302,7 +304,7 @@ html, body {
 }
 
 .neg-pitch-field-label {
-  font-size: 0.58rem;
+  font-size: 1.01rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--neg-accent);
@@ -310,7 +312,7 @@ html, body {
 }
 
 .neg-pitch-field-value {
-  font-size: 0.8rem;
+  font-size: 1.24rem;
   line-height: 1.45;
   color: var(--neg-text);
   overflow: hidden;
@@ -324,11 +326,11 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.9rem 2rem;
+  padding: 1rem 2.25rem;
   background: linear-gradient(135deg, #D9B56F, #c09048);
   color: #0e0a04;
   font-weight: 900;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -336,6 +338,7 @@ html, body {
   text-transform: uppercase;
   transition: filter 0.15s, transform 0.1s, box-shadow 0.2s;
   flex-shrink: 0;
+  min-height: 52px;
   box-shadow: 0 0 24px rgba(217, 181, 111, 0.3), 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
@@ -465,9 +468,9 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 1.5rem;
+  padding: 1.75rem 2.1rem;
   border-right: 1px solid var(--neg-border);
-  gap: 0.75rem;
+  gap: 1.05rem;
   overflow: hidden;
   background: var(--neg-glass);
   backdrop-filter: blur(14px);
@@ -480,11 +483,11 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem 1.15rem;
+  padding: 1.4rem 1.61rem;
   background: rgba(10, 18, 28, 0.6);
   border-radius: 12px;
   border: 1px solid var(--neg-border);
-  gap: 0.45rem;
+  gap: 0.63rem;
 }
 
 .neg-eval-header {
@@ -492,12 +495,12 @@ html, body {
 }
 
 .neg-eval-team-name {
-  font-size: 1.05rem;
+  font-size: 1.47rem;
   font-weight: 700;
 }
 
 .neg-eval-product-name {
-  font-size: 0.82rem;
+  font-size: 1.29rem;
   color: var(--neg-accent);
   font-weight: 600;
   margin-top: 0.15rem;
@@ -506,10 +509,10 @@ html, body {
 .neg-eval-fotos {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  gap: 0.84rem;
   flex: 1;
   min-height: 0;
-  max-height: 160px;
+  max-height: 224px;
 }
 
 .neg-eval-foto-wrap {
@@ -532,11 +535,11 @@ html, body {
   left: 0;
   right: 0;
   background: rgba(0, 0, 0, 0.6);
-  font-size: 0.58rem;
+  font-size: 1.01rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--neg-muted);
-  padding: 3px 6px;
+  padding: 6px 11px;
   text-align: center;
 }
 
@@ -547,14 +550,14 @@ html, body {
   align-items: center;
   justify-content: center;
   color: var(--neg-surface2);
-  font-size: 1.75rem;
+  font-size: 2.45rem;
 }
 
 .neg-eval-timer-val {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--neg-text);
-  font-size: clamp(3rem, 5.8vw, 4.4rem);
+  font-size: clamp(4.2rem, 8.12vw, 6.16rem);
   line-height: 1;
 }
 
@@ -564,8 +567,8 @@ html, body {
   flex: 1.4;
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 1.75rem;
-  gap: 0.55rem;
+  padding: 1.75rem 2.45rem;
+  gap: 0.77rem;
   overflow: hidden;
   background: var(--neg-glass-light);
   backdrop-filter: blur(14px);
@@ -574,7 +577,7 @@ html, body {
 
 .neg-eval-form-header {
   flex-shrink: 0;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.7rem;
   border-bottom: 1px solid var(--neg-border);
   margin-bottom: 0.1rem;
 }
@@ -582,20 +585,23 @@ html, body {
 .neg-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.7rem;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--neg-border) transparent;
 }
 
 .neg-criterion {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.05rem;
   background: rgba(10, 18, 28, 0.5);
   border: 1px solid var(--neg-border);
   border-radius: 8px;
-  padding: 0.5rem 0.85rem;
+  padding: 0.7rem 1.19rem;
   transition: border-color 0.15s;
+  flex-shrink: 0;
 }
 
 .neg-criterion:hover {
@@ -604,24 +610,24 @@ html, body {
 
 .neg-criterion-label {
   flex: 1;
-  font-size: 0.8rem;
+  font-size: 1.33rem;
   color: var(--neg-text);
 }
 
 .neg-criterion-label small {
   display: block;
-  font-size: 0.65rem;
+  font-size: 1.12rem;
   color: var(--neg-muted);
 }
 
 .neg-stars {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.35rem;
 }
 
 .neg-star {
   cursor: pointer;
-  font-size: 1.3rem;
+  font-size: 2.17rem;
   color: var(--neg-surface2);
   transition: color 0.1s, transform 0.08s;
   user-select: none;
@@ -634,11 +640,11 @@ html, body {
   background: rgba(10, 18, 28, 0.5);
   border: 1px solid var(--neg-border);
   border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  padding: 0.91rem 1.19rem;
   color: var(--neg-text);
-  font-size: 0.8rem;
+  font-size: 1.33rem;
   resize: none;
-  height: 48px;
+  height: 81px;
   font-family: inherit;
   flex-shrink: 0;
   transition: border-color 0.15s;
@@ -653,11 +659,11 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
+  padding: 1.26rem 2.45rem;
   background: linear-gradient(135deg, #D9B56F, #c09048);
   color: #0e0a04;
   font-weight: 900;
-  font-size: 0.88rem;
+  font-size: 1.4rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -665,6 +671,7 @@ html, body {
   flex-shrink: 0;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  min-height: 67px;
   box-shadow: 0 0 18px rgba(217, 181, 111, 0.25);
 }
 
@@ -681,15 +688,15 @@ html, body {
   align-items: center;
   justify-content: center;
   flex: 1;
-  gap: 0.75rem;
+  gap: 1.05rem;
   text-align: center;
   color: var(--neg-success);
-  font-size: 1rem;
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
 .neg-eval-sent-msg .neg-sent-sub {
-  font-size: 0.82rem;
+  font-size: 1.15rem;
   color: var(--neg-muted);
   font-weight: 400;
 }
@@ -921,7 +928,7 @@ html, body {
 }
 
 .neg-rank-winner-badge {
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -936,7 +943,7 @@ html, body {
 }
 
 .neg-rank-winner-product {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   color: var(--neg-muted);
   font-style: italic;
 }
@@ -962,7 +969,7 @@ html, body {
   grid-template-columns: 2.5rem 1fr auto;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.6rem 1rem;
+  padding: 0.72rem 1rem;
   background: rgba(167, 195, 214, 0.06);
   border: 1px solid var(--neg-border);
   border-radius: 10px;
@@ -978,7 +985,7 @@ html, body {
 }
 
 .neg-ranking-pos {
-  font-size: 0.8rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--neg-muted);
   text-align: center;
@@ -997,7 +1004,7 @@ html, body {
 }
 
 .neg-ranking-product {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   color: var(--neg-muted);
   font-style: italic;
   white-space: nowrap;
@@ -1007,7 +1014,7 @@ html, body {
 }
 
 .neg-ranking-tokens {
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--neg-accent);
   font-variant-numeric: tabular-nums;
@@ -1034,7 +1041,7 @@ html, body {
 }
 
 .neg-ranking-label {
-  font-size: 0.75rem;
+  font-size: 0.88rem;
   color: var(--neg-muted);
 }
 
@@ -1079,7 +1086,7 @@ html, body {
 
 @media (max-width: 1024px) {
   .neg-root {
-    grid-template-rows: 76px 1fr;
+    grid-template-rows: 82px 1fr;
   }
 
   .neg-topbar {
@@ -1095,7 +1102,7 @@ html, body {
   }
 
   .neg-eval-timer-val {
-    font-size: clamp(2.7rem, 7vw, 4rem);
+    font-size: clamp(3.78rem, 9.8vw, 5.6rem);
   }
 
   .neg-progress-bar {

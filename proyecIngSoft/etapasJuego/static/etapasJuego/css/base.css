@@ -62,7 +62,7 @@ body {
 /* Token counter flotante */
 .token-counter {
   position: fixed;
-  top: 78px;
+  top: 108px;
   right: 18px;
   z-index: 130;
   display: inline-flex;
@@ -330,8 +330,8 @@ p{
 /* Overlay “¿Cómo se juega?” */
 .howto-btn{
   position:fixed;
-  top:170px;
-  right:14px;
+  bottom:110px;
+  left:24px;
   z-index:120;
   padding:10px 14px;
   border-radius:12px;

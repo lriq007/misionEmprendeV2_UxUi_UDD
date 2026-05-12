@@ -566,12 +566,15 @@
 }
 
 .rompehielo-page .story-file-tab {
+    top: auto;
+    transform: none;
     left: auto;
     right: clamp(1.25rem, 3.2vw, 3.2rem);
     bottom: clamp(1.3rem, 5vh, 3rem);
     z-index: 4;
     min-width: 15rem;
     text-transform: uppercase;
+    animation: none;
 }
 
 .rompehielo-page .story-file-tab__dot {

@@ -114,14 +114,14 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 9px 14px;
   border-radius: 999px;
   background: rgba(109,123,136,0.4);
   color: #E6E7E8;
   font-weight: 800;
   letter-spacing: 0.3px;
   border: 1px solid rgba(167,195,214,0.2);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   text-transform: uppercase;
 }
 .ef-meta-grid{
@@ -134,7 +134,7 @@ body {
   background: rgba(62,74,85,0.7);
   border: 1px solid rgba(167,195,214,0.2);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 14px;
   color: #E6E7E8;
   box-shadow: 0 4px 16px rgba(0,0,0,0.25);
 }
@@ -144,7 +144,7 @@ body {
   letter-spacing: 0.4px;
   color: #A7C3D6;
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
 }
 .ef-meta-value{
   margin: 2px 0 4px;
@@ -200,8 +200,8 @@ body {
   transform: translateX(-120%);
   animation: shimmer 4s ease-in-out infinite;
 }
-.ef-token-label{ text-transform: uppercase; font-size: 0.82rem; }
-.ef-token-value{ font-size: 1.1rem; }
+.ef-token-label{ text-transform: uppercase; font-size: 0.9rem; }
+.ef-token-value{ font-size: 1.2rem; }
 .ef-token-counter.flash{
   animation: pulse 0.8s ease-in-out;
 }
@@ -250,12 +250,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 12px 20px;
   border-radius: 12px;
   border: 2px solid transparent;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
+  min-height: 48px;
   transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -302,14 +304,14 @@ body {
   box-shadow: 0 4px 16px rgba(0,0,0,0.25);
   color: #E6E7E8;
 }
-.ef-card h2 { margin: 0 0 12px; font-size: clamp(18px, 2.3vw, 24px); color:#E6E7E8; }
+.ef-card h2 { margin: 0 0 12px; font-size: clamp(20px, 2.5vw, 26px); color:#E6E7E8; }
 
 .ef-scale { display:flex; gap:12px; flex-wrap: wrap; }
 .ef-pill {
-  width:44px; height:44px; display:grid; place-items:center;
+  width:52px; height:52px; display:grid; place-items:center;
   border:1px solid rgba(167,195,214,0.3); border-radius:8px; background:#1D232A;
   color: #E6E7E8;
-  font-weight:800; cursor:pointer;
+  font-weight:800; cursor:pointer; font-size: 1rem;
   transition: transform .1s ease, box-shadow .1s ease, background .15s ease;
 }
 .ef-pill:hover { transform: translateY(-1px); box-shadow:0 4px 10px rgba(0,0,0,.25); background: #3E4A55; }
@@ -338,12 +340,13 @@ body {
   background: rgba(255,255,255,0.06);
   color: #f8fafc;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 12px 16px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   font-weight: 800;
+  font-size: 1rem;
   transition: transform .12s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
 }
 .ef-team-btn:hover{
@@ -360,18 +363,18 @@ body {
 .ef-team-code{ color: #c7d2fe; font-weight: 800; }
 
 .ef-eval-stack { display: grid; gap: 12px; }
-.ef-eval-card { border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 24px rgba(0,0,0,0.18); border-radius: 16px; padding: 16px; display: grid; gap: 12px; background: rgba(7,12,32,0.55); }
+.ef-eval-card { border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 24px rgba(0,0,0,0.18); border-radius: 16px; padding: 20px; display: grid; gap: 14px; background: rgba(7,12,32,0.55); }
 .ef-eval-card.is-hidden{ display: none; }
 .ef-eval-header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .ef-eval-meta { display: grid; gap: 4px; }
 .ef-eval-code { font-weight: 800; color: #facc15; }
 .ef-eval-body { display: grid; gap: 10px; }
 .ef-score-row { display: grid; grid-template-columns: 1fr 80px; align-items: center; gap: 10px; }
-.ef-score-row input { width: 100%; padding: 10px 12px; border: 2px solid rgba(255,255,255,0.14); border-radius: 12px; font-weight: 700; text-align: center; background: rgba(255,255,255,0.04); color: #f8fafc; }
+.ef-score-row input { width: 100%; padding: 12px 14px; border: 2px solid rgba(255,255,255,0.14); border-radius: 12px; font-weight: 700; font-size: 1rem; text-align: center; background: rgba(255,255,255,0.04); color: #f8fafc; }
 .ef-score-row input:focus { border-color: #C3A37A; outline: 2px solid rgba(255,210,74,0.35); }
-.ef-eval-footer textarea { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); padding: 10px 12px; resize: vertical; min-height: 72px; background: rgba(255,255,255,0.05); color: #f8fafc; }
+.ef-eval-footer textarea { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); padding: 12px 14px; resize: vertical; min-height: 80px; font-size: 0.95rem; background: rgba(255,255,255,0.05); color: #f8fafc; }
 .ef-eval-footer textarea:focus { border-color: #C3A37A; outline: 2px solid rgba(255,210,74,0.35); }
-.ef-card-tag{ margin:0; text-transform: uppercase; letter-spacing: 0.4px; color: #c7d2fe; font-weight:800; font-size: 0.82rem; }
+.ef-card-tag{ margin:0; text-transform: uppercase; letter-spacing: 0.4px; color: #c7d2fe; font-weight:800; font-size: 0.9rem; }
 .ef-card-title{ margin: 2px 0 0; color: #f8fafc; }
 
 .ef-photo-panel{ display: grid; gap: 12px; }
@@ -430,8 +433,8 @@ body {
 /* Overlay “¿Cómo se juega?” */
 .howto-btn{
   position: fixed;
-  top: 150px;
-  right: 14px;
+  bottom: 110px;
+  left: 24px;
   z-index: 120;
   padding: 10px 14px;
   border-radius: 12px;
@@ -463,7 +466,7 @@ body {
   .ef-layout{
     grid-template-columns: 1fr;
   }
-  .howto-btn{ top: 130px; }
+  .howto-btn{ bottom: 110px; left: 24px; }
 }
 
 @media (max-width: 768px){
@@ -475,7 +478,7 @@ body {
     flex-direction: column;
     align-items: flex-start;
   }
-  .howto-btn{ top: 110px; right: 12px; }
+  .howto-btn{ bottom: 110px; left: 24px; }
 }
 .howto-card{
   max-width: 840px;
@@ -580,8 +583,8 @@ body {
   padding: 12px;
   box-shadow: 0 10px 24px rgba(0,0,0,0.24);
 }
-.meta-label{ margin:0; text-transform: uppercase; letter-spacing:0.4px; color:#c7d2fe; font-weight:800; font-size: 0.82rem; }
-.meta-value{ margin:2px 0 4px; font-weight:900; color:#f8fafc; font-size: 1.1rem; }
+.meta-label{ margin:0; text-transform: uppercase; letter-spacing:0.4px; color:#c7d2fe; font-weight:800; font-size: 0.9rem; }
+.meta-value{ margin:2px 0 4px; font-weight:900; color:#f8fafc; font-size: 1.2rem; }
 
 .final-ranking{
   margin-top: 12px;
