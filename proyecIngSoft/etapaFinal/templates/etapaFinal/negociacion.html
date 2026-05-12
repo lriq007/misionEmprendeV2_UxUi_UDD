@@ -18,7 +18,7 @@
   <header class="neg-topbar">
     <div class="neg-topbar-left">
       <span class="neg-topbar-kicker">Misión Emprende</span>
-      <span class="neg-topbar-title">La Gran Negociación</span>
+      <span class="neg-topbar-title">Protocolo 2060</span>
     </div>
     <span class="neg-topbar-team" id="topbar-team">{{ team.nombre }}</span>
   </header>
@@ -169,10 +169,11 @@
           </div>
           <textarea class="neg-comentario" id="eval-comentario" rows="2"
             placeholder="Comentario opcional…"></textarea>
-          <button class="neg-submit-btn" id="eval-submit-btn" type="submit">
-            Enviar evaluación
-          </button>
         </form>
+
+        <button class="neg-submit-btn" id="eval-submit-btn" type="submit" form="eval-form">
+          Enviar evaluación
+        </button>
 
         <!-- Sent confirmation -->
         <div class="neg-eval-sent-msg" id="eval-sent-msg" hidden>
@@ -362,9 +363,9 @@
   function renderPitchGrid(gridId, pitch) {
     const grid = document.getElementById(gridId);
     const fields = [
-      { key: "nombre_producto",   label: "Producto" },
-      { key: "desafio_empatia",   label: "Desafío & Empatía" },
-      { key: "campo_creatividad", label: "Creatividad" },
+      { key: "nombre_producto",   label: "Nombre del producto" },
+      { key: "desafio_empatia",   label: "El problema" },
+      { key: "campo_creatividad", label: "La solución" },
       { key: "cierre",            label: "Cierre" },
     ];
     grid.innerHTML = fields.map(f => `

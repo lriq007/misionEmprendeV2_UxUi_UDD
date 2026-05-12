@@ -3,72 +3,441 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, viewport-fit=cover" />
   <title>Esperando…</title>
   <link rel="stylesheet" href="{% static 'etapasJuego/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'etapasJuego/css/components.css' %}">
   <style>
-    .espera-container {
+    /* ============================================
+       REGLA DE 3 PARA DISEÑO RESPONSIVE EN TABLET
+       ============================================ */
+    
+    /* RESET Y VARIABLES */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Colores - Azul uniforme */
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --text-primary: #F5D98F;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      /* Tipografía para tablet (estándar 16px base) */
+      --font-base: 16px;
+      --font-scale: 1.25;
+      --font-h1: calc(var(--font-base) * 2.5);   /* 40px */
+      --font-h2: calc(var(--font-base) * 2);      /* 32px */
+      --font-h3: calc(var(--font-base) * 1.75);   /* 28px */
+      --font-body: calc(var(--font-base) * 1.125); /* 18px */
+      --font-small: calc(var(--font-base) * 0.875); /* 14px */
+      
+      /* Espaciado - basado en múltiplos de 8px */
+      --space-xs: 0.5rem;   /* 8px */
+      --space-sm: 1rem;     /* 16px */
+      --space-md: 1.5rem;    /* 24px */
+      --space-lg: 2rem;     /* 32px */
+      --space-xl: 3rem;     /* 48px */
+      --space-2xl: 4rem;    /* 64px */
+      
+      /* Grid - Regla de 3 (3 columnas de 1fr) */
+      --grid-columns: repeat(3, 1fr);
+      --grid-gap: var(--space-md);
+    }
+
+    html, body {
+      background: var(--bg-primary);
+      overflow-x: hidden;
+      overflow-y: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      font-size: var(--font-base);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background: var(--bg-primary);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100dvh;
-      gap: 2rem;
-      padding: 2rem;
+    }
+
+ 
+
+    /* Contenedor principal - Grid de 3 columnas (Regla de 3) */
+    .espera-container {
+      display: grid;
+      grid-template-columns: var(--grid-columns);
+      gap: var(--grid-gap);
+      width: 100%;
+      max-width: 100%;
+      padding: var(--space-lg) var(--space-xl);
+      background: transparent;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      z-index: 5;
+      flex: 1;
+    }
+
+    /* El contenido principal ocupa la columna central */
+    .espera-content {
+      grid-column: 2 / 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-lg);
       text-align: center;
+      padding: var(--space-xl) var(--space-lg);
     }
+
+    /* Scroll personalizado para tablet */
+    .espera-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .espera-container::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 3px;
+    }
+
+    .espera-container::-webkit-scrollbar-thumb {
+      background: rgba(245, 217, 143, 0.3);
+      border-radius: 3px;
+    }
+
+    /* Icono de espera */
     .espera-icon {
-      font-size: 4rem;
+      font-size: 5rem;
       animation: pulse 2s ease-in-out infinite;
+      line-height: 1;
     }
+
+    /* Títulos - tamaños estándar para tablet */
     .espera-title {
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-size: var(--font-h1);
       font-weight: 700;
-      color: var(--accent-yellow, #C3A37A);
+      color: var(--text-primary);
+      max-width: 90%;
+      margin: 0 auto;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
+
+    /* Subtítulos */
     .espera-subtitle {
-      font-size: 1rem;
-      color: var(--muted, #A7C3D6);
-      max-width: 420px;
+      font-size: var(--font-body);
+      color: var(--text-secondary);
+      max-width: 85%;
+      margin: 0 auto;
+      line-height: 1.5;
+      font-weight: 400;
     }
+
+    /* Puntos de espera */
+    .espera-dots {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-sm);
+      margin: var(--space-xs) 0;
+    }
+
     .espera-dots span {
       display: inline-block;
-      width: 12px; height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: var(--accent-yellow, #C3A37A);
-      margin: 0 4px;
+      background: var(--text-primary);
       animation: bounce 1.2s ease-in-out infinite;
     }
+
     .espera-dots span:nth-child(2) { animation-delay: 0.2s; }
     .espera-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    /* Temporizador global */
     .global-timer {
-      font-size: 0.9rem;
-      color: var(--muted, #A7C3D6);
-      opacity: 0.7;
+      font-size: var(--font-body);
+      color: var(--text-muted);
+      opacity: 0.9;
+      margin-top: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 48px;
+      display: inline-block;
     }
+
+    #gt-display {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: monospace;
+      font-size: calc(var(--font-body) * 1.1);
+      letter-spacing: 2px;
+    }
+
+    /* Ranking overlay con grid de 3 columnas */
+    .rk-overlay {
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .rk-overlay:not(.is-open) {
+      display: none;
+    }
+
+    .rk-panel {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      border: 1px solid rgba(245, 217, 143, 0.2);
+      width: 90%;
+      max-width: 800px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: var(--space-xl);
+    }
+
+    /* Títulos del ranking */
+    .rk-title {
+      font-size: var(--font-h2);
+      color: var(--text-primary);
+    }
+
+    .rk-stage-badge {
+      font-size: var(--font-small);
+      letter-spacing: 2px;
+    }
+
+    /* Items del ranking - tamaño legible en tablet */
+    .rk-item {
+      padding: var(--space-md);
+      font-size: var(--font-body);
+    }
+
+    .rk-name {
+      font-size: var(--font-body);
+      font-weight: 500;
+    }
+
+    .rk-score-main {
+      font-size: var(--font-h3);
+      font-weight: 700;
+    }
+
+    .rk-you-badge {
+      font-size: var(--font-small);
+      padding: 4px 10px;
+    }
+
+    /* Botones - tamaño táctil estándar para tablet */
+    .btn, button {
+      min-height: 52px;
+      padding: var(--space-sm) var(--space-xl);
+      font-size: var(--font-body);
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .rk-countdown {
+      font-size: var(--font-body);
+    }
+
+    #rk-count {
+      font-size: calc(var(--font-h3) * 1.2);
+      font-weight: 700;
+    }
+
+    /* ============================================
+       MEDIA QUERIES - APLICANDO REGLA DE 3
+       ============================================ */
+
+    /* TABLET LANDSCAPE (1024px - 1366px) */
+    @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+      :root {
+        --font-h1: 2rem;    /* 32px */
+        --font-h2: 1.75rem; /* 28px */
+        --font-h3: 1.5rem;  /* 24px */
+        --font-body: 1rem;  /* 16px */
+      }
+      
+      .espera-container {
+        padding: var(--space-md) var(--space-lg);
+      }
+      
+      .espera-content {
+        gap: var(--space-md);
+        padding: var(--space-lg) var(--space-md);
+      }
+      
+      .espera-icon {
+        font-size: 3.5rem;
+      }
+    }
+
+    /* TABLET PORTRAIT (768px - 1024px) */
+    @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+      :root {
+        --font-h1: 2.25rem;  /* 36px */
+        --font-h2: 1.875rem; /* 30px */
+        --font-h3: 1.625rem; /* 26px */
+        --font-body: 1.125rem; /* 18px */
+        --font-small: 0.875rem; /* 14px */
+      }
+      
+      .espera-container {
+        padding: var(--space-lg) var(--space-xl);
+      }
+      
+      .espera-content {
+        grid-column: 1 / 4;
+        padding: var(--space-xl) var(--space-lg);
+      }
+      
+      .espera-title {
+        max-width: 85%;
+      }
+      
+      .espera-subtitle {
+        max-width: 75%;
+        font-size: var(--font-body);
+      }
+      
+      .espera-icon {
+        font-size: 4rem;
+      }
+      
+      .espera-dots span {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    /* TABLET PEQUEÑA (600px - 768px) */
+    @media (min-width: 600px) and (max-width: 767px) {
+      :root {
+        --font-h1: 1.875rem;  /* 30px */
+        --font-h2: 1.625rem;  /* 26px */
+        --font-h3: 1.375rem;  /* 22px */
+        --font-body: 1rem;    /* 16px */
+        --font-small: 0.8125rem; /* 13px */
+      }
+      
+      .espera-container {
+        padding: var(--space-md);
+      }
+      
+      .espera-content {
+        grid-column: 1 / 4;
+        gap: var(--space-md);
+        padding: var(--space-lg);
+      }
+      
+      .espera-title {
+        max-width: 95%;
+      }
+      
+      .espera-subtitle {
+        max-width: 90%;
+      }
+      
+      .espera-icon {
+        font-size: 3.5rem;
+      }
+      
+      .espera-dots span {
+        width: 10px;
+        height: 10px;
+      }
+      
+      .rk-panel {
+        padding: var(--space-lg);
+        width: 95%;
+      }
+    }
+
+    /* MÓVIL (< 600px) - para referencia */
+    @media (max-width: 599px) {
+      :root {
+        --font-h1: 1.5rem;   /* 24px */
+        --font-h2: 1.375rem; /* 22px */
+        --font-h3: 1.25rem;  /* 20px */
+        --font-body: 0.9375rem; /* 15px */
+      }
+      
+      .espera-container {
+        padding: var(--space-sm);
+      }
+      
+      .espera-content {
+        grid-column: 1 / 4;
+        gap: var(--space-sm);
+        padding: var(--space-md);
+      }
+      
+      .espera-icon {
+        font-size: 3rem;
+      }
+      
+      .espera-subtitle {
+        max-width: 100%;
+      }
+    }
+
+    /* Animaciones */
     @keyframes bounce {
       0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-      40%            { transform: scale(1.2); opacity: 1; }
+      40% { transform: scale(1.2); opacity: 1; }
     }
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
-      50%       { transform: scale(1.1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Utilidades */
+    img, picture, video, canvas, svg {
+      display: block;
+      max-width: 100%;
     }
   </style>
 </head>
 <body class="theme-login mission-ui">
-  {% include "etapasJuego/_logo.html" with size="medium" extra_class="me-logo--fixed" %}
+  <!-- Logo centrado como estaba originalmente -->
+  <div style="width: 100%; display: flex; justify-content: center; align-items: center; padding-top: var(--space-lg);">
+    {% include "etapasJuego/_logo.html" with size="medium" extra_class="me-logo--fixed" %}
+  </div>
 
-  <!-- Pantalla de espera -->
+  <!-- Pantalla de espera con layout de 3 columnas (Regla de 3) -->
   <div class="espera-container" id="espera-container">
-    <div class="espera-icon">⏳</div>
-    <h1 class="espera-title">Esperando a los otros equipos…</h1>
-    <p class="espera-subtitle">Cuando todos terminen la etapa, verán el ranking juntos.</p>
-    <div class="espera-dots">
-      <span></span><span></span><span></span>
+    <div class="espera-content">
+      <div class="espera-icon">⏳</div>
+      <h1 class="espera-title">Esperando a los otros equipos…</h1>
+      <p class="espera-subtitle">Cuando todos terminen la etapa, verán el ranking juntos.</p>
+      <div class="espera-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="global-timer" id="global-timer">⏱️ Tiempo de sesión: <span id="gt-display">--:--</span></p>
     </div>
-    <p class="global-timer" id="global-timer">Tiempo de sesión: <span id="gt-display">--:--</span></p>
   </div>
 
   <!-- Ranking overlay (oculto hasta que todos terminen) -->
@@ -88,7 +457,7 @@
         <p class="rk-countdown" id="rk-countdown">
           Continuando en <strong id="rk-count">12</strong> s…
         </p>
-        <button class="btn btn-primary" id="rk-continue" style="min-width:200px">
+        <button class="btn btn-primary" id="rk-continue">
           Continuar →
         </button>
       </div>
@@ -129,16 +498,13 @@
         });
         data = await r.json();
       } catch (e) {
-        /* fallback: si la API falla, redirigir al fallback legacy */
         window.location.href = RANKING_DATA_URL.replace("ranking-overlay", "ranking").replace("api/", "");
         return;
       }
 
-      /* Rellena badge y título */
       document.getElementById("rk-stage-badge").textContent =
         `ETAPA ${data.etapa_num} · ${data.stage_label.toUpperCase()}`;
 
-      /* Construye las filas */
       const list = document.getElementById("rk-list");
       list.innerHTML = "";
 
@@ -147,7 +513,6 @@
         const medal   = MEDALS[idx] || null;
         const posText = medal ? medal : `#${entry.position}`;
 
-        /* Columna de puntaje */
         let scoreMain   = `${entry.score} pts`;
         let scoreDetail = "";
         if (data.etapa_num === 1 && entry.elapsed_label && entry.elapsed_label !== "--:--") {
@@ -174,18 +539,15 @@
         list.appendChild(item);
       });
 
-      /* Muestra el overlay */
       const overlay = document.getElementById("rk-overlay");
       overlay.classList.add("is-open");
       overlay.setAttribute("aria-hidden", "false");
 
-      /* Scroll hacia la fila propia si queda fuera de vista */
       setTimeout(() => {
         const myRow = list.querySelector(".is-mine");
         if (myRow) myRow.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }, 500);
 
-      /* Cuenta regresiva → continuar */
       const NEXT_URL  = data.next_url;
       const countEl   = document.getElementById("rk-count");
       const continueBtn = document.getElementById("rk-continue");
@@ -219,7 +581,7 @@
           await showRankingOverlay();
           return;
         }
-      } catch (e) { /* retry silencioso */ }
+      } catch (e) { }
       setTimeout(poll, 3000);
     }
 

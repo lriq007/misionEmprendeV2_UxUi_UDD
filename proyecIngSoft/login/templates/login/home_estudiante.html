@@ -14,6 +14,11 @@
 </head>
 <body class="home-estudiante-body mission-ui">
     {% mission_story "home" as mission %}
+    <div id="page-entry-cover" aria-hidden="true" style="
+        position:fixed;inset:0;background:#0B111A;
+        z-index:9999;pointer-events:none;
+        transition:opacity 0.55s ease;
+    "></div>
     <main class="mission-shell" aria-live="polite">
         <section class="mission-screen mission-screen--start is-active" data-screen="start" aria-label="Inicio de Mision Emprende">
             <figure class="hero-character hero-character--left" aria-label="Personaje de energia azul">
@@ -218,6 +223,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const entryCover = document.getElementById('page-entry-cover');
+            if (entryCover) {
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    entryCover.style.opacity = '0';
+                    entryCover.addEventListener('transitionend', () => entryCover.remove(), { once: true });
+                }));
+            }
+
             const videoOverlay = document.getElementById('mission-video');
             const video = document.getElementById('video-bienvenida');
             const helpOverlay = document.getElementById('howto-overlay');
