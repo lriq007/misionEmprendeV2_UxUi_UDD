@@ -1,4 +1,4 @@
-<!-- Nuevo archivo "Ver progreso" mejorado -->
+<!-- Dashboard progreso en vivo -->
 
 {% extends "login/panel_base.html" %}
 
@@ -12,9 +12,10 @@ Progreso del juego
 
 {% block content %}
 
+<!-- HEADER -->
 <div
     class="panel-card"
-    style="margin-bottom:20px;"
+    style="margin-bottom:24px;"
 >
 
     <div class="card-header">
@@ -26,13 +27,13 @@ Progreso del juego
             </p>
 
             <h2>
-                Ranking y progreso de equipos
+                Estado de equipos y tablets
             </h2>
 
             <p class="muted">
 
-                Observa el avance de los equipos,
-                puntajes y etapas actuales del juego.
+                Visualiza el avance de cada equipo,
+                progreso por etapa y puntajes en vivo.
 
             </p>
 
@@ -41,7 +42,7 @@ Progreso del juego
         <div
             class="team-chip"
             style="
-                font-size:20px;
+                font-size:22px;
                 font-weight:800;
             "
         >
@@ -54,6 +55,7 @@ Progreso del juego
 
 </div>
 
+<!-- GRID -->
 <div class="teams-grid">
 
     {% for equipo in equipos %}
@@ -65,9 +67,14 @@ Progreso del juego
 
             <div>
 
-                <h3>
+                <h3
+                    style="
+                        font-size:24px;
+                        font-weight:800;
+                    "
+                >
 
-                    {{ forloop.counter }}.
+                    #{{ forloop.counter }}
                     {{ equipo.nombre }}
 
                 </h3>
@@ -84,7 +91,7 @@ Progreso del juego
                         font-size:40px;
                         color:#2563eb;
                         font-weight:700;
-                        margin-top:4px;
+                        margin-top:6px;
                     "
                 >
 
@@ -99,13 +106,12 @@ Progreso del juego
             <div
                 class="team-chip"
                 style="
-                    font-size:22px;
+                    font-size:24px;
                     font-weight:800;
                 "
             >
 
-                {{ equipo.tokens_totales }}
-                tokens
+                🪙 {{ equipo.tokens_totales }}
 
             </div>
 
@@ -116,37 +122,37 @@ Progreso del juego
 
         <div
             style="
-                margin-top:18px;
-                margin-bottom:18px;
-                padding:16px;
-                border-radius:16px;
+                margin-top:20px;
+                padding:18px;
+                border-radius:18px;
                 background:#f8fafc;
                 border:1px solid #e2e8f0;
             "
         >
 
+            <!-- TITULO -->
             <p
                 style="
                     font-size:13px;
                     font-weight:700;
                     color:#64748b;
-                    margin-bottom:10px;
+                    margin-bottom:12px;
                     text-transform:uppercase;
                     letter-spacing:0.5px;
                 "
             >
 
-                Progreso en vivo
+                Estado actual
 
             </p>
 
             <!-- ETAPA -->
             <div
                 style="
-                    font-size:22px;
+                    font-size:30px;
                     font-weight:800;
                     color:#2563eb;
-                    margin-bottom:12px;
+                    margin-bottom:14px;
                 "
             >
 
@@ -179,8 +185,8 @@ Progreso del juego
             <!-- BARRA -->
             <div
                 style="
-                    margin-top:14px;
-                    height:10px;
+                    margin-top:18px;
+                    height:16px;
                     border-radius:999px;
                     background:#dbeafe;
                     overflow:hidden;
@@ -188,29 +194,97 @@ Progreso del juego
             >
 
                 <div
-                    style="
-                        width:{{ equipo.game_session.progress_pct|default:0 }}%;
-                        height:100%;
-                        background:#2563eb;
-                        transition:width 0.5s ease;
-                    "
+                    class="progress-fill"
+                    data-width="{{ equipo.progress_percent|default:'0' }}"
                 ></div>
 
             </div>
 
-            <!-- PORCENTAJE -->
-            <p
-                class="muted"
+            <!-- FOOTER -->
+            <div
                 style="
-                    margin-top:8px;
-                    font-size:13px;
+                    margin-top:16px;
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:12px;
+                    flex-wrap:wrap;
                 "
             >
 
-                {{ equipo.game_session.progress_pct|floatformat:0|default:"0" }}%
-                completado
+                <!-- PORCENTAJE -->
+                <div
+                    style="
+                        font-size:14px;
+                        font-weight:700;
+                        color:#334155;
+                    "
+                >
 
-            </p>
+                    {{ equipo.progress_percent|floatformat:0 }}%
+                    completado
+
+                </div>
+
+                <!-- ESTADO -->
+                <div>
+
+                    {% if equipo.progress_percent >= 100 %}
+
+                        <span
+                            style="
+                                background:#dcfce7;
+                                color:#166534;
+                                padding:8px 14px;
+                                border-radius:999px;
+                                font-size:13px;
+                                font-weight:700;
+                            "
+                        >
+
+                            ✓ Etapa completada
+
+                        </span>
+
+                    {% elif equipo.progress_percent > 0 %}
+
+                        <span
+                            style="
+                                background:#dbeafe;
+                                color:#1d4ed8;
+                                padding:8px 14px;
+                                border-radius:999px;
+                                font-size:13px;
+                                font-weight:700;
+                            "
+                        >
+
+                            ⏳ Trabajando
+
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            style="
+                                background:#f1f5f9;
+                                color:#475569;
+                                padding:8px 14px;
+                                border-radius:999px;
+                                font-size:13px;
+                                font-weight:700;
+                            "
+                        >
+
+                            Esperando
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -219,9 +293,8 @@ Progreso del juego
         <div
             style="
                 margin-top:18px;
-                margin-bottom:18px;
-                padding:16px;
-                border-radius:16px;
+                padding:18px;
+                border-radius:18px;
                 background:#f8fafc;
                 border:1px solid #e2e8f0;
             "
@@ -237,21 +310,6 @@ Progreso del juego
 
         {% endif %}
 
-        <!-- INTEGRANTES -->
-        <div class="team-members">
-
-            {% for estudiante in equipo.estudiantes.all %}
-
-            <div class="student-row">
-
-                {{ estudiante.nombre_apellido }}
-
-            </div>
-
-            {% endfor %}
-
-        </div>
-
     </div>
 
     {% empty %}
@@ -266,8 +324,30 @@ Progreso del juego
 
 </div>
 
-<!-- AUTO REFRESH -->
+<style>
+
+.progress-fill {
+
+    height:100%;
+
+    background:#2563eb;
+
+    transition:width 0.5s ease;
+
+}
+
+</style>
+
 <script>
+
+document.querySelectorAll(".progress-fill")
+.forEach((el) => {
+
+    const width = el.dataset.width || 0;
+
+    el.style.width = `${width}%`;
+
+});
 
 setTimeout(() => {
 

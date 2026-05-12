@@ -20,6 +20,7 @@ from .forms import (
     TeamAdminForm,
     CSVUploadForm,
 )
+from etapasJuego.progress import STAGE_ORDER
 from .models import Estudiante, SeccionEstudiantes
 from .permissions import ADMIN_GROUP, PROFESOR_GROUP, admin_required, is_admin, profesor_required
 import math
@@ -1743,15 +1744,37 @@ def progreso_juego(request):
 
     for equipo in equipos:
 
+        # PROGRESO GENERAL DEL JUEGO
         equipo.progreso = progreso.filter(
             team=equipo
         ).first()
 
+        # PROGRESO DENTRO DE LA ETAPA
         equipo.game_session = TeamGameSession.objects.filter(
             equipo=equipo
         ).order_by(
             "-id"
         ).first()
+
+        if equipo.game_session:
+
+            progress = (
+                equipo.game_session.progress_pct or 0
+            )
+
+            # Si viene 0-1 lo convertimos
+            if progress <= 1:
+
+                progress = progress * 100
+
+            equipo.progress_percent = min(
+                progress,
+                100
+            )
+
+        else:
+
+            equipo.progress_percent = 0
 
     return render(
         request,

@@ -4,7 +4,14 @@
 
 {% block content %}
 
-<div class="panel-grid">
+<div 
+    class="panel-grid"
+    style="
+        grid-template-columns: 1fr 1.3fr;
+        gap:24px;
+        align-items: start;
+    "
+    >
     <div class="panel-card">
         <h3>Nuevo desafío</h3>
         <form method="post" enctype="multipart/form-data" class="panel-form">
@@ -21,7 +28,13 @@
                 <input type="text" name="q" value="{{ q }}" placeholder="Título o tema" class="form-field">
             </div>
         </form>
-        <div class="panel-table-wrapper">
+        <div 
+            class="panel-table-wrapper"
+            style="
+                overflow-x: auto;
+                width: 105%;
+            "
+        >   
             <table class="panel-table">
                 <thead>
                     <tr>
