@@ -104,27 +104,44 @@ body.panel-body {
     table-layout: auto;
 }
 
+/* Cambio 13/5 */
 .panel-table th,
 .panel-table td {
-    padding: 12px 10px;
+    padding: 10px 11px;
     border-bottom: 1px solid rgba(167,195,214,0.18);
     text-align: left;
     color: #E6E7E8;
     word-break: break-word;
-    white-space: normal;
+    white-space: nowrap;
+    vertical-align: top;
 }
-
 .panel-table-wrapper {
     width: 100%;
     overflow-x: auto;
 }
 
+/* Nuevo cambio 13/5 */
+.panel-table td:first-child {
+
+    min-width: 100px;
+
+}
+
+.panel-actions-row {
+
+    white-space: nowrap;
+
+}
+
+/* Fin nuevo cambio 13/5 */
+
 .panel-table th {
-    font-weight: 700;
+    font-weight: 600;
     color: #A7C3D6;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
     font-size: 13px;
+    white-space: nowrap;
 }
 
 .panel-table tr:hover {
@@ -424,7 +441,7 @@ body.panel-body {
 
 .panel-table.compact th,
 .panel-table.compact td {
-    padding: 8px 6px;
+    padding: 10px 10px;
 }
 
 .panel-list.solid li {
