@@ -1,0 +1,356 @@
+<!-- Nuevo archivo retroalimentacion12/5-->
+ {% extends "login/panel_base.html" %}
+
+{% block title %}
+Retroalimentación
+{% endblock %}
+
+{% block header_title %}
+Retroalimentación y resultados
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div
+    class="panel-card"
+    style="margin-bottom:20px;"
+>
+
+    <div class="card-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Analytics educativos
+            </p>
+
+            <h2>
+                Resultados de las sesiones
+            </h2>
+
+            <p class="muted">
+
+                Observa desempeño de equipos,
+                pitchs, evaluaciones y resultados
+                históricos del juego.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- KPIS -->
+<div
+    class="panel-grid kpi-grid"
+    style="margin-bottom:20px;"
+>
+
+    <div class="panel-card kpi">
+
+        <p class="kpi-label">
+            Pitchs evaluados
+        </p>
+
+        <p class="kpi-value">
+            {{ mejores_pitches|length }}
+        </p>
+
+        <span class="kpi-sub">
+            Con score IA registrado
+        </span>
+
+    </div>
+
+    <div class="panel-card kpi">
+
+        <p class="kpi-label">
+            Equipos destacados
+        </p>
+
+        <p class="kpi-value">
+            {{ mejores_equipos|length }}
+        </p>
+
+        <span class="kpi-sub">
+            Con tokens acumulados
+        </span>
+
+    </div>
+
+    <div class="panel-card kpi">
+
+        <p class="kpi-label">
+            Evaluaciones
+        </p>
+
+        <p class="kpi-value">
+            {{ evaluaciones|length }}
+        </p>
+
+        <span class="kpi-sub">
+            Retroalimentaciones registradas
+        </span>
+
+    </div>
+
+</div>
+
+<!-- GRID -->
+<div class="panel-grid two-col">
+
+    <!-- PITCHS -->
+    <div class="panel-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    Inteligencia artificial
+                </p>
+
+                <h3>
+                    Mejores pitchs
+                </h3>
+
+            </div>
+
+        </div>
+
+        <ul class="panel-list solid">
+
+            {% for pitch in mejores_pitches %}
+
+                <li>
+
+                    <div>
+
+                        <strong>
+
+                            {{ pitch.proyecto.equipo.nombre }}
+
+                        </strong>
+
+                        <p class="muted">
+
+                            {{ pitch.proyecto.desafio.titulo }}
+
+                        </p>
+
+                    </div>
+
+                    <span class="pill">
+
+                        ⭐ {{ pitch.score_ai }}
+
+                    </span>
+
+                </li>
+
+            {% empty %}
+
+                <li>
+
+                    No existen pitchs evaluados.
+
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+    <!-- EQUIPOS -->
+    <div class="panel-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    Ranking histórico
+                </p>
+
+                <h3>
+                    Mejores equipos
+                </h3>
+
+            </div>
+
+        </div>
+
+        <ul class="panel-list solid">
+
+            {% for team in mejores_equipos %}
+
+                <li>
+
+                    <div>
+
+                        <strong>
+                            {{ team.nombre }}
+                        </strong>
+
+                        <p class="muted">
+
+                            {{ team.sesion.nombre }}
+
+                        </p>
+
+                    </div>
+
+                    <span class="pill">
+
+                        {{ team.tokens_totales }}
+                        pts
+
+                    </span>
+
+                </li>
+
+            {% empty %}
+
+                <li>
+
+                    No existen equipos registrados.
+
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+</div>
+
+<!-- EVALUACIONES -->
+<div
+    class="panel-card"
+    style="margin-top:20px;"
+>
+
+    <div class="card-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Retroalimentación
+            </p>
+
+            <h3>
+                Últimas evaluaciones
+            </h3>
+
+        </div>
+
+    </div>
+
+    <div class="panel-table-wrapper">
+
+        <table class="panel-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Evaluador
+                    </th>
+
+                    <th>
+                        Evaluado
+                    </th>
+
+                    <th>
+                        Empatía
+                    </th>
+
+                    <th>
+                        Creatividad
+                    </th>
+
+                    <th>
+                        Comunicación
+                    </th>
+
+                    <th>
+                        Comentario
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for e in evaluaciones %}
+
+                    <tr>
+
+                        <td>
+
+                            {{ e.evaluador.nombre }}
+
+                        </td>
+
+                        <td>
+
+                            {{ e.evaluado.nombre }}
+
+                        </td>
+
+                        <td>
+
+                            {{ e.puntaje_empatia }}
+
+                        </td>
+
+                        <td>
+
+                            {{ e.puntaje_creatividad }}
+
+                        </td>
+
+                        <td>
+
+                            {{ e.puntaje_comunicacion }}
+
+                        </td>
+
+                        <td>
+
+                            {{ e.comentario|default:"Sin comentario" }}
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            No existen evaluaciones registradas.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

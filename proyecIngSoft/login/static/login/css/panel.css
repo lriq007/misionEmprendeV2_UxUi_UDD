@@ -104,27 +104,44 @@ body.panel-body {
     table-layout: auto;
 }
 
+/* Cambio 13/5 */
 .panel-table th,
 .panel-table td {
-    padding: 12px 10px;
+    padding: 10px 11px;
     border-bottom: 1px solid rgba(167,195,214,0.18);
     text-align: left;
     color: #E6E7E8;
     word-break: break-word;
-    white-space: normal;
+    white-space: nowrap;
+    vertical-align: top;
 }
-
 .panel-table-wrapper {
     width: 100%;
     overflow-x: auto;
 }
 
+/* Nuevo cambio 13/5 */
+.panel-table td:first-child {
+
+    min-width: 100px;
+
+}
+
+.panel-actions-row {
+
+    white-space: nowrap;
+
+}
+
+/* Fin nuevo cambio 13/5 */
+
 .panel-table th {
-    font-weight: 700;
+    font-weight: 600;
     color: #A7C3D6;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
     font-size: 13px;
+    white-space: nowrap;
 }
 
 .panel-table tr:hover {
@@ -424,7 +441,7 @@ body.panel-body {
 
 .panel-table.compact th,
 .panel-table.compact td {
-    padding: 8px 6px;
+    padding: 10px 10px;
 }
 
 .panel-list.solid li {
@@ -530,3 +547,414 @@ body.panel-body {
         text-align: center;
     }
 }
+
+/* Nuevo 9/5 */
+.dashboard-layout{
+    display:flex !important;
+    min-height:100vh !important;
+}
+
+.sidebar{
+    width:190px !important;
+    min-width:190px !important;
+    height:92vh !important;
+    position:sticky !important;
+    top:0 !important;
+
+    background:#081028 !important;
+
+    padding:20px 12px !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:space-between !important;
+
+    overflow:hidden !important;
+}
+
+.sidebar-header h2{
+    color:white !important;
+    font-size:22 px !important;
+    margin-bottom:4px !important;
+    line-height:1.2 !important;
+}
+
+.sidebar-header p{
+    color:rgba(255,255,255,.7) !important;
+    margin-bottom:20px !important;
+    font-size:20px !important;
+}
+
+.sidebar-nav{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:14px !important;
+}
+
+.sidebar-nav a{
+    display:flex !important;
+    align-items:center !important;
+
+    width:100% !important;
+
+    padding:10px 12px !important;
+
+    background:#18233d !important;
+
+    border-radius:12px !important;
+
+    color:white !important;
+    text-decoration:none !important;
+
+    font-weight:700 !important;
+    font-size:16px !important;
+
+    box-sizing:border-box !important;
+
+    transition:.2s !important;
+}
+
+.sidebar-nav a:hover{
+    background:#243454 !important;
+}
+
+.sidebar-nav a.active{
+    background:#2563eb !important;
+}
+
+.sidebar-footer{
+    margin-top:auto !important;
+    padding-top:20px !important;
+}
+
+.logout-btn{
+    display:flex !important;
+    justify-content:center !important;
+    align-items:center !important;
+
+    width:100% !important;
+
+    padding:10px 12px !important;
+
+    background:#dc2626 !important;
+
+    border-radius:12px !important;
+
+    text-align:center !important;
+
+    color:white !important;
+    text-decoration:none !important;
+
+    font-weight:700 !important;
+    font-size:14px !important;
+
+    box-sizing:border-box !important;
+}
+
+.panel-main{
+    flex:1 !important;
+    padding:30px !important;
+}
+
+/* Nuevo 9/5 */
+.btn-danger{
+    background:#dc2626 !important;
+    color:white !important;
+}
+
+select.form-field option{
+    color:#111827 !important;
+    background:white !important;
+}
+/* Fin nuevo 9/5 */
+
+/* Nuevo equipos 10/5 */
+.teams-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:20px;
+}
+
+.team-card{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 6px 20px rgba(0,0,0,.08);
+    color:#111827;
+}
+
+.team-card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.team-card-header h3{
+    margin:0;
+    font-size:22px;
+}
+
+.team-card-header p{
+    margin:4px 0 0 0;
+    color:#6b7280;
+}
+
+.team-chip{
+    background:#dbeafe;
+    color:#1d4ed8;
+    padding:8px 12px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:14px;
+}
+
+.team-members{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.student-row{
+    padding:12px;
+    border-radius:12px;
+    background:#dee1e7;
+    font-weight:600;
+    color:#111827;
+}
+
+.team-card h3{
+    color:#111827;
+}
+
+.team-card p{
+    color:#4b5563;
+}
+/* Fin nuevo equipos 10/5 */
+
+/* Nuevo mover alumno 10/5 */
+.student-row{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.move-student-form{
+    display:flex;
+    gap:8px;
+}
+
+.move-student-form select{
+    flex:1;
+}
+
+.move-student-form .btn-outline{
+    color:#111827 !important;
+    border:1px solid #d1d5db !important;
+    background:white !important;
+}
+
+.move-student-form .btn-outline:hover{
+    background:#f3f4f6 !important;
+}
+
+.move-student-form select{
+    color:#111827 !important;
+    background:white !important;
+}
+/* Fin nuevo mover alumno 10/5 */
+
+/* Nuevo modificar equipos 10/5 */
+.btn-secondary{
+    background:#0d44da !important;
+    color:white !important;
+    border:none !important;
+}
+
+.btn-secondary:hover{
+    background:#1d4fd8 !important;
+}
+
+.btn-soft-danger{
+    background:#7f1d1d !important;
+    color:white !important;
+    border:none !important;
+}
+
+.btn-soft-danger:hover{
+    background:#991b1b !important;
+}
+/* Fin nuevo modificar equipos 10/5 */
+
+.teams-actions{
+    display:flex;
+    align-items:center;
+    gap:18px;
+
+    margin-top:20px;
+
+    flex-wrap:wrap;
+
+    background:transparent !important;
+}
+.teams-actions form{
+    background:transparent !important;
+    padding:0 !important;
+    box-shadow:none !important;
+    border:none !important;
+
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.teams-actions form{
+    margin:0 !important;
+
+    display:flex;
+    align-items:center;
+}
+
+.teams-actions .btn-link{
+    height:48px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.teams-actions .btn-link{
+    width:150px;
+    height:37px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:700;
+    font-size:17px;
+
+    border-radius:14px;
+
+    text-align:center;
+}
+
+.btn-primary{
+    font-size:20px !important;
+}
+
+.teams-actions .btn-primary{
+    width:210px !important;
+    height:57px;
+    font-size:19px !important;
+}
+
+/* Nuevo boton inciar juego 11/5 */
+.teams-actions-wrapper{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-top:24px;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+}
+
+.start-game-btn{
+    min-width:240px;
+
+    height:40px;
+
+    font-size:29px !important;
+
+    font-weight:800 !important;
+}
+/* Fin nuevo boton iniciar juego 11/5 */
+
+/* Nuevo placeholder progreso 11/5 */
+/*.progress-bar{
+    width:100%;
+    height:14px;
+
+    background:#e5e7eb;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+    margin-top:12px;
+}
+
+.progress-fill{
+    height:100%;
+
+    background:#2563eb;
+
+    border-radius:999px;
+}
+*/
+
+/* Nuevo panel temas 11/5 */
+.switch{
+    position:relative;
+
+    display:inline-block;
+
+    width:58px;
+    height:30px;
+
+    margin-top:8px;
+}
+
+.switch input{
+    opacity:0;
+
+    width:0;
+    height:0;
+}
+
+.slider{
+    position:absolute;
+
+    cursor:pointer;
+
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+
+    background:#374151;
+
+    transition:.25s;
+
+    border-radius:999px;
+}
+
+.slider:before{
+    position:absolute;
+
+    content:"";
+
+    height:22px;
+    width:22px;
+
+    left:4px;
+    bottom:4px;
+
+    background:white;
+
+    transition:.25s;
+
+    border-radius:50%;
+}
+
+.switch input:checked + .slider{
+    background:#2563eb;
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(28px);
+}
+/* Fin nuevo panel temas 11/5 */

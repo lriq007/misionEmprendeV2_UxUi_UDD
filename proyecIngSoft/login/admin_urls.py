@@ -30,4 +30,16 @@ urlpatterns = [
     path("equipos/<int:pk>/editar/", views.admin_equipo_editar, name="equipo_editar"),
     path("estudiantes/", views.admin_estudiantes, name="estudiantes"),
     path("estudiantes/<int:pk>/editar/", views.admin_estudiante_editar, name="estudiante_editar"),
+    #Nuevo url admin mi perfil 11/5
+    path(
+        "perfil/",
+        views.admin_mi_perfil,
+        name="admin_mi_perfil",
+    ),
+    #Nuevo retroalimentacion 11/5
+    path(
+        "retroalimentacion/",
+        views.admin_retroalimentacion,
+        name="retroalimentacion",
+    ),
 ]

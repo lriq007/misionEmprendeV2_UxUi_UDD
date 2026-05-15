@@ -1,0 +1,113 @@
+<!-- Nuevo archivo "Mi perfil" 11/5-->
+{% extends "login/panel_base.html" %}
+
+{% block title %}Mi perfil{% endblock %}
+{% block header_title %}Mi perfil{% endblock %}
+
+{% block content %}
+
+<div class="panel-card">
+
+    <div class="card-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Perfil
+            </p>
+
+            <h3>
+                Datos del profesor
+            </h3>
+
+        </div>
+
+    </div>
+
+    <form method="POST" class="panel-form">
+
+        {% csrf_token %}
+
+        <div class="panel-grid two-col">
+
+            <div class="form-group">
+
+                <label>
+                    Nombre
+                </label>
+
+                {{ form.first_name }}
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Apellido
+                </label>
+
+                {{ form.last_name }}
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Correo
+                </label>
+
+                {{ form.email }}
+
+            </div>
+
+        </div>
+
+        <div
+            style="
+                margin-top:24px;
+                display:flex;
+                flex-direction:row;
+                gap:18px;
+                max-width:500px;
+            "
+        >
+
+            <div class="form-group">
+
+                <label>
+                    Nueva contraseña
+                </label>
+
+                {{ form.nueva_password }}
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Repetir contraseña
+                </label>
+
+                {{ form.repetir_password }}
+
+            </div>
+
+        </div>
+
+
+        <div style="margin-top:20px;">
+
+            <button
+                type="submit"
+                class="btn-link btn-primary"
+            >
+                Guardar cambios
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

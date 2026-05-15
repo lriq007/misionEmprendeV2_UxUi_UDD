@@ -1,10 +1,44 @@
+<!-- Nuevo cambio completo html 11/5-->
 {% for field in form %}
+
     <div class="form-group">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+
+        <label for="{{ field.id_for_label }}">
+            {{ field.label }}
+        </label>
+
+        {% if field.field.widget.input_type == "checkbox" %}
+
+            <label class="switch">
+
+                {{ field }}
+
+                <span class="slider"></span>
+
+            </label>
+
+        {% else %}
+
+            {{ field }}
+
+        {% endif %}
+
+        {% if field.help_text %}
+
+            <small>
+                {{ field.help_text }}
+            </small>
+
+        {% endif %}
+
         {% for error in field.errors %}
-            <div class="chip">{{ error }}</div>
+
+            <div class="chip">
+                {{ error }}
+            </div>
+
         {% endfor %}
+
     </div>
+
 {% endfor %}

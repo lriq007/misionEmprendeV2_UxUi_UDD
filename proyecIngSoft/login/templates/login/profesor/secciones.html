@@ -3,18 +3,13 @@
 {% block header_title %}Secciones{% endblock %}
 
 {% block content %}
-<div class="panel-actions-row" style="margin-bottom:12px;">
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:dashboard' %}">Volver al dashboard</a>
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:alumnos' %}">Ir a alumnos</a>
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:equipos' %}">Ir a equipos</a>
-    <a class="btn-link btn-outline" href="{% url 'profesorpanel:sesiones' %}">Sesiones</a>
-</div>
 
 <div class="panel-card">
     <div class="card-header">
         <div>
             <p class="eyebrow">Secciones</p>
-            <h3>Gestiona secciones relacionadas</h3>
+            <!-- Cambio de titulo 9/5-->
+            <h3>Secciones académicas</h3>
         </div>
     </div>
     <form method="post" class="panel-form" style="margin-bottom:12px;">
@@ -59,7 +54,19 @@
                 {% for s in secciones %}
                     <tr>
                         <td>{{ s.nombre }}</td>
-                        <td>{{ s.carrera|default:s.carrera_fk.nombre|default:"-" }}</td>
+                        
+                        <!-- Nuevo Carrera -->
+                        <td>
+                            {% if s.carrera %}
+                                {{ s.carrera }}
+                            {% elif s.carrera_fk %}
+                                {{ s.carrera_fk.nombre }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <!-- Fin nuevo carrera -->
+                         
                         <td>{{ s.anio_ingreso|default:"-" }}</td>
                     </tr>
                 {% empty %}

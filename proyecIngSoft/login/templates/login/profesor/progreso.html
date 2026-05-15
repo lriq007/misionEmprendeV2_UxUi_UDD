@@ -1,0 +1,486 @@
+{% extends "login/panel_base.html" %}
+
+{% block title %}
+Progreso
+{% endblock %}
+
+{% block header_title %}
+Progreso del juego
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div
+    class="panel-card"
+    style="margin-bottom:20px;"
+>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:16px;
+            flex-wrap:wrap;
+        "
+    >
+
+        <div>
+
+            <p class="eyebrow">
+                Monitoreo en tiempo real
+            </p>
+
+            <h2>
+                Estado de equipos y tablets
+            </h2>
+
+            <p class="muted">
+
+                Visualiza el avance de cada equipo,
+                etapas activas y puntajes en vivo.
+
+            </p>
+
+        </div>
+
+        <div
+            style="
+                text-align:right;
+            "
+        >
+
+            <div
+                class="team-chip"
+                style="
+                    font-size:24px;
+                    font-weight:800;
+                "
+            >
+
+                {{ equipos.count }} equipos
+
+            </div>
+
+            <div
+                style="
+                    margin-top:8px;
+                    font-size:14px;
+                    color:#cfcfcf;
+                "
+            >
+
+                Tablets conectadas en sesión
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- KPI -->
+<div
+    class="panel-card"
+    style="
+        margin-bottom:24px;
+        background:#eff6ff;
+        border:1px solid #bfdbfe;
+    "
+>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:16px;
+            flex-wrap:wrap;
+            color:#2563eb;
+        "
+    >
+
+        <div>
+
+            <strong>
+                Progreso general de la actividad
+            </strong>
+
+        </div>
+
+        <div
+            style="
+                font-size:18px;
+                font-weight:800;
+                color:#2563eb;
+            "
+        >
+
+            {{ equipos.count }} equipos activos
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- GRID -->
+<div class="teams-grid">
+
+    {% for equipo in equipos %}
+
+    <div class="team-card">
+
+        <!-- HEADER -->
+        <div class="team-card-header">
+
+            <div>
+
+                <h3
+                    style="
+                        font-size:24px;
+                        font-weight:800;
+                    "
+                >
+
+                    #{{ forloop.counter }}
+                    {{ equipo.nombre }}
+
+                </h3>
+
+                <p class="tablet-label">
+
+                    {{ equipo.tablet.codigo }}
+
+                </p>
+
+                <!-- PIN -->
+                <p
+                    style="
+                        font-size:40px;
+                        color:#2563eb;
+                        font-weight:700;
+                        margin-top:8px;
+                        line-height:1;
+                    "
+                >
+
+                   PIN: {{ equipo.tablet.codigo_acceso }}
+
+                </p>
+
+            </div>
+
+            <!-- TOKENS -->
+            <div
+                class="team-chip"
+                style="
+                    font-size:24px;
+                    font-weight:800;
+                "
+            >
+
+                🪙 {{ equipo.tokens_totales }}
+
+            </div>
+
+        </div>
+
+        <!-- CONTENIDO -->
+        {% if equipo.progreso %}
+
+        <div
+            style="
+                margin-top:20px;
+                padding:18px;
+                border-radius:18px;
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+            "
+        >
+
+            <!-- LABEL -->
+            <p
+                style="
+                    font-size:13px;
+                    font-weight:700;
+                    color:#64748b;
+                    margin-bottom:12px;
+                    text-transform:uppercase;
+                    letter-spacing:0.5px;
+                "
+            >
+
+                Etapa actual
+
+            </p>
+
+            <!-- ETAPA -->
+            <div
+                style="
+                    font-size:30px;
+                    font-weight:800;
+                    margin-bottom:12px;
+                    line-height:1.2;
+                "
+            >
+
+                {% if equipo.progreso.current_stage == "ETAPA1" %}
+
+                    🔎 Sopa de letras
+
+                {% elif equipo.progreso.current_stage == "ETAPA2" %}
+
+                    🧠 Mapa de empatía
+
+                {% elif equipo.progreso.current_stage == "ETAPA3" %}
+
+                    🧱 Prototipo
+
+                {% elif equipo.progreso.current_stage == "ETAPA4" %}
+
+                    🎤 Pitch
+
+                {% elif equipo.progreso.current_stage == "FINAL" %}
+
+                    🏆 Evaluación final
+
+                {% else %}
+
+                    ⌛ Sin iniciar
+
+                {% endif %}
+
+            </div>
+
+            <!-- TEMA -->
+            <p class="muted">
+
+                <strong>
+                    Tema:
+                </strong>
+
+                {{ equipo.progreso.selected_topic.nombre|default:"-" }}
+
+            </p>
+
+            <!-- DESAFIO -->
+            <p class="muted">
+
+                <strong>
+                    Desafío:
+                </strong>
+
+                {{ equipo.progreso.selected_challenge.titulo|default:"-" }}
+
+            </p>
+
+            <!-- ESTADO -->
+            <div
+                style="
+                    margin-top:16px;
+                    font-size:15px;
+                    font-weight:700;
+                    color:#475569;
+                "
+            >
+
+                {% if equipo.progress_percent >= 100 %}
+
+                    ⏳ Esperando al resto de equipos
+
+                {% elif equipo.progress_percent > 0 %}
+
+                    🧠 Resolviendo actividad
+
+                {% else %}
+
+                    ⌛ Iniciando etapa
+
+                {% endif %}
+
+            </div>
+
+            <!-- SOLO ETAPA 1 -->
+            {% if equipo.progreso.current_stage == "ETAPA1" %}
+
+            <!-- BARRA -->
+            <div
+                style="
+                    margin-top:18px;
+                    height:16px;
+                    border-radius:999px;
+                    background:#dbeafe;
+                    overflow:hidden;
+                "
+            >
+
+                <div
+                    class="progress-fill"
+                    data-width="{{ equipo.progress_percent|default:'0' }}"
+                ></div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div
+                style="
+                    margin-top:14px;
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    flex-wrap:wrap;
+                    gap:12px;
+                "
+            >
+
+                <!-- PORCENTAJE -->
+                <div
+                    style="
+                        font-size:14px;
+                        font-weight:700;
+                        color:#334155;
+                    "
+                >
+
+                    {{ equipo.progress_percent|floatformat:0 }}%
+                    completado
+
+                </div>
+
+                <!-- BADGE -->
+                <div>
+
+                    {% if equipo.progress_percent >= 100 %}
+
+                        <span
+                            style="
+                                background:#fef3c7;
+                                color:#92400e;
+                                padding:8px 14px;
+                                border-radius:999px;
+                                font-size:13px;
+                                font-weight:700;
+                            "
+                        >
+
+                            ⏳ Esperando equipos
+
+                        </span>
+
+                    {% elif equipo.progress_percent > 0 %}
+
+                        <span
+                            style="
+                                background:#dbeafe;
+                                color:#1d4ed8;
+                                padding:8px 14px;
+                                border-radius:999px;
+                                font-size:13px;
+                                font-weight:700;
+                            "
+                        >
+
+                            🧠 Trabajando
+
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            style="
+                                background:#f1f5f9;
+                                color:#475569;
+                                padding:8px 14px;
+                                border-radius:999px;
+                                font-size:13px;
+                                font-weight:700;
+                            "
+                        >
+
+                            ⌛ Iniciando
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        {% else %}
+
+        <div
+            style="
+                margin-top:18px;
+                padding:18px;
+                border-radius:18px;
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+            "
+        >
+
+            <p class="muted">
+
+                El equipo aún no inicia el juego.
+
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    {% empty %}
+
+    <div class="panel-card">
+
+        No hay equipos activos.
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<style>
+
+.progress-fill {
+
+    height:100%;
+
+    background:#2563eb;
+
+    transition:width 0.5s ease;
+
+}
+
+</style>
+
+<script>
+
+document.querySelectorAll(".progress-fill")
+.forEach((el) => {
+
+    const width = el.dataset.width || 0;
+
+    el.style.width = `${width}%`;
+
+});
+
+setTimeout(() => {
+
+    location.reload();
+
+}, 3000);
+
+</script>
+
+{% endblock %}
