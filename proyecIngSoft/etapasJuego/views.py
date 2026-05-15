@@ -334,7 +334,7 @@ def rompehielo(request):
     player_count = len(students) or 1
     return _render_game(request, "etapasJuego/rompehielo.html", {
         "rompehielo_bootstrap_url": f"{request.path}?format=json&modalidad={modality}",
-        "rompehielo_duration_seconds": 5,
+        "rompehielo_duration_seconds": 60,
         "rompehielo_modality": modality,
         "rompehielo_requires_intro": modality == RouletteEngine.MODALITY_NEW_TEAM,
         "rompehielo_player_count": player_count,
