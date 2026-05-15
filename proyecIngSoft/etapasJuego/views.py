@@ -341,6 +341,7 @@ def rompehielo(request):
         "rompehielo_players": students or [{"id": None, "nombre_apellido": "Integrante 1", "carrera": ""}],
         "sesion": sesion,
         "team": team,
+        
     })
 
 

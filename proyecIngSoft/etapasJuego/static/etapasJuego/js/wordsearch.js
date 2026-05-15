@@ -286,53 +286,23 @@
     /* Nuevo */
     if (response.result === "found" && response.word) {
 
-      const foundPath = [];
+      const selection = ACTIVE[info.selection_id];
+      const foundPath = selection ? selection.path : [];
+      const foundKeys = new Set(foundPath.map(([i, j]) => key(i, j)));
 
-      qsa(".ws-cell").forEach((cell) => {
-
-        if (
-          cell.style.outline &&
-          cell.style.outline.includes(info.color)
-        ) {
-
-          foundPath.push([
-            +cell.dataset.i,
-            +cell.dataset.j
-          ]);
-
-        }
-
-      });
-
-      markFound(
-        response.word,
-        foundPath
-      );
+      markFound(response.word, foundPath);
 
       if (window.TokenCounter) {
-
-        window.TokenCounter.addOnce(
-          `ws-word-${response.word}`,
-          2
-        );
-
+        window.TokenCounter.addOnce(`ws-word-${response.word}`, 2);
       }
 
       paintWords();
 
       qsa(".ws-cell").forEach((cell) => {
-
-        if (
-          cell.style.outline &&
-          cell.style.outline.includes(info.color)
-        ) {
-
+        if (foundKeys.has(key(+cell.dataset.i, +cell.dataset.j))) {
           cell.classList.add("found");
-
           cell.style.outline = "";
-
         }
-
       });
 
     } else if (response.result === "already_found") {
